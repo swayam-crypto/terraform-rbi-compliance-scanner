@@ -2,7 +2,7 @@
 
 A Terraform static analysis tool that checks infrastructure code against
 RBI cybersecurity guidance and India's DPDPA data protection
-requirements — not just generic cloud security best practices.
+requirements not just generic cloud security best practices.
 
 Most open-source IaC scanners (Checkov, tfsec, Terrascan) check for
 general misconfigurations like "is this S3 bucket public." They don't
