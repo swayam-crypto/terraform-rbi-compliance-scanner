@@ -12,14 +12,14 @@ localization mandates for financial data. This tool fills that gap.
 ## Why this exists
 
 "Is my S3 bucket public?" and "does my S3 bucket meet Indian data
-localization requirements?" are different questions — and only the first
+localization requirements?" are different questions and only the first
 one is covered by existing scanning tools. This project encodes the
 second kind of question as automated, CI/CD-enforceable rules.
 
 ## Quick start
 
 ```bash
-git clone https://github.com/yourusername/terraform-rbi-compliance-scanner.git
+git clone https://github.com/swayam-crypto/terraform-rbi-compliance-scanner.git
 cd terraform-rbi-compliance-scanner
 pip install -r requirements.txt
 
