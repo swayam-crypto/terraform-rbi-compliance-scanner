@@ -26,6 +26,18 @@ pip install -r requirements.txt
 PYTHONPATH=src python -m compliance_scanner.cli --path ./examples/sample_infra
 ```
 
+Example output:
+
+```
+3 compliance violation(s) found:
+
+[CRITICAL] RBI-001 — aws_s3_bucket.customer_transactions
+  Resource 'customer_transactions' appears to hold sensitive financial/
+  customer data but is provisioned in 'us-east-1', outside India.
+  RBI data localization rules likely require ap-south-1 or ap-south-2.
+  Reference: RBI Cybersecurity Framework — Data Localization requirement
+```
+
 ## Rules implemented
 
 See [docs/RULES.md](docs/RULES.md) for the full list and what each one
