@@ -4,11 +4,10 @@ Parses .tf files into a plain Python structure the rule engine can read.
 Uses python-hcl2 to do the actual HCL parsing — we just normalize its
 output into a simpler {resource_type: {resource_name: {...attrs}}} shape.
 """
-
+import hcl2
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import io
-import hcl2
 
 
 def _strip_quotes(value):
