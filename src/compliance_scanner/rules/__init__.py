@@ -10,8 +10,10 @@ To add a new rule:
 
 from .data_localization import DataLocalizationRule
 from .encryption import EncryptionAtRestRule
+from .audit_logging import AuditLogRetentionRule
 
 ALL_RULES = [
     DataLocalizationRule(),
     EncryptionAtRestRule(),
+    AuditLogRetentionRule(),
 ]
