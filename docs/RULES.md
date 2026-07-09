@@ -1,30 +1,47 @@
 # Compliance rules
 
-Each rule maps a specific, checkable technical requirement to a general
-principle from RBI's cybersecurity guidance for regulated entities and
-India's Digital Personal Data Protection Act (DPDPA).
+Each rule maps a specific, checkable technical requirement to RBI/CERT-In
+cybersecurity guidance or India's Digital Personal Data Protection Act
+(DPDPA). Rules fall into two honestly-different categories:
 
-**Important:** these rules are a starting technical interpretation, not
-legal advice. Verify wording against the current RBI framework and DPDPA
-text before relying on this tool for real compliance decisions.
+**Specific numeric mandates** — a real regulation states an exact,
+checkable requirement (e.g., "180 days"). These citations point to the
+actual circular/direction.
 
-| Rule ID | Name | Severity | What it checks |
-|---------|------|----------|-----------------|
-| RBI-001 | Data localization | Critical | Resources tagged/named as holding financial or customer data must be in an Indian AWS region (ap-south-1/ap-south-2) |
-| RBI-002 | Encryption at rest | High | S3/RDS/DynamoDB resources must have encryption explicitly configured |
+**Principle-based interpretations** — a regulation states a broad
+requirement (e.g., "have access controls") without a single checkable
+number. These rules are a defensible technical interpretation of that
+principle, not a citation of an exact rule. This distinction is called
+out explicitly in each rule file's docstring and below.
 
-## Planned rules (not yet implemented)
+**Important:** verify wording against the current RBI framework, CERT-In
+directions, and DPDPA text before relying on this tool for real
+compliance decisions. This is a portfolio/learning project, not legal
+advice.
 
-- **RBI-003 — Audit log retention:** CloudTrail/logging resources must retain logs for a minimum period
-- **RBI-004 — Access control:** IAM policies attached to sensitive resources must not grant wildcard (`*`) actions
-- **RBI-005 — Network exposure:** Databases/storage holding sensitive data must not be publicly accessible
-- **RBI-006 — MFA enforcement:** IAM users with console access must have MFA configured
+| Rule ID | Name | Severity | Type | Regulation |
+|---------|------|----------|------|------------|
+| RBI-001 | Data localization | Critical | Specific | RBI Circular DPSS.CO.OD.No.2785/06.08.005/2017-2018 (Apr 2018) — payment system data must be stored only in India |
+| RBI-002 | Encryption at rest | High | Principle-based | RBI Cyber Security Framework (2016) — data protection expectation |
+| RBI-003 | Audit log retention (180 days) | High | **Specific** | CERT-In Cybersecurity Directions 2022, Direction (iv), issued under IT Act Section 70B(6) — ICT logs must be retained 180 days within Indian jurisdiction |
+
+## Planned for v0.2.0
+
+- **RBI-004 — Network exposure:** flag sensitive S3 buckets/databases that are publicly accessible (principle-based — RBI Cyber Security Framework access controls + DPDPA 2023 Section 8(5))
+- **RBI-005 — Least privilege:** flag IAM policies granting wildcard (`*`) actions/resources (principle-based — RBI Cyber Security Framework access control principle)
+
+## Planned for later versions
+
+- **RBI-006 — MFA enforcement:** IAM account password policy should require MFA for console access
+- **RBI-007 — Clock synchronization:** flag infrastructure not configured to sync with NIC/NPL NTP servers (CERT-In Directions 2022) — genuinely hard to check via Terraform alone since this is usually an OS-level config, worth researching further before implementing
 
 ## Adding a new rule
 
 1. Create `src/compliance_scanner/rules/your_rule_name.py`
 2. Subclass `BaseRule` from `rules/base.py`
 3. Implement `check()` — return a `Finding` on violation, `None` if compliant
-4. Register it in `src/compliance_scanner/rules/__init__.py`
-5. Add tests in `tests/test_rules/`
-6. Document it in the table above
+4. **Be honest in the docstring** about whether this maps to a specific numeric regulation or is a principle-based interpretation — see RBI-003 vs RBI-004 for the pattern
+5. Register it in `src/compliance_scanner/rules/__init__.py`
+6. Add tests in its own file under `tests/test_rules/`
+7. Document it in the table above
+
