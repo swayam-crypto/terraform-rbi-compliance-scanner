@@ -11,9 +11,13 @@ To add a new rule:
 from .data_localization import DataLocalizationRule
 from .encryption import EncryptionAtRestRule
 from .audit_logging import AuditLogRetentionRule
+from .network_exposure import NetworkExposureRule
+from .access_control import LeastPrivilegeRule
 
 ALL_RULES = [
     DataLocalizationRule(),
     EncryptionAtRestRule(),
     AuditLogRetentionRule(),
+    NetworkExposureRule(),
+    LeastPrivilegeRule(),
 ]
