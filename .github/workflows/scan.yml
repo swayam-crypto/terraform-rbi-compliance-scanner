@@ -39,5 +39,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run compliance scanner on example infra
-        run: PYTHONPATH=src python -m compliance_scanner.cli --path ./examples/sample_infra --fail-on critical
+      - name: Demo — scan example with a known violation (informational only)
+        run: PYTHONPATH=src python -m compliance_scanner.cli --path ./examples/sample_infra --fail-on none
+
+      - name: Gate — scan compliant infra (this MUST pass for the build to pass)
+        run: PYTHONPATH=src python -m compliance_scanner.cli --path ./examples/compliant_infra --fail-on critical
