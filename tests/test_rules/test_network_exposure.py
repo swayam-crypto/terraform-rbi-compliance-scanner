@@ -19,3 +19,12 @@ def test_does_not_flag_private_sensitive_s3_bucket():
         resource_config={"acl": "private", "tags": {"data_type": "customer"}},
     )
     assert result is None
+
+def test_does_not_flag_public_non_sensitive_bucket():
+    rule = NetworkExposureRule()
+    result = rule.check(
+        resource_type="aws_s3_bucket",
+        resource_name="marketing_assets",
+        resource_config={"acl": "public-read", "tags": {"purpose": "public-assets"}},
+    )
+    assert result is None
