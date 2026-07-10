@@ -23,7 +23,7 @@ from compliance_scanner.rules import ALL_RULES
 from compliance_scanner.rules.base import BaseRule, Finding
 from compliance_scanner.reporting import to_json
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 
 def scan(path: str) -> list[Finding]:
