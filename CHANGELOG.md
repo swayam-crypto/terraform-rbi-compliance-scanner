@@ -7,6 +7,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/), versioning follo
 - RBI-004: network exposure rule (planned for v0.2.0)
 - RBI-005: least privilege / wildcard IAM rule (planned for v0.2.0)
 
+## [0.2.0] - 2026-07-11
+### Added
+- RBI-004: Network exposure check — flags sensitive S3 buckets/databases that are publicly accessible
+- RBI-005: Least privilege check — flags IAM policies granting wildcard (`*`) actions/resources
+- Tests for both new rules
+
 ## [0.1.0] - 2026-07-10
 ### Added
 - Terraform HCL parser (`parse_terraform_file`, `parse_terraform_directory`, `parse_terraform_string`)
