@@ -24,11 +24,8 @@ advice.
 | RBI-001 | Data localization | Critical | Specific | RBI Circular DPSS.CO.OD.No.2785/06.08.005/2017-2018 (Apr 2018) — payment system data must be stored only in India |
 | RBI-002 | Encryption at rest | High | Principle-based | RBI Cyber Security Framework (2016) — data protection expectation |
 | RBI-003 | Audit log retention (180 days) | High | **Specific** | CERT-In Cybersecurity Directions 2022, Direction (iv), issued under IT Act Section 70B(6) — ICT logs must be retained 180 days within Indian jurisdiction |
-
-## Planned for v0.2.0
-
-- **RBI-004 — Network exposure:** flag sensitive S3 buckets/databases that are publicly accessible (principle-based — RBI Cyber Security Framework access controls + DPDPA 2023 Section 8(5))
-- **RBI-005 — Least privilege:** flag IAM policies granting wildcard (`*`) actions/resources (principle-based — RBI Cyber Security Framework access control principle)
+| RBI-004 | Network exposure (no public access for sensitive data) | Critical | Principle-based | RBI Cyber Security Framework (2016) access controls + DPDPA 2023 Section 8(5) reasonable security safeguards |
+| RBI-005 | Least privilege (no wildcard IAM) | High | Principle-based | RBI Cyber Security Framework (2016) — Access Control principle |
 
 ## Planned for later versions
 
