@@ -4,8 +4,8 @@ All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/), versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
-- RBI-004: network exposure rule (planned for v0.2.0)
-- RBI-005: least privilege / wildcard IAM rule (planned for v0.2.0)
+- RBI-006: MFA enforcement rule (planned)
+- RBI-007: clock synchronization rule (planned, needs research on Terraform-checkability)
 
 ## [0.2.0] - 2026-07-11
 ### Added
