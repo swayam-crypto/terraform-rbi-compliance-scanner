@@ -23,15 +23,23 @@ from compliance_scanner.rules import ALL_RULES
 from compliance_scanner.rules.base import BaseRule, Finding
 from compliance_scanner.reporting import to_json
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 
-def scan(path: str) -> list[Finding]:
-    """Scan a directory of Terraform files. Main entry point for most users."""
-    return scan_directory(path)
+def scan(path: str, suppressed_count: list | None = None) -> list[Finding]:
+    """
+    Scan a directory of Terraform files. Main entry point for most users.
+
+    Pass a list like [0] as suppressed_count to read back how many
+    findings were suppressed via inline `# rbi-scan:ignore` comments:
+        counter = [0]
+        findings = rbi.scan(path, suppressed_count=counter)
+        print(f"{counter[0]} findings suppressed")
+    """
+    return scan_directory(path, suppressed_count=suppressed_count)
 
 
-def scan_large(path: str, workers: int | None = None, use_cache: bool = True):
+def scan_large(path: str, workers: int | None = None, use_cache: bool = True, suppressed_count: list | None = None):
     """
     Scan a large directory (thousands to hundreds of thousands of
     files). Returns a generator — iterate it directly to process
@@ -43,7 +51,7 @@ def scan_large(path: str, workers: int | None = None, use_cache: bool = True):
         for finding in rbi.scan_large("./huge-infra-repo"):
             print(finding.severity, finding.message)
     """
-    return scan_directory_large(path, workers=workers, use_cache=use_cache)
+    return scan_directory_large(path, workers=workers, use_cache=use_cache, suppressed_count=suppressed_count)
 
 
 def scan_string(terraform_text: str) -> list[Finding]:
@@ -75,4 +83,3 @@ __all__ = [
     "ALL_RULES",
     "__version__",
 ]
-
