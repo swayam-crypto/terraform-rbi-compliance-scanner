@@ -1,4 +1,4 @@
-from compliance_scanner.parser.suppressions import extract_suppressions, is_suppressed
+from src.compliance_scanner.parser.suppressions import extract_suppressions, is_suppressed
 
 
 def _write_tf(path, content):
