@@ -6,6 +6,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/), versioning follo
 ## [Unreleased]
 - RBI-006: MFA enforcement rule (planned)
 - RBI-007: clock synchronization rule (planned, needs research on Terraform-checkability)
+- Baseline/ignore file for adopting the scanner on legacy infrastructure
+
+## [0.3.0] - 2026-07-12
+### Added
+- Inline suppression comments: `# rbi-scan:ignore RULE-ID reason="..."` and
+  `# rbi-scan:ignore-all reason="..."` above a resource block
+- Suppressed findings are counted and reported, not silently dropped
+  (CLI shows "N finding(s) suppressed"; library API exposes a
+  `suppressed_count` counter)
+- `scan()` and `scan_large()` now accept an optional `suppressed_count` parameter
 
 ## [0.2.0] - 2026-07-11
 ### Added

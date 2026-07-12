@@ -61,6 +61,30 @@ network exposure, and IAM least-privilege access. See
 which rules map to a specific numbered regulation vs. a broader
 principle-based interpretation.
 
+## Suppressing false positives
+
+If a finding doesn't apply to your situation, suppress it inline rather
+than forking the tool or ignoring CI failures:
+
+```hcl
+# rbi-scan:ignore RBI-001 reason="internal logs bucket, not customer data"
+resource "aws_s3_bucket" "internal_logs" {
+  ...
+}
+```
+
+Or suppress every rule for a resource:
+```hcl
+# rbi-scan:ignore-all reason="legacy resource, migration planned Q3"
+resource "aws_s3_bucket" "old_bucket" {
+  ...
+}
+```
+
+Suppressed findings aren't silently hidden — they're counted and
+reported ("N finding(s) suppressed") so a reviewer can see suppression
+is happening, not just a scan that looks cleaner than it actually is.
+
 ## Large-dataset support
 
 For scanning large Terraform repositories (thousands of files),
