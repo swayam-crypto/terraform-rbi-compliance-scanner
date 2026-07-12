@@ -1,8 +1,11 @@
 # terraform-rbi-compliance-scanner
 
+[![PyPI version](https://img.shields.io/pypi/v/rbi-compliance-scanner.svg)](https://pypi.org/project/rbi-compliance-scanner/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A Terraform static analysis tool that checks infrastructure code against
 RBI cybersecurity guidance and India's DPDPA data protection
-requirements not just generic cloud security best practices.
+requirements — not just generic cloud security best practices.
 
 Most open-source IaC scanners (Checkov, tfsec, Terrascan) check for
 general misconfigurations like "is this S3 bucket public." They don't
@@ -16,14 +19,26 @@ localization requirements?" are different questions and only the first
 one is covered by existing scanning tools. This project encodes the
 second kind of question as automated, CI/CD-enforceable rules.
 
-## Quick start
+## Install
 
 ```bash
-git clone https://github.com/swayam-crypto/terraform-rbi-compliance-scanner.git
-cd terraform-rbi-compliance-scanner
-pip install -r requirements.txt
+pip install rbi-compliance-scanner
+```
 
-PYTHONPATH=src python -m compliance_scanner.cli --path ./examples/sample_infra
+## Quick Start
+
+```bash
+rbi-scan --path ./examples/sample_infra
+```
+
+or use itt as a Python library:
+
+```python
+import compliance_scanner as rbi
+
+findings = rbi.scan("./my-terraform-project")
+for f in findings:
+    print(f.severity, f.rule_id, f.message)
 ```
 
 Example output:
@@ -40,8 +55,22 @@ Example output:
 
 ## Rules implemented
 
-See [docs/RULES.md](docs/RULES.md) for the full list and what each one
-checks.
+5 rules covering data localization, encryption, audit log retention,
+network exposure, and IAM least-privilege access. See
+[docs/RULES.md](docs/RULES.md) for the full list, severity levels, and
+which rules map to a specific numbered regulation vs. a broader
+principle-based interpretation.
+
+## Large-dataset support
+
+For scanning large Terraform repositories (thousands of files),
+`rbi.scan_large()` provides parallel parsing and file-change caching so
+repeated CI scans only re-process what actually changed:
+
+```python
+for finding in rbi.scan_large("./huge-infra-repo"):
+    print(finding.severity, finding.message)
+```
 
 ## Architecture
 
@@ -49,26 +78,34 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how the parser,
 rule engine, and reporting layers fit together, and the reasoning behind
 the design choices.
 
-## Running tests
+## Contributing / running from source
 
 ```bash
+git clone https://github.com/swayam-crypto/terraform-rbi-compliance-scanner.git
+cd terraform-rbi-compliance-scanner
+pip install -e .
 pip install -r requirements-dev.txt
-PYTHONPATH=src python -m pytest tests/ -v
+python -m pytest tests/ -v
 ```
 
 ## CI/CD integration
 
-This repo includes a working GitHub Actions workflow
-(`.github/workflows/scan.yml`) that runs the test suite and scans the
-example infrastructure on every push and pull request, failing the
-build if a critical violation is found. Point `--path` at your own
-Terraform directory to use it on real infrastructure.
+This repo includes working GitHub Actions workflows:
+- `.github/workflows/scan.yml` — runs the test suite on every push/PR,
+  demos the scanner catching a known violation, and gates the build
+  against a fully compliant example
+- `.github/workflows/publish.yml` — publishes to PyPI automatically via
+  trusted publishing whenever a GitHub Release is created
+
+Point `--path` at your own Terraform directory to use the scanner on
+real infrastructure.
 
 ## Status
 
-Early-stage, actively being built. Currently implements 2 of a planned
-6 rules. Not yet validated by a compliance professional — see the
-disclaimer in [docs/RULES.md](docs/RULES.md).
+Published on PyPI, actively being developed. 5 of a planned 8 rules
+implemented (see [docs/RULES.md](docs/RULES.md) for the roadmap). Not
+yet validated by a compliance professional — see the disclaimer there
+before relying on this for real compliance decisions.
 
 ## License
 

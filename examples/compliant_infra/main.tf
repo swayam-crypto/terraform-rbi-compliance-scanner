@@ -2,6 +2,7 @@ provider "aws" {
   region = "ap-south-1"
 }
 
+# COMPLIANT: correct region, encrypted, all rules satisfied
 resource "aws_s3_bucket" "customer_records" {
   bucket = "customer-records-store"
   region = "ap-south-1"
