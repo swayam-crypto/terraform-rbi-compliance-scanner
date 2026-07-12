@@ -2,8 +2,8 @@
 Command-line entry point.
 
 Usage:
-    python -m compliance_scanner.cli --path ./examples/sample_infra
-    python -m compliance_scanner.cli --path ./examples/sample_infra --format json
+    rbi-scan --path ./examples/sample_infra
+    rbi-scan --path ./examples/sample_infra --format json
 """
 
 import argparse
@@ -25,12 +25,16 @@ def main():
     )
     args = parser.parse_args()
 
-    findings = scan_directory(args.path)
+    suppressed_count = [0]
+    findings = scan_directory(args.path, suppressed_count=suppressed_count)
 
     if args.format == "json":
         print(to_json(findings))
     else:
         print_console_summary(findings)
+
+    if suppressed_count[0] > 0:
+        print(f"\n{suppressed_count[0]} finding(s) suppressed via inline rbi-scan:ignore comments.")
 
     if args.fail_on == "none":
         sys.exit(0)
