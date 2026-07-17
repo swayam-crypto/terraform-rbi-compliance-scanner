@@ -22,7 +22,7 @@ jobs:
         run: pip install -e ".[dev]"
 
       - name: Run unit tests
-        run: PYTHONPATH=src python -m pytest tests/ -v
+        run: python -m pytest tests/ -v
 
   scan:
     runs-on: ubuntu-latest
@@ -41,5 +41,6 @@ jobs:
 
       - name: Demo — scan example with a known violation (informational only)
         run: rbi-scan --path ./examples/sample_infra --fail-on none
+        
       - name: Gate — scan compliant infra (this MUST pass for the build to pass)
-        run: rbi-scan --path ./examples/sample_infra --fail-on
+        run: rbi-scan --path ./examples/compliant_infra --fail-on critical
