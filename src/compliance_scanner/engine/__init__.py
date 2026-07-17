@@ -22,6 +22,7 @@ from compliance_scanner.parser.cache import (
 )
 from compliance_scanner.rules import ALL_RULES
 from compliance_scanner.rules.base import Finding
+from .scan_engine import scan_directory
 
 
 def _run_rules_on_resources(resources: dict, file_path: str):
