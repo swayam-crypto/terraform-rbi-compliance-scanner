@@ -16,10 +16,17 @@ def _strip_quotes(value):
     characters in parsed string values/keys, e.g. '"us-east-1"' instead
     of 'us-east-1'. Recursively clean these so downstream rule code can
     compare plain strings.
+
+    Also unescapes backslash-escaped quotes and backslashes inside the
+    string (e.g. an inline JSON policy written as "{\"Action\": \"*\"}")
+    since python-hcl2 leaves these escape sequences untouched rather
+    than resolving them the way real HCL semantics require.
     """
     if isinstance(value, str):
         if len(value) >= 2 and value[0] == '"' and value[-1] == '"':
-            return value[1:-1]
+            inner = value[1:-1]
+            inner = inner.replace('\\"', '"').replace('\\\\', '\\')
+            return inner
         return value
     if isinstance(value, list):
         return [_strip_quotes(v) for v in value]
@@ -30,7 +37,6 @@ def _strip_quotes(value):
             if k != "__is_block__"
         }
     return value
-
 
 def _extract_resources(raw: dict) -> dict:
     """

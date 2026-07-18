@@ -82,4 +82,6 @@ __all__ = [
     "Finding",
     "ALL_RULES",
     "__version__",
+    "scan_directory",
+    "scan_directory_large",
 ]
