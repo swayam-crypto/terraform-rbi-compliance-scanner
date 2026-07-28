@@ -18,7 +18,11 @@ Example:
 """
 
 from compliance_scanner.engine import scan_directory, scan_directory_large
-from compliance_scanner.parser.terraform_parser import parse_terraform_string
+from compliance_scanner.parser.terraform_parser import (
+    parse_terraform_string,
+    ResolvedResource,
+    _resolve_provider_for_resource,
+)
 from compliance_scanner.rules import ALL_RULES
 from compliance_scanner.rules.base import BaseRule, Finding
 from compliance_scanner.reporting import to_json
@@ -60,14 +64,29 @@ def scan_string(terraform_text: str) -> list[Finding]:
     file. Useful for CI systems that already have the config in memory,
     or for testing a snippet quickly.
     """
-    resources = parse_terraform_string(terraform_text)
+    import hcl2
+    import io
+    from compliance_scanner.parser.terraform_parser import _extract_resources, _extract_providers
+    
+    raw = hcl2.load(io.StringIO(terraform_text))
+    resources = _extract_resources(raw)
+    providers = _extract_providers(raw)
+    
     findings: list[Finding] = []
     for resource_type, named_configs in resources.items():
+        provider_defaults = _resolve_provider_for_resource(resource_type, providers)
         for resource_name, config in named_configs.items():
+            resource = ResolvedResource(
+                resource_type=resource_type,
+                resource_name=resource_name,
+                config=config,
+                provider_defaults=provider_defaults,
+                file_path="<string>",
+            )
             for rule in ALL_RULES:
                 if resource_type not in rule.applies_to:
                     continue
-                result = rule.check(resource_type, resource_name, config)
+                result = rule.check(resource)
                 if result is not None:
                     findings.append(result)
     return findings

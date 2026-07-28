@@ -31,11 +31,11 @@ class AuditLogRetentionRule(BaseRule):
     severity = "high"
     applies_to = list(CHECKED_RESOURCES)
 
-    def check(self, resource_type: str, resource_name: str, resource_config: dict) -> Finding | None:
-        if resource_type not in CHECKED_RESOURCES:
+    def check(self, resource) -> Finding | None:
+        if resource.resource_type not in CHECKED_RESOURCES:
             return None
 
-        retention = resource_config.get("retention_in_days")
+        retention = resource.config.get("retention_in_days")
 
         # Not set at all == AWS default "Never Expire", which satisfies
         # the 180-day minimum implicitly. Only flag if explicitly too short.
@@ -51,14 +51,15 @@ class AuditLogRetentionRule(BaseRule):
             return Finding(
                 rule_id=self.rule_id,
                 severity=self.severity,
-                resource_type=resource_type,
-                resource_name=resource_name,
+                resource_type=resource.resource_type,
+                resource_name=resource.resource_name,
                 message=(
-                    f"Log group '{resource_name}' has retention_in_days set to "
+                    f"Log group '{resource.resource_name}' has retention_in_days set to "
                     f"{retention_days}, below the CERT-In mandated minimum of "
                     f"{MINIMUM_RETENTION_DAYS} days."
                 ),
                 regulation_reference=self.regulation_reference,
+                file_path=resource.file_path,
             )
 
         return None

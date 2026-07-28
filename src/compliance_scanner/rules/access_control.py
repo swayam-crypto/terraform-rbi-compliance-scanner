@@ -31,16 +31,18 @@ class LeastPrivilegeRule(BaseRule):
     severity = "high"
     applies_to = list(CHECKED_RESOURCES)
 
-    def check(self, resource_type: str, resource_name: str, resource_config: dict) -> Finding | None:
-        if resource_type not in CHECKED_RESOURCES:
+    def check(self, resource) -> Finding | None:
+        if resource.resource_type not in CHECKED_RESOURCES:
             return None
 
-        policy_raw = resource_config.get("policy")
+        policy_raw = resource.config.get("policy")
         if not policy_raw:
             return None
 
         try:
-            policy = json.loads(policy_raw) if isinstance(policy_raw, str) else policy_raw
+            policy = (
+                json.loads(policy_raw) if isinstance(policy_raw, str) else policy_raw
+            )
         except (json.JSONDecodeError, TypeError):
             return None  # can't parse — skip rather than guess
 
@@ -49,6 +51,10 @@ class LeastPrivilegeRule(BaseRule):
             statements = [statements]
 
         for statement in statements:
+            # FIX: Skip Deny statements — wildcard denies are security best practice
+            if statement.get("Effect") == "Deny":
+                continue
+
             actions = statement.get("Action", [])
             resources = statement.get("Resource", [])
             actions = [actions] if isinstance(actions, str) else actions
@@ -58,13 +64,14 @@ class LeastPrivilegeRule(BaseRule):
                 return Finding(
                     rule_id=self.rule_id,
                     severity=self.severity,
-                    resource_type=resource_type,
-                    resource_name=resource_name,
+                    resource_type=resource.resource_type,
+                    resource_name=resource.resource_name,
                     message=(
-                        f"IAM policy '{resource_name}' grants a wildcard (*) "
+                        f"IAM policy '{resource.resource_name}' grants a wildcard (*) "
                         f"action or resource, violating least-privilege access control."
                     ),
                     regulation_reference=self.regulation_reference,
+                    file_path=resource.file_path,
                 )
 
         return None

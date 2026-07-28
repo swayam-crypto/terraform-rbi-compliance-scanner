@@ -23,4 +23,6 @@ def print_console_summary(findings: list[Finding]) -> None:
     for f in sorted_findings:
         print(f"[{f.severity.upper()}] {f.rule_id} — {f.resource_type}.{f.resource_name}")
         print(f"  {f.message}")
+        if f.file_path:
+            print(f"  File: {f.file_path}")
         print(f"  Reference: {f.regulation_reference}\n")

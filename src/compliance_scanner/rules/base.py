@@ -7,7 +7,10 @@ engine can load and run any number of rules without knowing their details.
 """
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from compliance_scanner.parser.terraform_parser import ResolvedResource
 
 
 @dataclass
@@ -31,7 +34,7 @@ class BaseRule:
     description: one-line human explanation, shown in reports
     regulation_reference: which RBI/DPDPA clause this maps to
     applies_to: list of Terraform resource types this rule checks,
-                e.g. ["aws_s3_bucket", "aws_db_instance"]
+    e.g. ["aws_s3_bucket", "aws_db_instance"]
     """
 
     rule_id: str = "UNSET"
@@ -40,9 +43,13 @@ class BaseRule:
     severity: str = "medium"
     applies_to: list[str] = []
 
-    def check(self, resource_type: str, resource_name: str, resource_config: dict) -> Finding | None:
+    def check(self, resource: "ResolvedResource") -> Finding | None:
         """
         Override this in each rule subclass.
+
+        Use resource.get("attribute_name") to read attributes — this
+        automatically falls back to provider defaults when the resource
+        doesn't specify the attribute directly.
 
         Return a Finding if the resource violates the rule.
         Return None if the resource is compliant.
