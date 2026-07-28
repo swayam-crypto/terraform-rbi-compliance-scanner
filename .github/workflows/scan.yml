@@ -2,7 +2,11 @@ name: Compliance Scan and Tests
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - 'fix/**'
+      - 'feature/**'
+      - 'refractor/**'
   pull_request:
     branches: [main]
 
