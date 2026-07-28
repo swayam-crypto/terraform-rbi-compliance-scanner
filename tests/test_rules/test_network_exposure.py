@@ -1,43 +1,52 @@
+from compliance_scanner.parser.terraform_parser import ResolvedResource
 from compliance_scanner.rules.network_exposure import NetworkExposureRule
 
 
 def test_flags_public_sensitive_s3_bucket():
     rule = NetworkExposureRule()
-    result = rule.check(
+    resource = ResolvedResource(
         resource_type="aws_s3_bucket",
         resource_name="customer_records",
-        resource_config={"acl": "public-read", "tags": {"data_type": "customer"}},
+        config={"acl": "public-read", "tags": {"data_type": "customer"}},
+        provider_defaults={},
     )
+    result = rule.check(resource)
     assert result is not None
     assert result.rule_id == "RBI-004"
 
 
 def test_does_not_flag_private_sensitive_s3_bucket():
     rule = NetworkExposureRule()
-    result = rule.check(
+    resource = ResolvedResource(
         resource_type="aws_s3_bucket",
         resource_name="customer_records",
-        resource_config={"acl": "private", "tags": {"data_type": "customer"}},
+        config={"acl": "private", "tags": {"data_type": "customer"}},
+        provider_defaults={},
     )
+    result = rule.check(resource)
     assert result is None
 
 
 def test_does_not_flag_public_non_sensitive_bucket():
     rule = NetworkExposureRule()
-    result = rule.check(
+    resource = ResolvedResource(
         resource_type="aws_s3_bucket",
         resource_name="marketing_assets",
-        resource_config={"acl": "public-read", "tags": {"purpose": "public-assets"}},
+        config={"acl": "public-read", "tags": {"purpose": "public-assets"}},
+        provider_defaults={},
     )
+    result = rule.check(resource)
     assert result is None
 
 
 def test_flags_publicly_accessible_sensitive_database():
     rule = NetworkExposureRule()
-    result = rule.check(
+    resource = ResolvedResource(
         resource_type="aws_db_instance",
         resource_name="payment_db",
-        resource_config={"publicly_accessible": True, "tags": {"data_type": "payment"}},
+        config={"publicly_accessible": True, "tags": {"data_type": "payment"}},
+        provider_defaults={},
     )
+    result = rule.check(resource)
     assert result is not None
     assert result.rule_id == "RBI-004"
