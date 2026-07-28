@@ -37,46 +37,48 @@ class NetworkExposureRule(BaseRule):
     severity = "critical"
     applies_to = list(CHECKED_RESOURCES)
 
-    def check(self, resource_type: str, resource_name: str, resource_config: dict) -> Finding | None:
-        if resource_type not in CHECKED_RESOURCES:
+    def check(self, resource) -> Finding | None:
+        if resource.resource_type not in CHECKED_RESOURCES:
             return None
 
-        tags = resource_config.get("tags", {}) or {}
+        tags = resource.config.get("tags", {}) or {}
         tag_values = " ".join(str(v).lower() for v in tags.values())
-        name_and_tags = f"{resource_name.lower()} {tag_values}"
+        name_and_tags = f"{resource.resource_name.lower()} {tag_values}"
         looks_sensitive = any(hint in name_and_tags for hint in SENSITIVE_TAG_HINTS)
 
         if not looks_sensitive:
             return None  # same conservative approach as RBI-001 — skip if unconfirmed
 
-        if resource_type == "aws_s3_bucket":
-            acl = resource_config.get("acl")
+        if resource.resource_type == "aws_s3_bucket":
+            acl = resource.config.get("acl")
             if acl in PUBLIC_ACLS:
                 return Finding(
                     rule_id=self.rule_id,
                     severity=self.severity,
-                    resource_type=resource_type,
-                    resource_name=resource_name,
+                    resource_type=resource.resource_type,
+                    resource_name=resource.resource_name,
                     message=(
-                        f"Bucket '{resource_name}' appears to hold sensitive data "
+                        f"Bucket '{resource.resource_name}' appears to hold sensitive data "
                         f"but has ACL '{acl}', making it publicly accessible."
                     ),
                     regulation_reference=self.regulation_reference,
+                    file_path=resource.file_path,
                 )
 
-        if resource_type == "aws_db_instance":
-            publicly_accessible = resource_config.get("publicly_accessible")
+        if resource.resource_type == "aws_db_instance":
+            publicly_accessible = resource.config.get("publicly_accessible")
             if publicly_accessible is True:
                 return Finding(
                     rule_id=self.rule_id,
                     severity=self.severity,
-                    resource_type=resource_type,
-                    resource_name=resource_name,
+                    resource_type=resource.resource_type,
+                    resource_name=resource.resource_name,
                     message=(
-                        f"Database '{resource_name}' appears to hold sensitive data "
+                        f"Database '{resource.resource_name}' appears to hold sensitive data "
                         f"but has publicly_accessible = true."
                     ),
                     regulation_reference=self.regulation_reference,
+                    file_path=resource.file_path,
                 )
 
         return None

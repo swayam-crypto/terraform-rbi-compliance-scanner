@@ -24,25 +24,26 @@ class EncryptionAtRestRule(BaseRule):
     severity = "high"
     applies_to = list(CHECKED_RESOURCES)
 
-    def check(self, resource_type: str, resource_name: str, resource_config: dict) -> Finding | None:
-        if resource_type not in CHECKED_RESOURCES:
+    def check(self, resource) -> Finding | None:
+        if resource.resource_type not in CHECKED_RESOURCES:
             return None
 
-        attr = ENCRYPTION_ATTR[resource_type]
-        value = resource_config.get(attr)
+        attr = ENCRYPTION_ATTR[resource.resource_type]
+        value = resource.config.get(attr)
 
         is_encrypted = bool(value) and value is not False
         if not is_encrypted:
             return Finding(
                 rule_id=self.rule_id,
                 severity=self.severity,
-                resource_type=resource_type,
-                resource_name=resource_name,
+                resource_type=resource.resource_type,
+                resource_name=resource.resource_name,
                 message=(
-                    f"Resource '{resource_name}' does not have encryption at rest "
+                    f"Resource '{resource.resource_name}' does not have encryption at rest "
                     f"explicitly enabled ('{attr}' missing or false)."
                 ),
                 regulation_reference=self.regulation_reference,
+                file_path=resource.file_path,
             )
 
         return None

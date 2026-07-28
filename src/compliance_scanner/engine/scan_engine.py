@@ -17,8 +17,14 @@ suppressed" rather than a scan that looks cleaner than it actually is.
 """
 
 from pathlib import Path
+from collections import defaultdict
 
-from compliance_scanner.parser.terraform_parser import parse_terraform_file
+from compliance_scanner.parser.terraform_parser import (
+    parse_terraform_file,
+    parse_terraform_file_with_providers,
+    ResolvedResource,
+    _resolve_provider_for_resource,
+)
 from compliance_scanner.parser.suppressions import extract_suppressions, is_suppressed
 from compliance_scanner.parser.cache import (
     load_cache,
@@ -31,7 +37,7 @@ from compliance_scanner.rules import ALL_RULES
 from compliance_scanner.rules.base import Finding
 
 
-def _run_rules_on_resources(resources: dict, file_path: str, suppressions: dict, suppressed_count: list):
+def _run_rules_on_resources(resources: list[ResolvedResource], file_path: str, suppressions: dict, suppressed_count: list):
     """
     Shared rule-checking logic used by both scan modes.
 
@@ -40,19 +46,53 @@ def _run_rules_on_resources(resources: dict, file_path: str, suppressions: dict,
     after the generator is exhausted — plain integers can't be mutated
     through a shared reference the way a list can.
     """
-    for resource_type, named_configs in resources.items():
-        for resource_name, config in named_configs.items():
-            for rule in ALL_RULES:
-                if resource_type not in rule.applies_to:
-                    continue
-                result = rule.check(resource_type, resource_name, config)
-                if result is None:
-                    continue
-                if is_suppressed(rule.rule_id, resource_type, resource_name, suppressions):
-                    suppressed_count[0] += 1
-                    continue
-                result.file_path = file_path
-                yield result
+    for resource in resources:
+        for rule in ALL_RULES:
+            if resource.resource_type not in rule.applies_to:
+                continue
+            result = rule.check(resource)
+            if result is None:
+                continue
+            if is_suppressed(rule.rule_id, resource.resource_type, resource.resource_name, suppressions):
+                suppressed_count[0] += 1
+                continue
+            result.file_path = file_path
+            yield result
+
+
+def _collect_providers_and_resources(dir_path: str) -> tuple[dict, dict]:
+    """
+    First pass: collect all providers from all files, and all resources.
+    Returns (all_providers, {file_path: resources_dict}).
+    """
+    all_providers: dict = {}
+    file_resources: dict = {}
+    
+    for tf_file in Path(dir_path).rglob("*.tf"):
+        if ".terraform" in tf_file.parts:
+            continue
+        resources, providers = parse_terraform_file_with_providers(str(tf_file))
+        file_resources[str(tf_file)] = resources
+        all_providers.update(providers)
+    
+    return all_providers, file_resources
+
+
+def _resolve_resources(file_resources: dict, all_providers: dict) -> list[ResolvedResource]:
+    """Convert raw resource dicts into ResolvedResource objects with provider defaults."""
+    resolved: list[ResolvedResource] = []
+    for file_path, resources in file_resources.items():
+        for resource_type, named_configs in resources.items():
+            provider_defaults = _resolve_provider_for_resource(resource_type, all_providers)
+            for resource_name, config in named_configs.items():
+                resolved.append(ResolvedResource(
+                    resource_type=resource_type,
+                    resource_name=resource_name,
+                    config=config,
+                    provider_defaults=provider_defaults,
+                    file_path=file_path,
+                ))
+    return resolved
 
 
 def scan_directory(dir_path: str, suppressed_count: list | None = None) -> list[Finding]:
@@ -65,19 +105,34 @@ def scan_directory(dir_path: str, suppressed_count: list | None = None) -> list[
 
     Pass a list like [0] as suppressed_count to read back how many
     findings were suppressed via inline comments after the call:
-        counter = [0]
-        findings = scan_directory(path, suppressed_count=counter)
-        print(f"{counter[0]} findings suppressed")
+    counter = [0]
+    findings = scan_directory(path, suppressed_count=counter)
+    print(f"{counter[0]} findings suppressed")
     """
     if suppressed_count is None:
         suppressed_count = [0]
 
+    all_providers, file_resources = _collect_providers_and_resources(dir_path)
+    
     all_findings: list[Finding] = []
-    for tf_file in Path(dir_path).rglob("*.tf"):
-        file_path = str(tf_file)
-        resources = parse_terraform_file(file_path)
+    for file_path, resources in file_resources.items():
+        provider_defaults = _resolve_provider_for_resource(
+            next(iter(resources.keys())) if resources else "",
+            all_providers
+        )
+        resolved = []
+        for resource_type, named_configs in resources.items():
+            for resource_name, config in named_configs.items():
+                resolved.append(ResolvedResource(
+                    resource_type=resource_type,
+                    resource_name=resource_name,
+                    config=config,
+                    provider_defaults=_resolve_provider_for_resource(resource_type, all_providers),
+                    file_path=file_path,
+                ))
+        
         suppressions = extract_suppressions(file_path)
-        all_findings.extend(_run_rules_on_resources(resources, file_path, suppressions, suppressed_count))
+        all_findings.extend(_run_rules_on_resources(resolved, file_path, suppressions, suppressed_count))
 
     return all_findings
 
@@ -106,36 +161,89 @@ def scan_directory_large(
 
     This is a generator — iterate it directly, or wrap in list() if you
     need everything at once:
-        findings = list(scan_directory_large("./big-repo"))
+    findings = list(scan_directory_large("./big-repo"))
     """
     if suppressed_count is None:
         suppressed_count = [0]
 
     cache = load_cache(cache_path) if use_cache else {}
     files_to_parse = []
+    cached_files = []
 
-    all_files = [str(p) for p in Path(dir_path).rglob("*.tf")]
+    all_files = [str(p) for p in Path(dir_path).rglob("*.tf") if ".terraform" not in p.parts]
 
+    # First, collect all providers (need to parse all files for this)
+    all_providers: dict = {}
     for file_path in all_files:
         cached_resources = get_cached_or_none(file_path, cache) if use_cache else None
         if cached_resources is not None:
-            suppressions = extract_suppressions(file_path)
-            yield from _run_rules_on_resources(cached_resources, file_path, suppressions, suppressed_count)
+            cached_files.append((file_path, cached_resources))
         else:
             files_to_parse.append(file_path)
+    
+    # Parse non-cached files to collect their providers too
+    for file_path in files_to_parse:
+        try:
+            _, providers = parse_terraform_file_with_providers(file_path)
+            all_providers.update(providers)
+        except Exception:
+            pass  # Will be re-parsed in parallel later; skip provider extraction for now
+    
+    # Also extract providers from cached files
+    for file_path, _ in cached_files:
+        try:
+            _, providers = parse_terraform_file_with_providers(file_path)
+            all_providers.update(providers)
+        except Exception:
+            pass
 
+    # Process cached files first
+    for file_path, resources in cached_files:
+        resolved = []
+        for resource_type, named_configs in resources.items():
+            provider_defaults = _resolve_provider_for_resource(resource_type, all_providers)
+            for resource_name, config in named_configs.items():
+                resolved.append(ResolvedResource(
+                    resource_type=resource_type,
+                    resource_name=resource_name,
+                    config=config,
+                    provider_defaults=provider_defaults,
+                    file_path=file_path,
+                ))
+        suppressions = extract_suppressions(file_path)
+        yield from _run_rules_on_resources(resolved, file_path, suppressions, suppressed_count)
+
+    # Process uncached files in parallel
     if files_to_parse:
         from concurrent.futures import ProcessPoolExecutor, as_completed
 
         with ProcessPoolExecutor(max_workers=workers) as executor:
-            futures = {executor.submit(parse_terraform_file, f): f for f in files_to_parse}
+            futures = {executor.submit(parse_terraform_file_with_providers, f): f for f in files_to_parse}
             for future in as_completed(futures):
                 file_path = futures[future]
-                resources = future.result()
+                try:
+                    resources, providers = future.result()
+                except Exception:
+                    continue  # Skip files that fail to parse
+                all_providers.update(providers)
                 if use_cache:
                     update_cache_entry(file_path, resources, cache)
+                
+                # Re-resolve with updated providers
+                resolved = []
+                for resource_type, named_configs in resources.items():
+                    provider_defaults = _resolve_provider_for_resource(resource_type, all_providers)
+                    for resource_name, config in named_configs.items():
+                        resolved.append(ResolvedResource(
+                            resource_type=resource_type,
+                            resource_name=resource_name,
+                            config=config,
+                            provider_defaults=provider_defaults,
+                            file_path=file_path,
+                        ))
+                
                 suppressions = extract_suppressions(file_path)
-                yield from _run_rules_on_resources(resources, file_path, suppressions, suppressed_count)
+                yield from _run_rules_on_resources(resolved, file_path, suppressions, suppressed_count)
 
     if use_cache:
         save_cache(cache, cache_path)
