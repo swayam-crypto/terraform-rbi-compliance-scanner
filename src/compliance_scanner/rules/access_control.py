@@ -40,7 +40,9 @@ class LeastPrivilegeRule(BaseRule):
             return None
 
         try:
-            policy = json.loads(policy_raw) if isinstance(policy_raw, str) else policy_raw
+            policy = (
+                json.loads(policy_raw) if isinstance(policy_raw, str) else policy_raw
+            )
         except (json.JSONDecodeError, TypeError):
             return None  # can't parse — skip rather than guess
 

@@ -4,11 +4,31 @@ Parses .tf files into a plain Python structure the rule engine can read.
 Uses python-hcl2 to do the actual HCL parsing — we just normalize its
 output into a simpler shape.
 """
+
 import hcl2
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from compliance_scanner.parser.resolver import resolve_resource
 import io
 from dataclasses import dataclass
+
+
+def _extract_resources(raw: dict) -> dict:
+    """
+    Shared normalization logic. Returns {resource_type: {resource_name: {...attrs}}}.
+    """
+    resources: dict = {}
+    for block in raw.get("resource", []):
+        for raw_resource_type, named_configs in block.items():
+            resource_type = _strip_quotes(raw_resource_type)
+            resources.setdefault(resource_type, {})
+            for raw_resource_name, config in named_configs.items():
+                resource_name = _strip_quotes(raw_resource_name)
+                cleaned = _strip_quotes(config)
+                flattened = _flatten_config(cleaned)
+
+                resources[resource_type][resource_name] = resolve_resource(flattened)
+    return resources
 
 
 def _strip_quotes(value):
@@ -26,7 +46,7 @@ def _strip_quotes(value):
     if isinstance(value, str):
         if len(value) >= 2 and value[0] == '"' and value[-1] == '"':
             inner = value[1:-1]
-            inner = inner.replace('\\"', '"').replace('\\\\', '\\')
+            inner = inner.replace('\\"', '"').replace("\\\\", "\\")
             return inner
         return value
     if isinstance(value, list):
@@ -46,22 +66,6 @@ def _flatten_config(config: dict) -> dict:
         k: (v[0] if isinstance(v, list) and len(v) == 1 else v)
         for k, v in config.items()
     }
-
-
-def _extract_resources(raw: dict) -> dict:
-    """
-    Shared normalization logic. Returns {resource_type: {resource_name: {...attrs}}}.
-    """
-    resources: dict = {}
-    for block in raw.get("resource", []):
-        for raw_resource_type, named_configs in block.items():
-            resource_type = _strip_quotes(raw_resource_type)
-            resources.setdefault(resource_type, {})
-            for raw_resource_name, config in named_configs.items():
-                resource_name = _strip_quotes(raw_resource_name)
-                cleaned = _strip_quotes(config)
-                resources[resource_type][resource_name] = _flatten_config(cleaned)
-    return resources
 
 
 def _extract_providers(raw: dict) -> dict:
@@ -86,14 +90,14 @@ def _resolve_provider_for_resource(resource_type: str, providers: dict) -> dict:
     azurerm_storage_account -> azurerm provider
     """
     prefix = resource_type.split("_")[0]
-    
+
     # Check for aliased provider first (e.g., "aws.mumbai")
     for provider_name, config in providers.items():
         if provider_name.startswith(f"{prefix}."):
             return config
         if provider_name == prefix:
             return config
-    
+
     return {}
 
 
@@ -101,10 +105,11 @@ def _resolve_provider_for_resource(resource_type: str, providers: dict) -> dict:
 class ResolvedResource:
     """
     A Terraform resource with its provider defaults merged in.
-    
+
     Resource-level attributes always win over provider defaults,
     matching Terraform's actual behavior.
     """
+
     resource_type: str
     resource_name: str
     config: dict
@@ -162,12 +167,16 @@ def parse_terraform_directory(dir_path: str) -> dict:
     return all_resources
 
 
-def parse_terraform_directory_parallel(dir_path: str, workers: int | None = None) -> dict:
+def parse_terraform_directory_parallel(
+    dir_path: str, workers: int | None = None
+) -> dict:
     """
     Same as parse_terraform_directory, but parses files across multiple
     CPU cores in parallel.
     """
-    tf_files = [str(p) for p in Path(dir_path).rglob("*.tf") if ".terraform" not in p.parts]
+    tf_files = [
+        str(p) for p in Path(dir_path).rglob("*.tf") if ".terraform" not in p.parts
+    ]
     if not tf_files:
         return {}
 
@@ -186,14 +195,14 @@ def iter_terraform_directory(dir_path: str, workers: int | None = None):
     Generator version for large datasets. Yields (file_path, resources) tuples.
     Excludes .terraform/ directories.
     """
-    tf_files = [str(p) for p in Path(dir_path).rglob("*.tf") if ".terraform" not in p.parts]
+    tf_files = [
+        str(p) for p in Path(dir_path).rglob("*.tf") if ".terraform" not in p.parts
+    ]
     if not tf_files:
         return
 
     with ProcessPoolExecutor(max_workers=workers) as executor:
-        futures = {
-            executor.submit(parse_terraform_file, f): f for f in tf_files
-        }
+        futures = {executor.submit(parse_terraform_file, f): f for f in tf_files}
         for future in as_completed(futures):
             file_path = futures[future]
             yield file_path, future.result()
@@ -203,32 +212,36 @@ def parse_terraform_directory_resolved(dir_path: str) -> list[ResolvedResource]:
     """
     Parse all .tf files, collect providers from all files, then resolve
     each resource against its matching provider defaults.
-    
+
     This is the provider-aware parsing that fixes the region inheritance bug.
     """
     # First pass: collect all providers and resources
     all_providers: dict = {}
     file_data: dict = {}  # {file_path: (resources, providers)}
-    
+
     for tf_file in Path(dir_path).rglob("*.tf"):
         if ".terraform" in tf_file.parts:
             continue
         resources, providers = parse_terraform_file_with_providers(str(tf_file))
         file_data[str(tf_file)] = resources
         all_providers.update(providers)
-    
+
     # Second pass: resolve each resource
     resolved: list[ResolvedResource] = []
     for file_path, resources in file_data.items():
         for resource_type, named_configs in resources.items():
-            provider_defaults = _resolve_provider_for_resource(resource_type, all_providers)
+            provider_defaults = _resolve_provider_for_resource(
+                resource_type, all_providers
+            )
             for resource_name, config in named_configs.items():
-                resolved.append(ResolvedResource(
-                    resource_type=resource_type,
-                    resource_name=resource_name,
-                    config=config,
-                    provider_defaults=provider_defaults,
-                    file_path=file_path,
-                ))
-    
+                resolved.append(
+                    ResolvedResource(
+                        resource_type=resource_type,
+                        resource_name=resource_name,
+                        config=config,
+                        provider_defaults=provider_defaults,
+                        file_path=file_path,
+                    )
+                )
+
     return resolved
