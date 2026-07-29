@@ -1,136 +1,299 @@
-# terraform-rbi-compliance-scanner
+# Terraform RBI Compliance Scanner
 
 [![PyPI version](https://img.shields.io/pypi/v/rbi-compliance-scanner.svg)](https://pypi.org/project/rbi-compliance-scanner/)
+[![Python](https://img.shields.io/pypi/pyversions/rbi-compliance-scanner.svg)](https://pypi.org/project/rbi-compliance-scanner/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A Terraform static analysis tool that checks infrastructure code against
-RBI cybersecurity guidance and India's DPDPA data protection
-requirements — not just generic cloud security best practices.
+A Terraform static analysis tool that checks Infrastructure as Code (IaC) against **Reserve Bank of India (RBI)** cybersecurity guidance and **India's Digital Personal Data Protection Act (DPDPA)** requirements.
 
-Most open-source IaC scanners (Checkov, tfsec, Terrascan) check for
-general misconfigurations like "is this S3 bucket public." They don't
-know anything about India-specific regulatory requirements like data
-localization mandates for financial data. This tool fills that gap.
+Unlike traditional IaC security scanners, this project focuses on **regulatory compliance**, helping developers identify infrastructure configurations that may violate Indian financial and data protection requirements before deployment.
 
-## Why this exists
+---
 
-"Is my S3 bucket public?" and "does my S3 bucket meet Indian data
-localization requirements?" are different questions and only the first
-one is covered by existing scanning tools. This project encodes the
-second kind of question as automated, CI/CD-enforceable rules.
+# Why this project exists
 
-## Install
+Most Infrastructure-as-Code scanners answer questions like:
+
+> "Is this S3 bucket publicly accessible?"
+
+This scanner answers questions like:
+
+> "Does this infrastructure comply with RBI cybersecurity guidance and India's DPDPA requirements?"
+
+Those are very different problems.
+
+Existing tools such as **Checkov**, **tfsec**, and **Terrascan** primarily detect cloud security misconfigurations. They generally do not encode India-specific regulatory requirements such as data localization, financial data protection, or compliance-focused infrastructure rules.
+
+This project fills that gap.
+
+---
+
+# Features
+
+- RBI-focused Terraform compliance checks
+- DPDPA-aware infrastructure validation
+- Terraform static analysis
+- Terraform Plan (`tfplan.json`) scanning
+- Human-readable CLI output
+- JSON reporting
+- SARIF reporting (GitHub Code Scanning compatible)
+- Parallel scanning for large repositories
+- Incremental scan cache
+- Streaming scan mode
+- Inline suppression comments
+- Python API
+- Command-line interface
+- CI/CD friendly
+- Published on PyPI
+
+---
+
+# Installation
 
 ```bash
 pip install rbi-compliance-scanner
 ```
 
-## Quick Start
+---
+
+# Quick Start
+
+Scan a Terraform project:
 
 ```bash
 rbi-scan --path ./examples/sample_infra
 ```
 
-or use itt as a Python library:
+Or use it as a Python library:
 
 ```python
 import compliance_scanner as rbi
 
 findings = rbi.scan("./my-terraform-project")
-for f in findings:
-    print(f.severity, f.rule_id, f.message)
+
+for finding in findings:
+    print(
+        finding.severity,
+        finding.rule_id,
+        finding.message
+    )
 ```
 
-Example output:
+---
 
-```
+# Example Output
+
+```text
 3 compliance violation(s) found:
 
 [CRITICAL] RBI-001 — aws_s3_bucket.customer_transactions
-  Resource 'customer_transactions' appears to hold sensitive financial/
-  customer data but is provisioned in 'us-east-1', outside India.
-  RBI data localization rules likely require ap-south-1 or ap-south-2.
-  Reference: RBI Cybersecurity Framework — Data Localization requirement
+
+Resource 'customer_transactions' appears to hold sensitive financial
+or customer data but is provisioned in 'us-east-1', outside India.
+
+RBI data localization guidance likely requires deployment in
+ap-south-1 or ap-south-2.
+
+Reference:
+RBI Cybersecurity Framework — Data Localization
 ```
 
-## Rules implemented
+---
 
-5 rules covering data localization, encryption, audit log retention,
-network exposure, and IAM least-privilege access. See
-[docs/RULES.md](docs/RULES.md) for the full list, severity levels, and
-which rules map to a specific numbered regulation vs. a broader
-principle-based interpretation.
+# Rules Implemented
 
-## Suppressing false positives
+Current compliance rules include:
 
-If a finding doesn't apply to your situation, suppress it inline rather
-than forking the tool or ignoring CI failures:
+- ✅ RBI-001 – Data Localization
+- ✅ RBI-002 – Encryption
+- ✅ RBI-003 – Audit Logging
+- ✅ RBI-004 – Network Exposure
+- ✅ RBI-005 – IAM Least Privilege
+
+See **docs/RULES.md** for:
+
+- Complete rule descriptions
+- Severity levels
+- Regulatory references
+- Future roadmap
+
+---
+
+# Suppressing False Positives
+
+Suppress an individual rule:
 
 ```hcl
-# rbi-scan:ignore RBI-001 reason="internal logs bucket, not customer data"
+# rbi-scan:ignore RBI-001 reason="Internal logs bucket"
+
 resource "aws_s3_bucket" "internal_logs" {
-  ...
+    ...
 }
 ```
 
-Or suppress every rule for a resource:
+Suppress every rule for a resource:
+
 ```hcl
-# rbi-scan:ignore-all reason="legacy resource, migration planned Q3"
-resource "aws_s3_bucket" "old_bucket" {
-  ...
+# rbi-scan:ignore-all reason="Legacy infrastructure"
+
+resource "aws_s3_bucket" "legacy_bucket" {
+    ...
 }
 ```
 
-Suppressed findings aren't silently hidden — they're counted and
-reported ("N finding(s) suppressed") so a reviewer can see suppression
-is happening, not just a scan that looks cleaner than it actually is.
+Suppressed findings are **not silently ignored**.
 
-## Large-dataset support
+The scanner reports the total number of suppressed findings so reviewers can identify where suppressions are being used.
 
-For scanning large Terraform repositories (thousands of files),
-`rbi.scan_large()` provides parallel parsing and file-change caching so
-repeated CI scans only re-process what actually changed:
+---
+
+# Output Formats
+
+The scanner currently supports:
+
+- Human-readable CLI output
+- JSON
+- SARIF (GitHub Code Scanning compatible)
+
+---
+
+# Performance
+
+Designed for both small Terraform projects and enterprise-scale repositories.
+
+Features include:
+
+- Parallel parsing
+- Incremental file cache
+- Streaming scan mode
+- Constant-memory scanning for large repositories
+
+Example:
 
 ```python
-for finding in rbi.scan_large("./huge-infra-repo"):
-    print(finding.severity, finding.message)
+for finding in rbi.scan_large("./large-terraform-repository"):
+    print(finding.rule_id, finding.message)
 ```
 
-## Architecture
+---
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how the parser,
-rule engine, and reporting layers fit together, and the reasoning behind
-the design choices.
+# Architecture
 
-## Contributing / running from source
+```text
+Terraform Files
+        │
+        ▼
+Terraform Parser
+        │
+        ▼
+Resolved Resources
+        │
+        ▼
+Rule Engine
+        │
+        ▼
+Compliance Findings
+        │
+ ┌──────┴──────────┐
+ │                 │
+ ▼                 ▼
+JSON             SARIF
+```
+
+For implementation details, see:
+
+```
+docs/ARCHITECTURE.md
+```
+
+---
+
+# CI/CD Integration
+
+The repository includes GitHub Actions workflows.
+
+### Continuous Integration
+
+```
+.github/workflows/scan.yml
+```
+
+Runs:
+
+- Unit tests
+- Compliance scans
+- Sample infrastructure validation
+
+### Continuous Delivery
+
+```
+.github/workflows/publish.yml
+```
+
+Automatically publishes releases to **PyPI** using Trusted Publishing whenever a GitHub Release is published.
+
+---
+
+# Running From Source
+
+Clone the repository:
 
 ```bash
 git clone https://github.com/swayam-crypto/terraform-rbi-compliance-scanner.git
+
 cd terraform-rbi-compliance-scanner
-pip install -e .
-pip install -r requirements-dev.txt
-python -m pytest tests/ -v
 ```
 
-## CI/CD integration
+Install the project:
 
-This repo includes working GitHub Actions workflows:
-- `.github/workflows/scan.yml` — runs the test suite on every push/PR,
-  demos the scanner catching a known violation, and gates the build
-  against a fully compliant example
-- `.github/workflows/publish.yml` — publishes to PyPI automatically via
-  trusted publishing whenever a GitHub Release is created
+```bash
+pip install -e .
+pip install -r requirements-dev.txt
+```
 
-Point `--path` at your own Terraform directory to use the scanner on
-real infrastructure.
+Run the test suite:
 
-## Status
+```bash
+pytest
+```
 
-Published on PyPI, actively being developed. 5 of a planned 8 rules
-implemented (see [docs/RULES.md](docs/RULES.md) for the roadmap). Not
-yet validated by a compliance professional — see the disclaimer there
-before relying on this for real compliance decisions.
+---
 
-## License
+# Roadmap
 
-MIT
+Current progress:
+
+- ✅ RBI Data Localization
+- ✅ Encryption Validation
+- ✅ Audit Logging
+- ✅ Network Exposure
+- ✅ IAM Least Privilege
+- 🚧 Cross-Resource Compliance Analysis
+- ⏳ Additional RBI Controls
+- ⏳ Azure Support
+- ⏳ GCP Support
+
+---
+
+# Status
+
+- ✅ Published on PyPI
+- ✅ Active development
+- ✅ Open Source (MIT License)
+- ✅ Community contributions welcome
+
+---
+
+# Disclaimer
+
+This project helps automate infrastructure compliance checks but **does not guarantee regulatory compliance**.
+
+Actual compliance depends on infrastructure configuration, organizational processes, operational controls, and regulatory interpretation.
+
+Always validate findings with your security or compliance team before relying on them for production decisions.
+
+---
+
+# License
+
+MIT License
