@@ -1,0 +1,36 @@
+{
+    "format_version": "1.0",
+    "terraform_version": "1.13.0",
+    "planned_values": {
+        "root_module": {
+            "resources": [
+                {
+                    "address": "aws_s3_bucket.logs",
+                    "mode": "managed",
+                    "type": "aws_s3_bucket",
+                    "name": "logs",
+                    "provider_name": "registry.terraform.io/hashicorp/aws",
+                    "values": {
+                        "bucket": "company-logs",
+                        "acl": "private",
+                        "force_destroy": false,
+                        "tags": {
+                            "Environment": "dev"
+                        }
+                    }
+                },
+                {
+                    "address": "aws_iam_policy.readonly",
+                    "mode": "managed",
+                    "type": "aws_iam_policy",
+                    "name": "readonly",
+                    "provider_name": "registry.terraform.io/hashicorp/aws",
+                    "values": {
+                        "name": "readonly",
+                        "policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:GetObject\",\"Resource\":\"*\"}]}"
+                    }
+                }
+            ]
+        }
+    }
+}

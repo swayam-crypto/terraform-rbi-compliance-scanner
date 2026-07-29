@@ -18,7 +18,7 @@ suppressed" rather than a scan that looks cleaner than it actually is.
 
 from pathlib import Path
 from collections import defaultdict
-
+from compliance_scanner.parser.plan_parser import parse_plan_file
 from compliance_scanner.parser.terraform_parser import (
     parse_terraform_file,
     parse_terraform_file_with_providers,
@@ -158,6 +158,34 @@ def scan_directory(
         )
 
     return all_findings
+
+
+def scan_plan(
+    plan_path: str,
+    suppressed_count: list | None = None,
+) -> list[Finding]:
+    """
+    Run all compliance rules against a Terraform Plan JSON file.
+    """
+
+    if suppressed_count is None:
+        suppressed_count = [0]
+
+    resources = parse_plan_file(plan_path)
+
+    if not resources:
+        raise ValueError(f"No resources found in Terraform plan '{plan_path}'.")
+
+    findings = list(
+        _run_rules_on_resources(
+            resources=resources,
+            file_path=plan_path,
+            suppressions={},
+            suppressed_count=suppressed_count,
+        )
+    )
+
+    return findings
 
 
 def scan_directory_large(
