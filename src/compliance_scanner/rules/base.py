@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 @dataclass
 class Finding:
     """A single compliance violation found during a scan."""
+
     rule_id: str
     severity: str  # "critical" | "high" | "medium" | "low"
     resource_type: str

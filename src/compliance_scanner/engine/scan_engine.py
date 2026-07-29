@@ -136,25 +136,24 @@ def scan_directory(
         raise ValueError(f"No Terraform (.tf) files found in '{dir_path}'.")
 
     all_findings: list[Finding] = []
-    for file_path, resources in file_resources.items():
-        resolved = []
-        for resource_type, named_configs in resources.items():
-            for resource_name, config in named_configs.items():
-                resolved.append(
-                    ResolvedResource(
-                        resource_type=resource_type,
-                        resource_name=resource_name,
-                        config=config,
-                        provider_defaults=_resolve_provider_for_resource(
-                            resource_type, all_providers
-                        ),
-                        file_path=file_path,
-                    )
-                )
 
+    resolved_resources = _resolve_resources(file_resources, all_providers)
+
+    resources_by_file: dict[str, list[ResolvedResource]] = defaultdict(list)
+
+    for resource in resolved_resources:
+        resources_by_file[resource.file_path].append(resource)
+
+    for file_path, resolved in resources_by_file.items():
         suppressions = extract_suppressions(file_path)
+
         all_findings.extend(
-            _run_rules_on_resources(resolved, file_path, suppressions, suppressed_count)
+            _run_rules_on_resources(
+                resolved,
+                file_path,
+                suppressions,
+                suppressed_count,
+            )
         )
 
     return all_findings
@@ -254,21 +253,10 @@ def scan_directory_large(
 
     # Process cached files first
     for file_path, resources in cached_files:
-        resolved = []
-        for resource_type, named_configs in resources.items():
-            provider_defaults = _resolve_provider_for_resource(
-                resource_type, all_providers
-            )
-            for resource_name, config in named_configs.items():
-                resolved.append(
-                    ResolvedResource(
-                        resource_type=resource_type,
-                        resource_name=resource_name,
-                        config=config,
-                        provider_defaults=provider_defaults,
-                        file_path=file_path,
-                    )
-                )
+        resolved = _resolve_resources(
+            {file_path: resources},
+            all_providers,
+        )
         suppressions = extract_suppressions(file_path)
         yield from _run_rules_on_resources(
             resolved, file_path, suppressions, suppressed_count
@@ -294,21 +282,10 @@ def scan_directory_large(
                     update_cache_entry(file_path, resources, cache)
 
                 # Re-resolve with updated providers
-                resolved = []
-                for resource_type, named_configs in resources.items():
-                    provider_defaults = _resolve_provider_for_resource(
-                        resource_type, all_providers
-                    )
-                    for resource_name, config in named_configs.items():
-                        resolved.append(
-                            ResolvedResource(
-                                resource_type=resource_type,
-                                resource_name=resource_name,
-                                config=config,
-                                provider_defaults=provider_defaults,
-                                file_path=file_path,
-                            )
-                        )
+                resolved = _resolve_resources(
+                    {file_path: resources},
+                    all_providers,
+                )
 
                 suppressions = extract_suppressions(file_path)
                 yield from _run_rules_on_resources(
