@@ -17,7 +17,12 @@ Example:
     findings = rbi.scan_string(my_terraform_text)
 """
 
-from compliance_scanner.engine import scan_directory, scan_directory_large
+from compliance_scanner.engine import (
+    scan_directory,
+    scan_directory_large,
+    scan_plan,
+)
+
 from compliance_scanner.parser.terraform_parser import (
     parse_terraform_string,
     ResolvedResource,
@@ -43,7 +48,12 @@ def scan(path: str, suppressed_count: list | None = None) -> list[Finding]:
     return scan_directory(path, suppressed_count=suppressed_count)
 
 
-def scan_large(path: str, workers: int | None = None, use_cache: bool = True, suppressed_count: list | None = None):
+def scan_large(
+    path: str,
+    workers: int | None = None,
+    use_cache: bool = True,
+    suppressed_count: list | None = None,
+):
     """
     Scan a large directory (thousands to hundreds of thousands of
     files). Returns a generator — iterate it directly to process
@@ -55,7 +65,9 @@ def scan_large(path: str, workers: int | None = None, use_cache: bool = True, su
         for finding in rbi.scan_large("./huge-infra-repo"):
             print(finding.severity, finding.message)
     """
-    return scan_directory_large(path, workers=workers, use_cache=use_cache, suppressed_count=suppressed_count)
+    return scan_directory_large(
+        path, workers=workers, use_cache=use_cache, suppressed_count=suppressed_count
+    )
 
 
 def scan_string(terraform_text: str) -> list[Finding]:
@@ -66,12 +78,15 @@ def scan_string(terraform_text: str) -> list[Finding]:
     """
     import hcl2
     import io
-    from compliance_scanner.parser.terraform_parser import _extract_resources, _extract_providers
-    
+    from compliance_scanner.parser.terraform_parser import (
+        _extract_resources,
+        _extract_providers,
+    )
+
     raw = hcl2.load(io.StringIO(terraform_text))
     resources = _extract_resources(raw)
     providers = _extract_providers(raw)
-    
+
     findings: list[Finding] = []
     for resource_type, named_configs in resources.items():
         provider_defaults = _resolve_provider_for_resource(resource_type, providers)
@@ -103,4 +118,5 @@ __all__ = [
     "__version__",
     "scan_directory",
     "scan_directory_large",
+    "scan_plan",
 ]

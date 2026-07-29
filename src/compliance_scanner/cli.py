@@ -10,7 +10,11 @@ Usage:
 import argparse
 import sys
 from pathlib import Path
-from compliance_scanner.engine import scan_directory, scan_directory_large
+from compliance_scanner.engine import (
+    scan_directory,
+    scan_directory_large,
+    scan_plan,
+)
 from compliance_scanner.reporting import to_json, print_console_summary
 
 
@@ -18,7 +22,8 @@ def main():
     parser = argparse.ArgumentParser(
         description="RBI/DPDPA Terraform compliance scanner"
     )
-    parser.add_argument("--path", required=True, help="Directory containing .tf files")
+    parser.add_argument("--path", help="Directory containing .tf files")
+    parser.add_argument("--plan", help="Terraform plan JSON file")
     parser.add_argument("--format", choices=["console", "json"], default="console")
     parser.add_argument(
         "--fail-on",
@@ -43,19 +48,37 @@ def main():
         help="Disable file-change caching (only affects --large mode)",
     )
     args = parser.parse_args()
+    # Exactly one input source must be provided
+    if bool(args.path) == bool(args.plan):
+        parser.error("Specify exactly one of --path or --plan.")
 
-    scan_path = Path(args.path)
+    if args.path:
+        scan_path = Path(args.path)
 
-    if not scan_path.exists():
-        parser.error(f"Path does not exist: {args.path}")
+        if not scan_path.exists():
+            parser.error(f"Path does not exist: {args.path}")
 
-    if not scan_path.is_dir():
-        parser.error(f"Path is not a directory: {args.path}")
+        if not scan_path.is_dir():
+            parser.error(f"Path is not a directory: {args.path}")
+
+    else:
+        plan_path = Path(args.plan)
+
+        if not plan_path.exists():
+            parser.error(f"Plan file does not exist: {args.plan}")
+
+        if not plan_path.is_file():
+            parser.error(f"Plan path is not a file: {args.plan}")
 
     suppressed_count = [0]
 
     try:
-        if args.large:
+        if args.plan:
+            findings = scan_plan(
+                args.plan,
+                suppressed_count=suppressed_count,
+            )
+        elif args.large:
             findings = list(
                 scan_directory_large(
                     args.path,
