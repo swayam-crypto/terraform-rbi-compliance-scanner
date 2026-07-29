@@ -86,3 +86,41 @@ def test_acl_normalization():
 
     assert result is not None
     assert result.rule_id == "RBI-004"
+
+
+def test_flags_sensitive_bucket_name():
+    rule = NetworkExposureRule()
+
+    resource = ResolvedResource(
+        resource_type="aws_s3_bucket",
+        resource_name="bucket1",
+        config={
+            "bucket": "customer-pii-backups",
+            "acl": "public-read",
+        },
+        provider_defaults={},
+    )
+
+    result = rule.check(resource)
+
+    assert result is not None
+    assert result.rule_id == "RBI-004"
+
+
+def test_flags_sensitive_database_identifier():
+    rule = NetworkExposureRule()
+
+    resource = ResolvedResource(
+        resource_type="aws_db_instance",
+        resource_name="db1",
+        config={
+            "identifier": "payment-db",
+            "publicly_accessible": True,
+        },
+        provider_defaults={},
+    )
+
+    result = rule.check(resource)
+
+    assert result is not None
+    assert result.rule_id == "RBI-004"
