@@ -50,3 +50,39 @@ def test_flags_publicly_accessible_sensitive_database():
     result = rule.check(resource)
     assert result is not None
     assert result.rule_id == "RBI-004"
+
+
+def test_flags_authenticated_read_sensitive_s3_bucket():
+    rule = NetworkExposureRule()
+    resource = ResolvedResource(
+        resource_type="aws_s3_bucket",
+        resource_name="customer_records",
+        config={
+            "acl": "authenticated-read",
+            "tags": {"data_type": "customer"},
+        },
+        provider_defaults={},
+    )
+
+    result = rule.check(resource)
+
+    assert result is not None
+    assert result.rule_id == "RBI-004"
+
+
+def test_acl_normalization():
+    rule = NetworkExposureRule()
+    resource = ResolvedResource(
+        resource_type="aws_s3_bucket",
+        resource_name="customer_records",
+        config={
+            "acl": "  PuBlIc-ReAd  ",
+            "tags": {"data_type": "customer"},
+        },
+        provider_defaults={},
+    )
+
+    result = rule.check(resource)
+
+    assert result is not None
+    assert result.rule_id == "RBI-004"

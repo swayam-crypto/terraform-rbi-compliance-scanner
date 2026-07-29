@@ -22,7 +22,9 @@ who know the space will respect that precision.
 from .base import BaseRule, Finding
 
 CHECKED_RESOURCES = {"aws_s3_bucket", "aws_db_instance"}
-PUBLIC_ACLS = {"public-read", "public-read-write"}
+
+PUBLIC_ACLS = {"public-read", "public-read-write", "authenticated-read"}
+
 SENSITIVE_TAG_HINTS = {"financial", "payment", "customer", "transaction", "pii", "kyc"}
 
 
@@ -51,6 +53,10 @@ class NetworkExposureRule(BaseRule):
 
         if resource.resource_type == "aws_s3_bucket":
             acl = resource.config.get("acl")
+
+            if isinstance(acl, str):
+                acl = acl.strip().lower()
+
             if acl in PUBLIC_ACLS:
                 return Finding(
                     rule_id=self.rule_id,
@@ -58,8 +64,8 @@ class NetworkExposureRule(BaseRule):
                     resource_type=resource.resource_type,
                     resource_name=resource.resource_name,
                     message=(
-                        f"Bucket '{resource.resource_name}' appears to hold sensitive data "
-                        f"but has ACL '{acl}', making it publicly accessible."
+                        f"Bucket '{resource.resource_name}' appears to contain sensitive data "
+                        f"and uses the '{acl}' ACL, which may allow public access."
                     ),
                     regulation_reference=self.regulation_reference,
                     file_path=resource.file_path,
