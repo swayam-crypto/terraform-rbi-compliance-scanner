@@ -8,14 +8,26 @@ Format follows [Keep a Changelog](https://keepachangelog.com/), versioning follo
 - RBI-007: clock synchronization rule (planned, needs research on Terraform-checkability)
 - Baseline/ignore file for adopting the scanner on legacy infrastructure
 
-## [0.3.0] - 2026-07-12
+## [0.3.0] - 2026-07-30
+
 ### Added
-- Inline suppression comments: `# rbi-scan:ignore RULE-ID reason="..."` and
-  `# rbi-scan:ignore-all reason="..."` above a resource block
-- Suppressed findings are counted and reported, not silently dropped
-  (CLI shows "N finding(s) suppressed"; library API exposes a
-  `suppressed_count` counter)
-- `scan()` and `scan_large()` now accept an optional `suppressed_count` parameter
+- Terraform Plan (`tfplan.json`) scanning support.
+- Streaming scan mode for large Terraform repositories.
+- Inline suppression comments for compliance findings.
+- Cache support for faster repeated scans.
+
+### Improved
+- Enhanced RBI-004 detection for sensitive resources.
+- Sensitive resource detection now checks:
+  - Resource names
+  - S3 bucket names
+  - RDS identifiers
+  - Tag values
+- Improved ACL normalization and reporting.
+- Centralized `ResolvedResource` creation across all scan modes.
+
+### Fixed
+- IAM Least Privilege rule correctly ignores `Deny` statements
 
 ## [0.2.0] - 2026-07-11
 ### Added
