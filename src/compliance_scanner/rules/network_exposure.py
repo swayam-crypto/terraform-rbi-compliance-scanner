@@ -25,7 +25,25 @@ CHECKED_RESOURCES = {"aws_s3_bucket", "aws_db_instance"}
 
 PUBLIC_ACLS = {"public-read", "public-read-write", "authenticated-read"}
 
-SENSITIVE_TAG_HINTS = {"financial", "payment", "customer", "transaction", "pii", "kyc"}
+SENSITIVE_KEYWORDS = {
+    "financial",
+    "payment",
+    "customer",
+    "transaction",
+    "pii",
+    "kyc",
+    "account",
+    "bank",
+    "client",
+    "user",
+    "loan",
+    "card",
+    "statement",
+    "invoice",
+    "payroll",
+    "identity",
+    "personal",
+}
 
 
 class NetworkExposureRule(BaseRule):
@@ -44,9 +62,25 @@ class NetworkExposureRule(BaseRule):
             return None
 
         tags = resource.config.get("tags", {}) or {}
+
         tag_values = " ".join(str(v).lower() for v in tags.values())
-        name_and_tags = f"{resource.resource_name.lower()} {tag_values}"
-        looks_sensitive = any(hint in name_and_tags for hint in SENSITIVE_TAG_HINTS)
+
+        resource_name = resource.resource_name.lower()
+
+        bucket_name = str(resource.config.get("bucket", "")).lower()
+
+        db_identifier = str(resource.config.get("identifier", "")).lower()
+
+        search_text = " ".join(
+            [
+                f"{resource_name}",
+                f"{bucket_name}",
+                f"{db_identifier}",
+                f"{tag_values}",
+            ]
+        )
+
+        looks_sensitive = any(hint in search_text for hint in SENSITIVE_KEYWORDS)
 
         if not looks_sensitive:
             return None  # same conservative approach as RBI-001 — skip if unconfirmed
