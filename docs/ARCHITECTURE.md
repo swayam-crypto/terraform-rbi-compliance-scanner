@@ -24,6 +24,9 @@ Terraform files (.tf)
    (exit code drives CI/CD pass-fail)
 ```
 
+For cross-resource rules, the scan engine's canonical `ResolvedResource` set is
+also exposed through `engine/resource_index.py`, a read-only query interface.
+
 ## Design decisions
 
 **Why a plugin-style rule system?** Each rule is an independent class with
@@ -44,3 +47,11 @@ documented here rather than hidden.
 tool usable as a CI/CD gate GitHub Actions treats a non-zero exit code
 as a failed step, which blocks merges automatically when `--fail-on
 critical` finds a critical violation.
+
+**Why a ResourceIndex?** Rules that assess relationships (for example, whether
+an S3 bucket has a matching logging resource) must query the complete scan set.
+`ResourceIndex` is the stable, read-only boundary for those queries. It indexes
+canonical `ResolvedResource` objects by type and Terraform logical name while
+preserving scan order. Its exact lookup returns all matches, because Terraform
+plans can legitimately contain the same type/name combination in different
+modules; rules must handle that ambiguity explicitly.
