@@ -10,7 +10,7 @@ from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from compliance_scanner.parser.resolver import resolve_resource
 import io
-from dataclasses import dataclass
+from compliance_scanner.models.resolved_resource import ResolvedResource
 
 
 def _extract_resources(raw: dict) -> dict:
@@ -99,31 +99,6 @@ def _resolve_provider_for_resource(resource_type: str, providers: dict) -> dict:
             return config
 
     return {}
-
-
-@dataclass(eq=False)
-class ResolvedResource:
-    """
-    A Terraform resource with its provider defaults merged in.
-
-    Resource-level attributes always win over provider defaults,
-    matching Terraform's actual behavior.
-    """
-
-    resource_type: str
-    resource_name: str
-    config: dict
-    provider_defaults: dict
-    file_path: str = ""
-
-    def get(self, key: str, default=None):
-        """
-        Look up an attribute. Resource-level value wins over provider default.
-        This mirrors how Terraform resolves values.
-        """
-        if key in self.config and self.config[key] is not None:
-            return self.config[key]
-        return self.provider_defaults.get(key, default)
 
 
 def parse_terraform_string(raw_text: str) -> dict:
