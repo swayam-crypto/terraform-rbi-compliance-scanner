@@ -42,9 +42,9 @@ from compliance_scanner.rules import ALL_RULES
 from compliance_scanner.rules.base import Finding
 
 
-from compliance_scanner.engine.resource_index import ResourceIndex
-from compliance_scanner.engine.relationship_builder import RelationshipBuilder
-from compliance_scanner.engine.scan_context import ScanContext
+from compliance_scanner.graph.resource_index import ResourceIndex
+from compliance_scanner.graph.graph_builder import GraphBuilder
+from compliance_scanner.scan_context import ScanContext
 
 
 def _run_rules_on_resources(
@@ -155,7 +155,7 @@ def scan_directory(
 
     index = ResourceIndex(resolved_resources)
 
-    graph = RelationshipBuilder().build(index)
+    graph = GraphBuilder().build(index)
 
     context = ScanContext(
         resources=resolved_resources,

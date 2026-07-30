@@ -1,4 +1,4 @@
-from compliance_scanner.engine import ResourceIndex
+from compliance_scanner.core import ResourceIndex
 from compliance_scanner.models.resolved_resource import ResolvedResource
 from compliance_scanner.models.platform import Platform
 from compliance_scanner.models.source_location import SourceLocation

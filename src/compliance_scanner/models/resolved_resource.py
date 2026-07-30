@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from .platform import Platform
-from .provider import CloudProvider
+from compliance_scanner.models.provider import CloudProvider
 from .source_location import SourceLocation
 
 

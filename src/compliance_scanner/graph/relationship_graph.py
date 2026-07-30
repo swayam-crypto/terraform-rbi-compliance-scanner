@@ -3,7 +3,7 @@ from collections.abc import Iterator
 
 from compliance_scanner.models.resolved_resource import ResolvedResource
 
-from compliance_scanner.models.relationship import (
+from compliance_scanner.graph.relationship import (
     Relationship,
     RelationshipType,
 )

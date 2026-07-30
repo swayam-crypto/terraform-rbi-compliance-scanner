@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 - Introduced `ResourceIndex` for efficient resource lookup during compliance analysis.
 - Added `RelationshipGraph` as the foundation for graph-based infrastructure analysis.
-- Added `RelationshipBuilder` to construct infrastructure relationship graphs.
+- Added `GraphBuilder` to construct infrastructure relationship graphs.
 - Added `ScanContext` to encapsulate scan state across the scanning pipeline.
 
 ### Changed

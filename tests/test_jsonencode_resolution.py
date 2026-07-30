@@ -1,6 +1,6 @@
 import textwrap
 
-from compliance_scanner.engine.scan_engine import scan_directory
+from compliance_scanner.core.scan_engine import scan_directory
 
 
 def test_jsonencode_resolution(tmp_path):

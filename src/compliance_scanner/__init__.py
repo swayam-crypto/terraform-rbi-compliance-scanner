@@ -17,7 +17,7 @@ Example:
     findings = rbi.scan_string(my_terraform_text)
 """
 
-from compliance_scanner.engine import (
+from compliance_scanner.core import (
     scan_directory,
     scan_directory_large,
     scan_plan,

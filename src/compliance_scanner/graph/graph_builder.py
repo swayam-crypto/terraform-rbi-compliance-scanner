@@ -1,12 +1,9 @@
-from compliance_scanner.models.relationship import (
-    Relationship,
-    RelationshipType,
-)
+from compliance_scanner.graph.relationship import Relationship
+from compliance_scanner.graph.relationship_graph import RelationshipGraph
 from .resource_index import ResourceIndex
-from .relationship_graph import RelationshipGraph
 
 
-class RelationshipBuilder:
+class GraphBuilder:
 
     def build(self, index: ResourceIndex) -> RelationshipGraph:
         graph = RelationshipGraph()

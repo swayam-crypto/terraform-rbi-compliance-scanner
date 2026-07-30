@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from compliance_scanner.engine.relationship_graph import RelationshipGraph
-from compliance_scanner.engine.resource_index import ResourceIndex
+from compliance_scanner.graph.relationship_graph import RelationshipGraph
+from compliance_scanner.graph.resource_index import ResourceIndex
 from compliance_scanner.models.resolved_resource import ResolvedResource
 
 
