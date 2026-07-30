@@ -6,7 +6,7 @@ from .provider import CloudProvider
 from .source_location import SourceLocation
 
 
-@dataclass(frozen=True)
+@dataclass(eq=False)
 class ResolvedResource:
     """
     Platform-independent representation of an infrastructure resource.
@@ -19,7 +19,7 @@ class ResolvedResource:
     provider: CloudProvider
 
     resource_type: str
-    logical_name: str
+    resource_name: str
 
     attributes: dict[str, Any]
     default_attributes: dict[str, Any]
@@ -36,4 +36,4 @@ class ResolvedResource:
         if key in self.attributes and self.attributes[key] is not None:
             return self.attributes[key]
 
-        return self.defaults_attributes.get(key, default)
+        return self.default_attributes.get(key, default)

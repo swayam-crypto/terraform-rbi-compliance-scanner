@@ -26,7 +26,9 @@ MINIMUM_RETENTION_DAYS = 180
 
 class AuditLogRetentionRule(BaseRule):
     rule_id = "RBI-003"
-    description = "ICT system logs must be retained for at least 180 days (CERT-In mandate)"
+    description = (
+        "ICT system logs must be retained for at least 180 days (CERT-In mandate)"
+    )
     regulation_reference = "CERT-In Cybersecurity Directions 2022, Direction (iv), issued under IT Act Section 70B(6)"
     severity = "high"
     applies_to = list(CHECKED_RESOURCES)
@@ -35,7 +37,7 @@ class AuditLogRetentionRule(BaseRule):
         if resource.resource_type not in CHECKED_RESOURCES:
             return None
 
-        retention = resource.config.get("retention_in_days")
+        retention = resource.attributes.get("retention_in_days")
 
         # Not set at all == AWS default "Never Expire", which satisfies
         # the 180-day minimum implicitly. Only flag if explicitly too short.
@@ -59,7 +61,7 @@ class AuditLogRetentionRule(BaseRule):
                     f"{MINIMUM_RETENTION_DAYS} days."
                 ),
                 regulation_reference=self.regulation_reference,
-                file_path=resource.file_path,
+                file_path=resource.source.file_path,
             )
 
         return None

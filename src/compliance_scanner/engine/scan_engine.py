@@ -22,7 +22,6 @@ from compliance_scanner.parser.plan_parser import parse_plan_file
 from compliance_scanner.parser.terraform_parser import (
     parse_terraform_file,
     parse_terraform_file_with_providers,
-    ResolvedResource,
     _resolve_provider_for_resource,
 )
 from compliance_scanner.parser.suppressions import extract_suppressions, is_suppressed
@@ -33,6 +32,12 @@ from compliance_scanner.parser.cache import (
     update_cache_entry,
     DEFAULT_CACHE_PATH,
 )
+
+from compliance_scanner.models.resolved_resource import ResolvedResource
+from compliance_scanner.models.platform import Platform
+from compliance_scanner.models.source_location import SourceLocation
+from compliance_scanner.parser.provider_utils import infer_provider
+
 from compliance_scanner.rules import ALL_RULES
 from compliance_scanner.rules.base import Finding
 
@@ -101,11 +106,15 @@ def _resolve_resources(
             for resource_name, config in named_configs.items():
                 resolved.append(
                     ResolvedResource(
+                        platform=Platform.TERRAFORM,
+                        provider=infer_provider(resource_type),
                         resource_type=resource_type,
                         resource_name=resource_name,
-                        config=config,
-                        provider_defaults=provider_defaults,
-                        file_path=file_path,
+                        attributes=config,
+                        default_attributes=provider_defaults,
+                        source=SourceLocation(
+                            file_path=file_path,
+                        ),
                     )
                 )
     return resolved
@@ -142,7 +151,7 @@ def scan_directory(
     resources_by_file: dict[str, list[ResolvedResource]] = defaultdict(list)
 
     for resource in resolved_resources:
-        resources_by_file[resource.file_path].append(resource)
+        resources_by_file[resource.source.file_path].append(resource)
 
     for file_path, resolved in resources_by_file.items():
         suppressions = extract_suppressions(file_path)

@@ -10,7 +10,11 @@ changing any compliance rules.
 
 import json
 
-from compliance_scanner.parser.terraform_parser import ResolvedResource
+from compliance_scanner.models.resolved_resource import ResolvedResource
+from compliance_scanner.models.platform import Platform
+from compliance_scanner.models.provider import CloudProvider
+from compliance_scanner.models.source_location import SourceLocation
+from compliance_scanner.parser.provider_utils import infer_provider
 
 
 def parse_plan_file(path: str) -> list[ResolvedResource]:
@@ -62,11 +66,15 @@ def _extract_module_resources(
 
         resources.append(
             ResolvedResource(
+                platform=Platform.TERRAFORM,
+                provider=infer_provider(resource["type"]),
                 resource_type=resource["type"],
                 resource_name=resource["name"],
-                config=resource.get("values", {}),
-                provider_defaults={},
-                file_path=resource.get("address", ""),
+                attributes=resource.get("values", {}),
+                default_attributes={},
+                source=SourceLocation(
+                    resource_address=resource.get("address", ""),
+                ),
             )
         )
 

@@ -61,15 +61,15 @@ class NetworkExposureRule(BaseRule):
         if resource.resource_type not in CHECKED_RESOURCES:
             return None
 
-        tags = resource.config.get("tags", {}) or {}
+        tags = resource.attributes.get("tags", {}) or {}
 
         tag_values = " ".join(str(v).lower() for v in tags.values())
 
         resource_name = resource.resource_name.lower()
 
-        bucket_name = str(resource.config.get("bucket", "")).lower()
+        bucket_name = str(resource.attributes.get("bucket", "")).lower()
 
-        db_identifier = str(resource.config.get("identifier", "")).lower()
+        db_identifier = str(resource.attributes.get("identifier", "")).lower()
 
         search_text = " ".join(
             [
@@ -86,7 +86,7 @@ class NetworkExposureRule(BaseRule):
             return None  # same conservative approach as RBI-001 — skip if unconfirmed
 
         if resource.resource_type == "aws_s3_bucket":
-            acl = resource.config.get("acl")
+            acl = resource.attributes.get("acl")
 
             if isinstance(acl, str):
                 acl = acl.strip().lower()
@@ -102,11 +102,11 @@ class NetworkExposureRule(BaseRule):
                         f"and uses the '{acl}' ACL, which may allow public access."
                     ),
                     regulation_reference=self.regulation_reference,
-                    file_path=resource.file_path,
+                    file_path=resource.source.file_path,
                 )
 
         if resource.resource_type == "aws_db_instance":
-            publicly_accessible = resource.config.get("publicly_accessible")
+            publicly_accessible = resource.attributes.get("publicly_accessible")
             if publicly_accessible is True:
                 return Finding(
                     rule_id=self.rule_id,
@@ -118,7 +118,7 @@ class NetworkExposureRule(BaseRule):
                         f"but has publicly_accessible = true."
                     ),
                     regulation_reference=self.regulation_reference,
-                    file_path=resource.file_path,
+                    file_path=resource.source.file_path,
                 )
 
         return None
