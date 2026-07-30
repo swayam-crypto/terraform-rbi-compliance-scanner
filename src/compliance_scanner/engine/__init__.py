@@ -12,4 +12,8 @@ __all__ = [
     "scan_directory_large",
     "scan_plan",
     "ResourceIndex",
+    "Relationship",
+    "RelationshipType",
+    "RelationshipBuilder",
+    "ResourceGraph",
 ]
