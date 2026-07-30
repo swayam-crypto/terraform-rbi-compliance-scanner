@@ -36,4 +36,4 @@ class ResolvedResource:
         if key in self.attributes and self.attributes[key] is not None:
             return self.attributes[key]
 
-        return self.defaults.get(key, default)
+        return self.defaults_attributes.get(key, default)

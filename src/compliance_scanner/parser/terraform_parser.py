@@ -101,7 +101,7 @@ def _resolve_provider_for_resource(resource_type: str, providers: dict) -> dict:
     return {}
 
 
-@dataclass
+@dataclass(eq=False)
 class ResolvedResource:
     """
     A Terraform resource with its provider defaults merged in.

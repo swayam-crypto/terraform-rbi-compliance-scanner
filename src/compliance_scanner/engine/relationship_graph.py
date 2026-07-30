@@ -9,6 +9,9 @@ from .relationship import Relationship
 class ResourceGraph:
     """Stores relationships between Terraform resources and provides efficient lookups."""
 
+    def _key(self, resource: ResolvedResource) -> str:
+        return f"{resource.resource_type}.{resource.resource_name}"
+
     def __init__(self) -> None:
         self._relationships: list[Relationship] = []
         self._forward: dict[ResolvedResource, list[Relationship]] = defaultdict(list)
