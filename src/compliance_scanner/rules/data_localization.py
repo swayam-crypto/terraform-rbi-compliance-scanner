@@ -38,7 +38,7 @@ class DataLocalizationRule(BaseRule):
             return None
 
         # Heuristic: does the resource name or tags suggest sensitive data?
-        tags = resource.config.get("tags", {}) or {}
+        tags = resource.attributes.get("tags", {}) or {}
         tag_values = " ".join(str(v).lower() for v in tags.values())
         name_and_tags = f"{resource.resource_name.lower()} {tag_values}"
 
@@ -63,7 +63,7 @@ class DataLocalizationRule(BaseRule):
                     f"localization compliance."
                 ),
                 regulation_reference=self.regulation_reference,
-                file_path=resource.file_path,
+                file_path=resource.source.file_path,
             )
 
         if region not in INDIA_REGIONS:
@@ -78,7 +78,7 @@ class DataLocalizationRule(BaseRule):
                     f"RBI data localization rules likely require ap-south-1 or ap-south-2."
                 ),
                 regulation_reference=self.regulation_reference,
-                file_path=resource.file_path,
+                file_path=resource.source.file_path,
             )
 
         return None

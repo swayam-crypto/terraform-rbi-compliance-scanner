@@ -1,14 +1,21 @@
-from compliance_scanner.parser.terraform_parser import ResolvedResource
+from compliance_scanner.models.resolved_resource import ResolvedResource
+from compliance_scanner.models.platform import Platform
+from compliance_scanner.models.source_location import SourceLocation
+from compliance_scanner.parser.provider_utils import infer_provider
+
 from compliance_scanner.rules.network_exposure import NetworkExposureRule
 
 
 def test_flags_public_sensitive_s3_bucket():
     rule = NetworkExposureRule()
     resource = ResolvedResource(
+        platform=Platform.TERRAFORM,
+        provider=infer_provider("aws_s3_bucket"),
+        source=SourceLocation(),
         resource_type="aws_s3_bucket",
         resource_name="customer_records",
-        config={"acl": "public-read", "tags": {"data_type": "customer"}},
-        provider_defaults={},
+        attributes={"acl": "public-read", "tags": {"data_type": "customer"}},
+        default_attributes={},
     )
     result = rule.check(resource)
     assert result is not None
@@ -18,10 +25,13 @@ def test_flags_public_sensitive_s3_bucket():
 def test_does_not_flag_private_sensitive_s3_bucket():
     rule = NetworkExposureRule()
     resource = ResolvedResource(
+        platform=Platform.TERRAFORM,
+        provider=infer_provider("aws_s3_bucket"),
+        source=SourceLocation(),
         resource_type="aws_s3_bucket",
         resource_name="customer_records",
-        config={"acl": "private", "tags": {"data_type": "customer"}},
-        provider_defaults={},
+        attributes={"acl": "private", "tags": {"data_type": "customer"}},
+        default_attributes={},
     )
     result = rule.check(resource)
     assert result is None
@@ -30,10 +40,13 @@ def test_does_not_flag_private_sensitive_s3_bucket():
 def test_does_not_flag_public_non_sensitive_bucket():
     rule = NetworkExposureRule()
     resource = ResolvedResource(
+        platform=Platform.TERRAFORM,
+        provider=infer_provider("aws_s3_bucket"),
+        source=SourceLocation(),
         resource_type="aws_s3_bucket",
         resource_name="marketing_assets",
-        config={"acl": "public-read", "tags": {"purpose": "public-assets"}},
-        provider_defaults={},
+        attributes={"acl": "public-read", "tags": {"purpose": "public-assets"}},
+        default_attributes={},
     )
     result = rule.check(resource)
     assert result is None
@@ -42,10 +55,13 @@ def test_does_not_flag_public_non_sensitive_bucket():
 def test_flags_publicly_accessible_sensitive_database():
     rule = NetworkExposureRule()
     resource = ResolvedResource(
+        platform=Platform.TERRAFORM,
+        provider=infer_provider("aws_db_instance"),
+        source=SourceLocation(),
         resource_type="aws_db_instance",
         resource_name="payment_db",
-        config={"publicly_accessible": True, "tags": {"data_type": "payment"}},
-        provider_defaults={},
+        attributes={"publicly_accessible": True, "tags": {"data_type": "payment"}},
+        default_attributes={},
     )
     result = rule.check(resource)
     assert result is not None
@@ -55,13 +71,16 @@ def test_flags_publicly_accessible_sensitive_database():
 def test_flags_authenticated_read_sensitive_s3_bucket():
     rule = NetworkExposureRule()
     resource = ResolvedResource(
+        platform=Platform.TERRAFORM,
+        provider=infer_provider("aws_s3_bucket"),
+        source=SourceLocation(),
         resource_type="aws_s3_bucket",
         resource_name="customer_records",
-        config={
+        attributes={
             "acl": "authenticated-read",
             "tags": {"data_type": "customer"},
         },
-        provider_defaults={},
+        default_attributes={},
     )
 
     result = rule.check(resource)
@@ -73,13 +92,16 @@ def test_flags_authenticated_read_sensitive_s3_bucket():
 def test_acl_normalization():
     rule = NetworkExposureRule()
     resource = ResolvedResource(
+        platform=Platform.TERRAFORM,
+        provider=infer_provider("aws_s3_bucket"),
+        source=SourceLocation(),
         resource_type="aws_s3_bucket",
         resource_name="customer_records",
-        config={
+        attributes={
             "acl": "  PuBlIc-ReAd  ",
             "tags": {"data_type": "customer"},
         },
-        provider_defaults={},
+        default_attributes={},
     )
 
     result = rule.check(resource)
@@ -92,13 +114,16 @@ def test_flags_sensitive_bucket_name():
     rule = NetworkExposureRule()
 
     resource = ResolvedResource(
+        platform=Platform.TERRAFORM,
+        provider=infer_provider("aws_s3_bucket"),
+        source=SourceLocation(),
         resource_type="aws_s3_bucket",
         resource_name="bucket1",
-        config={
+        attributes={
             "bucket": "customer-pii-backups",
             "acl": "public-read",
         },
-        provider_defaults={},
+        default_attributes={},
     )
 
     result = rule.check(resource)
@@ -111,13 +136,16 @@ def test_flags_sensitive_database_identifier():
     rule = NetworkExposureRule()
 
     resource = ResolvedResource(
+        platform=Platform.TERRAFORM,
+        provider=infer_provider("aws_db_instance"),
+        source=SourceLocation(),
         resource_type="aws_db_instance",
         resource_name="db1",
-        config={
+        attributes={
             "identifier": "payment-db",
             "publicly_accessible": True,
         },
-        provider_defaults={},
+        default_attributes={},
     )
 
     result = rule.check(resource)

@@ -6,7 +6,7 @@ from .provider import CloudProvider
 from .source_location import SourceLocation
 
 
-@dataclass(frozen=True)
+@dataclass(eq=False)
 class ResolvedResource:
     """
     Platform-independent representation of an infrastructure resource.

@@ -35,7 +35,7 @@ class LeastPrivilegeRule(BaseRule):
         if resource.resource_type not in CHECKED_RESOURCES:
             return None
 
-        policy_raw = resource.config.get("policy")
+        policy_raw = resource.attributes.get("policy")
         if not policy_raw:
             return None
 
@@ -71,7 +71,7 @@ class LeastPrivilegeRule(BaseRule):
                         f"action or resource, violating least-privilege access control."
                     ),
                     regulation_reference=self.regulation_reference,
-                    file_path=resource.file_path,
+                    file_path=resource.source.file_path,
                 )
 
         return None

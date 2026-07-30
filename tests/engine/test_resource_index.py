@@ -1,13 +1,19 @@
 from compliance_scanner.engine import ResourceIndex
-from compliance_scanner.parser.terraform_parser import ResolvedResource
+from compliance_scanner.models.resolved_resource import ResolvedResource
+from compliance_scanner.models.platform import Platform
+from compliance_scanner.models.source_location import SourceLocation
+from compliance_scanner.parser.provider_utils import infer_provider
 
 
 def make_resource(resource_type: str, resource_name: str) -> ResolvedResource:
     return ResolvedResource(
+        platform=Platform.TERRAFORM,
+        provider=infer_provider(resource_type),
         resource_type=resource_type,
         resource_name=resource_name,
-        config={},
-        provider_defaults={},
+        attributes={},
+        default_attributes={},
+        source=SourceLocation(),
     )
 
 

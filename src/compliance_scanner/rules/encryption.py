@@ -29,7 +29,7 @@ class EncryptionAtRestRule(BaseRule):
             return None
 
         attr = ENCRYPTION_ATTR[resource.resource_type]
-        value = resource.config.get(attr)
+        value = resource.attributes.get(attr)
 
         is_encrypted = bool(value) and value is not False
         if not is_encrypted:
@@ -43,7 +43,7 @@ class EncryptionAtRestRule(BaseRule):
                     f"explicitly enabled ('{attr}' missing or false)."
                 ),
                 regulation_reference=self.regulation_reference,
-                file_path=resource.file_path,
+                file_path=resource.source.file_path,
             )
 
         return None
