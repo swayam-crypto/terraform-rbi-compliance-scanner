@@ -1,12 +1,15 @@
 from collections import defaultdict
 from collections.abc import Iterator
 
-from compliance_scanner.parser.terraform_parser import ResolvedResource
+from compliance_scanner.models.resolved_resource import ResolvedResource
 
-from .relationship import Relationship
+from compliance_scanner.models.relationship import (
+    Relationship,
+    RelationshipType,
+)
 
 
-class ResourceGraph:
+class RelationshipGraph:
     """Stores relationships between Terraform resources and provides efficient lookups."""
 
     def _key(self, resource: ResolvedResource) -> str:
@@ -24,6 +27,10 @@ class ResourceGraph:
         return iter(self._relationships)
 
     def add(self, relationship: Relationship) -> None:
+        """Add a relationship to the graph if it doesn't already exist."""
+        if relationship in self._relationships:
+            return
+
         self._relationships.append(relationship)
         self._forward[relationship.source].append(relationship)
         self._reverse[relationship.target].append(relationship)
@@ -50,4 +57,18 @@ class ResourceGraph:
         return (
             self.outgoing(resource),
             self.incoming(resource),
+        )
+
+    def relationships(self) -> tuple[Relationship, ...]:
+        """Return all relationships in the graph."""
+        return tuple(self._relationships)
+
+    def has_relationship(
+        self,
+        source: ResolvedResource,
+        target: ResolvedResource,
+    ) -> bool:
+        """Return True if a relationship exists from source to target."""
+        return any(
+            relationship.target == target for relationship in self.outgoing(source)
         )

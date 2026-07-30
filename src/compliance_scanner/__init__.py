@@ -23,14 +23,18 @@ from compliance_scanner.engine import (
     scan_plan,
 )
 
-from compliance_scanner.parser.terraform_parser import (
-    parse_terraform_string,
+from compliance_scanner.models.resolved_resource import (
     ResolvedResource,
+)
+from compliance_scanner.parser.terraform_parser import (
     _resolve_provider_for_resource,
 )
 from compliance_scanner.rules import ALL_RULES
 from compliance_scanner.rules.base import BaseRule, Finding
 from compliance_scanner.reporting import to_json
+from compliance_scanner.models.platform import Platform
+from compliance_scanner.models.source_location import SourceLocation
+from compliance_scanner.parser.provider_utils import infer_provider
 
 __version__ = "0.3.0"
 
@@ -92,11 +96,15 @@ def scan_string(terraform_text: str) -> list[Finding]:
         provider_defaults = _resolve_provider_for_resource(resource_type, providers)
         for resource_name, config in named_configs.items():
             resource = ResolvedResource(
+                platform=Platform.TERRAFORM,
+                provider=infer_provider(resource_type),
                 resource_type=resource_type,
                 resource_name=resource_name,
-                config=config,
-                provider_defaults=provider_defaults,
-                file_path="<string>",
+                attributes=config,
+                default_attributes=provider_defaults,
+                source=SourceLocation(
+                    file_path="<string>",
+                ),
             )
             for rule in ALL_RULES:
                 if resource_type not in rule.applies_to:
