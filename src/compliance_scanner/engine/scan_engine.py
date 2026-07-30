@@ -42,6 +42,11 @@ from compliance_scanner.rules import ALL_RULES
 from compliance_scanner.rules.base import Finding
 
 
+from compliance_scanner.engine.resource_index import ResourceIndex
+from compliance_scanner.engine.relationship_builder import RelationshipBuilder
+from compliance_scanner.engine.scan_context import ScanContext
+
+
 def _run_rules_on_resources(
     resources: list[ResolvedResource],
     file_path: str,
@@ -147,6 +152,16 @@ def scan_directory(
     all_findings: list[Finding] = []
 
     resolved_resources = _resolve_resources(file_resources, all_providers)
+
+    index = ResourceIndex(resolved_resources)
+
+    graph = RelationshipBuilder().build(index)
+
+    context = ScanContext(
+        resources=resolved_resources,
+        resource_index=index,
+        relationship_graph=graph,
+    )
 
     resources_by_file: dict[str, list[ResolvedResource]] = defaultdict(list)
 
