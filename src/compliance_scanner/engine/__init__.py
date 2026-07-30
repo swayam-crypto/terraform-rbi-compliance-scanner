@@ -15,5 +15,5 @@ __all__ = [
     "Relationship",
     "RelationshipType",
     "RelationshipBuilder",
-    "ResourceGraph",
+    "RelationshipGraph",
 ]

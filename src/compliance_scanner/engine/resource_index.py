@@ -9,7 +9,7 @@ and reports.
 from collections import defaultdict
 from collections.abc import Iterable, Iterator
 
-from compliance_scanner.parser.terraform_parser import ResolvedResource
+from compliance_scanner.models.resolved_resource import ResolvedResource
 
 
 class ResourceIndex:
@@ -26,8 +26,8 @@ class ResourceIndex:
 
         by_type: dict[str, list[ResolvedResource]] = defaultdict(list)
         by_name: dict[str, list[ResolvedResource]] = defaultdict(list)
-        by_type_and_name: dict[tuple[str, str], list[ResolvedResource]] = (
-            defaultdict(list)
+        by_type_and_name: dict[tuple[str, str], list[ResolvedResource]] = defaultdict(
+            list
         )
 
         for resource in self._resources:

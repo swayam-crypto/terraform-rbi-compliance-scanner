@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from typing import Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from compliance_scanner.parser.terraform_parser import ResolvedResource
+    from compliance_scanner.models.resolved_resource import ResolvedResource
 
 
 @dataclass
