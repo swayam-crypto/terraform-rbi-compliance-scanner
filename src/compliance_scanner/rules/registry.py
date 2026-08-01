@@ -14,6 +14,7 @@ from .audit_logging import AuditLogRetentionRule
 from .network_exposure import NetworkExposureRule
 from .access_control import LeastPrivilegeRule
 from .graph_base import GraphRule
+from .kms_dependency import KMSDependencyRule
 
 ALL_RULES = [
     DataLocalizationRule(),
@@ -24,5 +25,5 @@ ALL_RULES = [
 ]
 
 GRAPH_RULES = [
-    # empty for now
+    KMSDependencyRule(),
 ]
