@@ -5,8 +5,6 @@ from dataclasses import dataclass, field
 class ResourceDefinition:
     """
     Canonical description of a cloud resource.
-
-    Multiple IaC resource types may map to the same logical resource.
     """
 
     canonical_type: str
@@ -15,8 +13,12 @@ class ResourceDefinition:
 
     service: str
 
+    capabilities: frozenset[str] = field(
+        default_factory=frozenset,
+    )
+
     aliases: tuple[str, ...] = ()
 
-    capabilities: frozenset[str] = field(
+    relationships: frozenset[str] = field(
         default_factory=frozenset,
     )

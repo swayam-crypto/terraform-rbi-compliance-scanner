@@ -32,6 +32,24 @@ class CatalogLoader:
                 canonical_type=resource_data["canonical_type"],
                 provider=resource_data["provider"],
                 service=resource_data["service"],
+                capabilities=frozenset(
+                    resource_data.get(
+                        "capabilities",
+                        [],
+                    )
+                ),
+                aliases=tuple(
+                    resource_data.get(
+                        "aliases",
+                        [],
+                    )
+                ),
+                relationships=frozenset(
+                    resource_data.get(
+                        "relationships",
+                        [],
+                    )
+                ),
             )
 
             registry.register(

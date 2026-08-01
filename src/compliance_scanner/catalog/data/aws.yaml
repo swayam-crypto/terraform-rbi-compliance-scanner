@@ -3,12 +3,45 @@ aws_db_instance:
   provider: aws
   service: rds
 
+  capabilities:
+    - database
+    - encryption
+    - backup
+    - logging
+
+  aliases:
+    - AWS::RDS::DBInstance
+    - aws:rds/instance:Instance
+
+  relationships:
+    - subnet
+    - security_group
+    - kms_key
+
 aws_s3_bucket:
   canonical_type: storage
   provider: aws
   service: s3
 
+  capabilities:
+    - storage
+    - encryption
+    - logging
+
+  relationships:
+    - bucket_policy
+    - kms_key
+
+  aliases:
+    - AWS::S3::Bucket
+
 aws_kms_key:
   canonical_type: encryption
   provider: aws
   service: kms
+
+  capabilities:
+    - encryption
+
+  aliases:
+    - AWS::KMS::Key
