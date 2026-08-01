@@ -25,5 +25,22 @@ class GraphTraversal:
         """
         Return every resource reachable from the starting resource.
         """
+        queue = deque([resource])
 
-        pass
+        visited = {resource}
+
+        reachable: list[ResolvedResource] = []
+
+        while queue:
+            current = queue.popleft()
+
+            for neighbor in self.graph.neighbors(current):
+
+                if neighbor in visited:
+                    continue
+
+                visited.add(neighbor)
+                reachable.append(neighbor)
+                queue.append(neighbor)
+
+        return tuple(reachable)
