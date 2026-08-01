@@ -10,7 +10,7 @@ Usage:
 import argparse
 import sys
 from pathlib import Path
-from compliance_scanner.engine import (
+from compliance_scanner.core import (
     scan_directory,
     scan_directory_large,
     scan_plan,

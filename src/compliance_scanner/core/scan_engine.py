@@ -38,13 +38,17 @@ from compliance_scanner.models.platform import Platform
 from compliance_scanner.models.source_location import SourceLocation
 from compliance_scanner.parser.provider_utils import infer_provider
 
-from compliance_scanner.rules import ALL_RULES
+from compliance_scanner.rules.registry import (
+    ALL_RULES,
+    GRAPH_RULES,
+)
 from compliance_scanner.rules.base import Finding
 
+from compliance_scanner.parser.relationship_extractor import RelationshipExtractor
 
-from compliance_scanner.engine.resource_index import ResourceIndex
-from compliance_scanner.engine.relationship_builder import RelationshipBuilder
-from compliance_scanner.engine.scan_context import ScanContext
+from compliance_scanner.graph.resource_index import ResourceIndex
+from compliance_scanner.graph.graph_builder import GraphBuilder
+from compliance_scanner.scan_context import ScanContext
 
 
 def _run_rules_on_resources(
@@ -78,6 +82,20 @@ def _run_rules_on_resources(
                 continue
             result.file_path = file_path
             yield result
+
+
+def _run_graph_rules(
+    context: ScanContext,
+):
+    """
+    Execute every registered graph-aware compliance rule.
+
+    Graph rules analyze the complete infrastructure graph instead of
+    individual resources.
+    """
+
+    for rule in GRAPH_RULES:
+        yield from rule.check_graph(context)
 
 
 def _collect_providers_and_resources(dir_path: str) -> tuple[dict, dict]:
@@ -155,7 +173,11 @@ def scan_directory(
 
     index = ResourceIndex(resolved_resources)
 
-    graph = RelationshipBuilder().build(index)
+    relationships = RelationshipExtractor().extract(
+        resolved_resources,
+        index,
+    )
+    graph = GraphBuilder().build(relationships)
 
     context = ScanContext(
         resources=resolved_resources,
@@ -179,6 +201,9 @@ def scan_directory(
                 suppressed_count,
             )
         )
+
+    # Execute graph-aware compliance rules
+    all_findings.extend(_run_graph_rules(context))
 
     return all_findings
 

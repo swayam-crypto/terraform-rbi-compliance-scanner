@@ -1,10 +1,10 @@
 """Scan orchestration and resource-query interfaces."""
 
-from .resource_index import ResourceIndex
-from .relationship_builder import RelationshipBuilder
-from .relationship_graph import RelationshipGraph
-from compliance_scanner.models.relationship import Relationship, RelationshipType
-from .scan_context import ScanContext
+from ..graph.resource_index import ResourceIndex
+from ..graph.graph_builder import GraphBuilder
+from ..graph.relationship_graph import RelationshipGraph
+from compliance_scanner.graph.relationship import Relationship, RelationshipType
+from ..scan_context import ScanContext
 from .scan_engine import (
     scan_directory,
     scan_directory_large,
@@ -18,7 +18,7 @@ __all__ = [
     "ResourceIndex",
     "Relationship",
     "RelationshipType",
-    "RelationshipBuilder",
+    "GraphBuilder",
     "RelationshipGraph",
     "ScanContext",
 ]
