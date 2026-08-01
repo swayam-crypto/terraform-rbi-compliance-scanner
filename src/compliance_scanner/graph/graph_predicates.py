@@ -1,5 +1,7 @@
 from compliance_scanner.graph.graph_query import GraphQuery
 from compliance_scanner.models.resolved_resource import ResolvedResource
+from compliance_scanner.catalog.global_catalog import catalog
+from compliance_scanner.catalog.catalog import Catalog
 
 
 class GraphPredicates:
@@ -13,8 +15,10 @@ class GraphPredicates:
     def __init__(
         self,
         query: GraphQuery,
+        catalog_instance: Catalog = catalog,
     ):
         self.query = query
+        self.catalog = catalog_instance
 
     def reachable_resources(
         self,
@@ -41,7 +45,7 @@ class GraphPredicates:
     def depends_on(
         self,
         resource: ResolvedResource,
-        resource_type: str,
+        capability: str,
     ) -> bool:
         """
         Return True if the resource depends on at least one resource
@@ -49,7 +53,7 @@ class GraphPredicates:
         """
         return self.query.has_dependency(
             resource,
-            resource_type,
+            capability,
         )
 
     def is_database(
@@ -57,25 +61,23 @@ class GraphPredicates:
         resource: ResolvedResource,
     ) -> bool:
         """
-        Return True if the resource is a database.
+        Return True if the resource is classified as a database.
         """
 
-        return resource.resource_type in {
-            "aws_db_instance",
-            "aws_rds_cluster",
-        }
+        return self.catalog.has_capability(
+            resource,
+            "database",
+        )
 
     def is_public_entry_point(
         self,
         resource: ResolvedResource,
     ) -> bool:
         """
-        Return True if the resource can act as a public entry point
+        Return True if the resource can act as a public entry point.
         """
 
-        return resource.resource_type in {
-            "aws_lb",
-            "aws_alb",
-            "aws_api_gateway_rest_api",
-            "aws_cloudfront_distribution",
-        }
+        return self.catalog.has_capability(
+            resource,
+            "public_entry_point",
+        )
