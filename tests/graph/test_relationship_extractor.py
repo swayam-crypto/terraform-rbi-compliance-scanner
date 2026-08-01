@@ -24,6 +24,43 @@ def make_resource(
     )
 
 
+def test_extract_vpc_relationship():
+    vpc = make_resource(
+        "aws_vpc",
+        "main",
+    )
+
+    subnet = make_resource(
+        "aws_subnet",
+        "private",
+        {
+            "vpc_id": "aws_vpc.main.id",
+        },
+    )
+
+    resources = [
+        vpc,
+        subnet,
+    ]
+
+    index = ResourceIndex(resources)
+
+    extractor = RelationshipExtractor()
+
+    relationships = extractor.extract(
+        resources,
+        index,
+    )
+
+    assert len(relationships) == 1
+
+    relationship = relationships[0]
+
+    assert relationship.source == subnet
+    assert relationship.target == vpc
+    assert relationship.relationship_type == RelationshipType.USES_VPC
+
+
 def test_extract_subnet_relationship():
     subnet = make_resource(
         "aws_subnet",
