@@ -45,3 +45,39 @@ aws_kms_key:
 
   aliases:
     - AWS::KMS::Key
+
+aws_lb:
+  canonical_type: load_balancer
+  provider: aws
+  service: elb
+
+  capabilities:
+    - public_entry_point
+    - load_balancer
+
+aws_alb:
+  canonical_type: load_balancer
+  provider: aws
+  service: elbv2
+
+  capabilities:
+    - public_entry_point
+    - load_balancer
+
+aws_api_gateway_rest_api:
+  canonical_type: api_gateway
+  provider: aws
+  service: apigateway
+
+  capabilities:
+    - public_entry_point
+    - api_gateway
+
+aws_cloudfront_distribution:
+  canonical_type: cdn
+  provider: aws
+  service: cloudfront
+
+  capabilities:
+    - public_entry_point
+    - cdn
