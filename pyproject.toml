@@ -13,7 +13,8 @@ authors = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "python-hcl2>=4.3.0"
+    "python-hcl2>=4.3.0",
+    "PyYAML>=6.0"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
