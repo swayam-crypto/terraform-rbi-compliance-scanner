@@ -41,6 +41,7 @@ from compliance_scanner.parser.provider_utils import infer_provider
 from compliance_scanner.rules import ALL_RULES
 from compliance_scanner.rules.base import Finding
 
+from compliance_scanner.parser.relationship_extractor import RelationshipExtractor
 
 from compliance_scanner.graph.resource_index import ResourceIndex
 from compliance_scanner.graph.graph_builder import GraphBuilder
@@ -155,7 +156,11 @@ def scan_directory(
 
     index = ResourceIndex(resolved_resources)
 
-    graph = GraphBuilder().build(index)
+    relationships = RelationshipExtractor().extract(
+        resolved_resources,
+        index,
+    )
+    graph = GraphBuilder().build(relationships)
 
     context = ScanContext(
         resources=resolved_resources,

@@ -1,5 +1,5 @@
 from .resolved_resource import ResolvedResource
-from .provider import CloudProvider
+from compliance_scanner.models.provider import CloudProvider
 from .platform import Platform
 from .source_location import SourceLocation
 

@@ -70,6 +70,29 @@ class RelationshipExtractor:
 
                 mapping = ATTRIBUTE_RELATIONSHIPS[attribute_name]
                 relationship_type, target_resource_type = mapping
+
+                reference = self._parse_reference(attribute_value)
+
+                if reference is None:
+                    continue
+                resource_type, resource_name = reference
+
+                if resource_type != target_resource_type:
+                    continue
+                target = index.find(
+                    resource_type=resource_type,
+                    resource_name=resource_name,
+                )
+                if target is None:
+                    continue
+                relationships.append(
+                    Relationship(
+                        source=resource,
+                        target=target,
+                        relationship_type=relationship_type,
+                        metadata={},
+                    )
+                )
                 print(f"{resource.resource_type}.{resource.resource_name}")
                 print(attribute_name, attribute_value)
 
@@ -78,3 +101,24 @@ class RelationshipExtractor:
         # Create a Relationship
         # Append it to relationships
         return relationships
+
+    def _parse_reference(
+        self,
+        value: str,
+    ) -> tuple[str, str] | None:
+
+        if not isinstance(value, str):
+            return None
+
+        parts = value.split(".")
+
+        if len(parts) < 3:
+            return None
+
+        resource_type = parts[0]
+        resource_name = parts[1]
+
+        return (
+            resource_type,
+            resource_name,
+        )
