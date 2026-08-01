@@ -1,24 +1,61 @@
+from compliance_scanner.graph.relationship import RelationshipType
 from compliance_scanner.parser.relationship_extractor import RelationshipExtractor
+from compliance_scanner.graph.resource_index import ResourceIndex
+
+from compliance_scanner.models.platform import Platform
+from compliance_scanner.models.resolved_resource import ResolvedResource
+from compliance_scanner.models.source_location import SourceLocation
+from compliance_scanner.parser.provider_utils import infer_provider
 
 
-def test_parse_reference():
-    extractor = RelationshipExtractor()
+def make_resource(
+    resource_type: str,
+    resource_name: str,
+    attributes: dict | None = None,
+) -> ResolvedResource:
+    return ResolvedResource(
+        platform=Platform.TERRAFORM,
+        provider=infer_provider(resource_type),
+        resource_type=resource_type,
+        resource_name=resource_name,
+        attributes=attributes or {},
+        default_attributes={},
+        source=SourceLocation(),
+    )
 
-    reference = extractor._parse_reference("aws_subnet.private.id")
 
-    assert reference == (
+def test_extract_subnet_relationship():
+    subnet = make_resource(
         "aws_subnet",
         "private",
     )
 
+    instance = make_resource(
+        "aws_instance",
+        "web",
+        {
+            "subnet_id": "aws_subnet.private.id",
+        },
+    )
 
-def test_parse_reference_returns_none_for_non_reference():
+    resources = [
+        subnet,
+        instance,
+    ]
+
+    index = ResourceIndex(resources)
+
     extractor = RelationshipExtractor()
 
-    assert extractor._parse_reference("subnet-123456") is None
+    relationships = extractor.extract(
+        resources,
+        index,
+    )
 
+    assert len(relationships) == 1
 
-def test_parse_reference_returns_none_for_non_string():
-    extractor = RelationshipExtractor()
+    relationship = relationships[0]
 
-    assert extractor._parse_reference(None) is None
+    assert relationship.source == instance
+    assert relationship.target == subnet
+    assert relationship.relationship_type == RelationshipType.USES_SUBNET

@@ -79,22 +79,20 @@ class RelationshipExtractor:
 
                 if resource_type != target_resource_type:
                     continue
-                target = index.find(
+                targets = index.find(
                     resource_type=resource_type,
                     resource_name=resource_name,
                 )
-                if target is None:
+                if not targets:
                     continue
+                target = targets[0]
                 relationships.append(
                     Relationship(
                         source=resource,
                         target=target,
                         relationship_type=relationship_type,
-                        metadata={},
                     )
                 )
-                print(f"{resource.resource_type}.{resource.resource_name}")
-                print(attribute_name, attribute_value)
 
         # Resolve the reference
         # Find the target resource
