@@ -1,4 +1,4 @@
-from compliance_scanner.graph.relationship import RelationshipType
+from compliance_scanner.graph.relationship import RelationshipType, Relationship
 from compliance_scanner.parser.relationship_extractor import RelationshipExtractor
 from compliance_scanner.graph.resource_index import ResourceIndex
 
@@ -24,41 +24,23 @@ def make_resource(
     )
 
 
-def test_extract_vpc_relationship():
-    vpc = make_resource(
-        "aws_vpc",
-        "main",
-    )
+def extract_relationships(
+    *resources: ResolvedResource,
+) -> list[Relationship]:
+    """
+    Build a ResourceIndex and run the RelationshipExtractor.
+    """
 
-    subnet = make_resource(
-        "aws_subnet",
-        "private",
-        {
-            "vpc_id": "aws_vpc.main.id",
-        },
-    )
-
-    resources = [
-        vpc,
-        subnet,
-    ]
+    resources = list(resources)
 
     index = ResourceIndex(resources)
 
     extractor = RelationshipExtractor()
 
-    relationships = extractor.extract(
+    return extractor.extract(
         resources,
         index,
     )
-
-    assert len(relationships) == 1
-
-    relationship = relationships[0]
-
-    assert relationship.source == subnet
-    assert relationship.target == vpc
-    assert relationship.relationship_type == RelationshipType.USES_VPC
 
 
 def test_extract_subnet_relationship():
@@ -75,18 +57,9 @@ def test_extract_subnet_relationship():
         },
     )
 
-    resources = [
+    relationships = extract_relationships(
         subnet,
         instance,
-    ]
-
-    index = ResourceIndex(resources)
-
-    extractor = RelationshipExtractor()
-
-    relationships = extractor.extract(
-        resources,
-        index,
     )
 
     assert len(relationships) == 1
@@ -96,3 +69,75 @@ def test_extract_subnet_relationship():
     assert relationship.source == instance
     assert relationship.target == subnet
     assert relationship.relationship_type == RelationshipType.USES_SUBNET
+
+
+def test_extract_vpc_relationship():
+    vpc = make_resource(
+        "aws_vpc",
+        "main",
+    )
+
+    subnet = make_resource(
+        "aws_subnet",
+        "private",
+        {
+            "vpc_id": "aws_vpc.main.id",
+        },
+    )
+
+    relationships = extract_relationships(
+        vpc,
+        subnet,
+    )
+
+    assert len(relationships) == 1
+
+    relationship = relationships[0]
+
+    assert relationship.source == subnet
+    assert relationship.target == vpc
+    assert relationship.relationship_type == RelationshipType.USES_VPC
+
+
+def test_extract_security_group_relationship():
+    web_sg = make_resource(
+        "aws_security_group",
+        "web",
+    )
+    db_sg = make_resource(
+        "aws_security_group",
+        "db",
+    )
+    instance = make_resource(
+        "aws_instance",
+        "frontend",
+        {
+            "vpc_security_group_ids": [
+                "aws_security_group.web.id",
+                "aws_security_group.db.id",
+            ],
+        },
+    )
+
+    relationships = extract_relationships(
+        web_sg,
+        db_sg,
+        instance,
+    )
+
+    assert len(relationships) == 2
+
+    assert relationships[0].relationship_type == (
+        RelationshipType.ATTACHED_TO_SECURITY_GROUP
+    )
+
+    assert relationships[1].relationship_type == (
+        RelationshipType.ATTACHED_TO_SECURITY_GROUP
+    )
+
+    targets = {relationship.target.resource_name for relationship in relationships}
+
+    assert targets == {
+        "web",
+        "db",
+    }

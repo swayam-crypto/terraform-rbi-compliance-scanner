@@ -71,28 +71,28 @@ class RelationshipExtractor:
                 mapping = ATTRIBUTE_RELATIONSHIPS[attribute_name]
                 relationship_type, target_resource_type = mapping
 
-                reference = self._parse_reference(attribute_value)
+                references = self._parse_references(attribute_value)
 
-                if reference is None:
-                    continue
-                resource_type, resource_name = reference
+                for resource_type, resource_name in references:
 
-                if resource_type != target_resource_type:
-                    continue
-                targets = index.find(
-                    resource_type=resource_type,
-                    resource_name=resource_name,
-                )
-                if not targets:
-                    continue
-                target = targets[0]
-                relationships.append(
-                    Relationship(
-                        source=resource,
-                        target=target,
-                        relationship_type=relationship_type,
+                    if resource_type != target_resource_type:
+                        continue
+
+                    targets = index.find(
+                        resource_type=resource_type,
+                        resource_name=resource_name,
                     )
-                )
+
+                    if not targets:
+                        continue
+
+                    relationships.append(
+                        Relationship(
+                            source=resource,
+                            target=targets[0],
+                            relationship_type=relationship_type,
+                        )
+                    )
 
         # Resolve the reference
         # Find the target resource
@@ -100,23 +100,47 @@ class RelationshipExtractor:
         # Append it to relationships
         return relationships
 
-    def _parse_reference(
+    def _parse_references(
         self,
-        value: str,
-    ) -> tuple[str, str] | None:
+        value: object,
+    ) -> list[tuple[str, str]]:
+        """
+        Parse one or more Terraform resource references.
 
-        if not isinstance(value, str):
-            return None
+        Examples:
+            "aws_subnet.private.id"
+                -> [("aws_subnet", "private")]
 
-        parts = value.split(".")
+            [
+                "aws_security_group.web.id",
+                "aws_security_group.db.id",
+            ]
+                -> [
+                    ("aws_security_group", "web"),
+                    ("aws_security_group", "db"),
+                ]
+        """
 
-        if len(parts) < 3:
-            return None
+        references: list[tuple[str, str]] = []
 
-        resource_type = parts[0]
-        resource_name = parts[1]
+        values: list[str]
 
-        return (
-            resource_type,
-            resource_name,
-        )
+        if isinstance(value, str):
+            values = [value]
+        elif isinstance(value, list):
+            values = [item for item in value if isinstance(item, str)]
+        else:
+            return references
+
+        for item in values:
+            parts = item.split(".")
+
+            if len(parts) < 3:
+                continue
+            references.append(
+                (
+                    parts[0],
+                    parts[1],
+                )
+            )
+        return references
