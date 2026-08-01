@@ -38,7 +38,10 @@ from compliance_scanner.models.platform import Platform
 from compliance_scanner.models.source_location import SourceLocation
 from compliance_scanner.parser.provider_utils import infer_provider
 
-from compliance_scanner.rules import ALL_RULES
+from compliance_scanner.rules.registry import (
+    ALL_RULES,
+    GRAPH_RULES,
+)
 from compliance_scanner.rules.base import Finding
 
 from compliance_scanner.parser.relationship_extractor import RelationshipExtractor
@@ -79,6 +82,20 @@ def _run_rules_on_resources(
                 continue
             result.file_path = file_path
             yield result
+
+
+def _run_graph_rules(
+    context: ScanContext,
+):
+    """
+    Execute every registered graph-aware compliance rule.
+
+    Graph rules analyze the complete infrastructure graph instead of
+    individual resources.
+    """
+
+    for rule in GRAPH_RULES:
+        yield from rule.check_graph(context)
 
 
 def _collect_providers_and_resources(dir_path: str) -> tuple[dict, dict]:
@@ -184,6 +201,9 @@ def scan_directory(
                 suppressed_count,
             )
         )
+
+    # Execute graph-aware compliance rules
+    all_findings.extend(_run_graph_rules(context))
 
     return all_findings
 

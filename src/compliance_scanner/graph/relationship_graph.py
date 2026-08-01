@@ -72,3 +72,20 @@ class RelationshipGraph:
         return any(
             relationship.target == target for relationship in self.outgoing(source)
         )
+
+    def outgoing_by_type(
+        self,
+        resource: ResolvedResource,
+        relationship_type: RelationshipType,
+    ) -> tuple[Relationship, ...]:
+        return tuple(
+            relationship
+            for relationship in self.outgoing(resource)
+            if relationship.relationship_type == relationship_type
+        )
+
+    def neighbors(
+        self,
+        resource: ResolvedResource,
+    ) -> tuple[ResolvedResource, ...]:
+        return tuple(relationship.target for relationship in self.outgoing(resource))

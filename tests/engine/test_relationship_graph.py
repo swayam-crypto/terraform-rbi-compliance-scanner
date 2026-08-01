@@ -40,7 +40,7 @@ def test_graph_adds_relationship():
     relationship = Relationship(
         source=bucket,
         target=policy,
-        relationship_type=RelationshipType.ATTACHED_TO_BUCKET_POLICY,
+        relationship_type=RelationshipType.ATTACHED_TO_BUCKET,
     )
 
     graph = RelationshipGraph()
