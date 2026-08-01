@@ -1,0 +1,14 @@
+aws_db_instance:
+  canonical_type: database
+  provider: aws
+  service: rds
+
+aws_s3_bucket:
+  canonical_type: storage
+  provider: aws
+  service: s3
+
+aws_kms_key:
+  canonical_type: encryption
+  provider: aws
+  service: kms
