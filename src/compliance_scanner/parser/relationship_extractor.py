@@ -77,6 +77,4 @@ class RelationshipExtractor:
         # Find the target resource
         # Create a Relationship
         # Append it to relationships
-        relationships: list[Relationship] = []
-
         return relationships
