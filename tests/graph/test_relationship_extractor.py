@@ -141,3 +141,31 @@ def test_extract_security_group_relationship():
         "web",
         "db",
     }
+
+
+def test_extract_kms_key_relationship():
+    kms_key = make_resource(
+        "aws_kms_key",
+        "storage_key",
+    )
+
+    bucket = make_resource(
+        "aws_s3_bucket",
+        "customer_data",
+        {
+            "kms_key_id": "aws_kms_key.storage_key.id",
+        },
+    )
+
+    relationships = extract_relationships(
+        kms_key,
+        bucket,
+    )
+
+    assert len(relationships) == 1
+
+    relationship = relationships[0]
+
+    assert relationship.source == bucket
+    assert relationship.target == kms_key
+    assert relationship.relationship_type == RelationshipType.USES_KMS_KEY
