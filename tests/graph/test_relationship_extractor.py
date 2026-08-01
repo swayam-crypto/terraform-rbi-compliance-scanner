@@ -169,3 +169,59 @@ def test_extract_kms_key_relationship():
     assert relationship.source == bucket
     assert relationship.target == kms_key
     assert relationship.relationship_type == RelationshipType.USES_KMS_KEY
+
+
+def test_extract_target_group_relationship():
+    target_group = make_resource(
+        "aws_lb_target_group",
+        "web_tg",
+    )
+
+    listener = make_resource(
+        "aws_lb_listener",
+        "https",
+        {
+            "target_group_arn": "aws_lb_target_group.web_tg.arn",
+        },
+    )
+
+    relationships = extract_relationships(
+        target_group,
+        listener,
+    )
+
+    assert len(relationships) == 1
+
+    relationship = relationships[0]
+
+    assert relationship.source == listener
+    assert relationship.target == target_group
+    assert relationship.relationship_type == RelationshipType.USES_TARGET_GROUP
+
+
+def test_extract_bucket_relationship():
+    bucket = make_resource(
+        "aws_s3_bucket",
+        "logs",
+    )
+
+    bucket_policy = make_resource(
+        "aws_s3_bucket_policy",
+        "logs_policy",
+        {
+            "bucket": "aws_s3_bucket.logs.id",
+        },
+    )
+
+    relationships = extract_relationships(
+        bucket,
+        bucket_policy,
+    )
+
+    assert len(relationships) == 1
+
+    relationship = relationships[0]
+
+    assert relationship.source == bucket_policy
+    assert relationship.target == bucket
+    assert relationship.relationship_type == RelationshipType.ATTACHED_TO_BUCKET

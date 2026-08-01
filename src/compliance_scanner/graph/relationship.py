@@ -13,7 +13,7 @@ class RelationshipType(Enum):
     USES_VPC = "vpc"
     SUBNET_GROUP = "subnet_group"
     ATTACHED_TO_IAM_POLICY = "iam_policy"
-    ATTACHED_TO_BUCKET_POLICY = "bucket_policy"
+    ATTACHED_TO_BUCKET = "bucekt"
     USES_KMS_KEY = "kms_key"
     USES_TARGET_GROUP = "target_group"
 

@@ -36,10 +36,7 @@ ATTRIBUTE_RELATIONSHIPS: Final[dict[str, tuple[RelationshipType, str]]] = {
         "aws_lb_target_group",
     ),
     # Storage
-    "bucket_policy": (
-        RelationshipType.ATTACHED_TO_BUCKET_POLICY,
-        "aws_s3_bucket_policy",
-    ),
+    "bucket": (RelationshipType.ATTACHED_TO_BUCKET, "aws_s3_bucket"),
 }
 
 
