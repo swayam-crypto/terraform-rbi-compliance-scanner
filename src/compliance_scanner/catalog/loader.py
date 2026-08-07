@@ -184,17 +184,148 @@ class CatalogLoader:
     ) -> None:
         """
         Validate a catalog resource before constructing a ResourceDefinition.
-
-        TODO (Future):
-        - Verify all required fields exist.
-        - Validate ResourceKind values.
-        - Validate CanonicalType values.
-        - Validate AttributeType values.
-        - Ensure aliases are unique.
-        - Ensure capability names are valid.
-        - Validate relationship names.
-        - Detect duplicate canonical resources.
-        - Raise CatalogValidationError for invalid catalog entries.
         """
 
-        pass
+        self._validate_required_fields(
+            resource_type,
+            resource_data,
+        )
+
+        self._validate_kind(
+            resource_type,
+            resource_data,
+        )
+
+        self._validate_canonical_type(
+            resource_type,
+            resource_data,
+        )
+
+        self._validate_attributes(
+            resource_type,
+            resource_data,
+        )
+
+        self._validate_aliases(
+            resource_type,
+            resource_data,
+        )
+
+    def _validate_required_fields(
+        self,
+        resource_type: str,
+        resource_data: dict[str, Any],
+    ) -> None:
+
+        required = (
+            "provider",
+            "service",
+            "display_name",
+            "kind",
+            "canonical_type",
+        )
+
+        for field in required:
+
+            if field not in resource_data:
+
+                raise ValueError(f"{resource_type}: missing required field '{field}'.")
+
+    def _validate_kind(
+        self,
+        resource_type: str,
+        resource_data: dict[str, Any],
+    ) -> None:
+
+        try:
+
+            ResourceKind(
+                resource_data["kind"],
+            )
+
+        except ValueError as error:
+
+            raise ValueError(
+                f"{resource_type}: invalid resource kind " f"'{resource_data['kind']}'."
+            ) from error
+
+    def _validate_canonical_type(
+        self,
+        resource_type: str,
+        resource_data: dict[str, Any],
+    ) -> None:
+
+        try:
+
+            CanonicalType(
+                resource_data["canonical_type"],
+            )
+
+        except ValueError as error:
+
+            raise ValueError(
+                f"{resource_type}: invalid canonical type "
+                f"'{resource_data['canonical_type']}'."
+            ) from error
+
+    def _validate_attributes(
+        self,
+        resource_type: str,
+        resource_data: dict[str, Any],
+    ) -> None:
+
+        attributes = resource_data.get(
+            "attributes",
+            {},
+        )
+
+        names: set[str] = set()
+
+        for key, attribute in attributes.items():
+
+            if "name" not in attribute:
+
+                raise ValueError(f"{resource_type}.{key}: missing attribute name.")
+
+            if "type" not in attribute:
+
+                raise ValueError(f"{resource_type}.{key}: missing attribute type.")
+
+            try:
+
+                AttributeType(
+                    attribute["type"],
+                )
+
+            except ValueError as error:
+
+                raise ValueError(
+                    f"{resource_type}.{key}: invalid attribute type "
+                    f"'{attribute['type']}'."
+                ) from error
+
+            if attribute["name"] in names:
+
+                raise ValueError(
+                    f"{resource_type}: duplicate attribute "
+                    f"name '{attribute['name']}'."
+                )
+
+            names.add(
+                attribute["name"],
+            )
+
+    def _validate_aliases(
+        self,
+        resource_type: str,
+        resource_data: dict[str, Any],
+    ) -> None:
+
+        aliases = resource_data.get(
+            "aliases",
+            [],
+        )
+
+        if len(aliases) != len(set(aliases)):
+
+            raise ValueError(f"{resource_type}: duplicate aliases found.")

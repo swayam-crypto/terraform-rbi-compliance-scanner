@@ -303,3 +303,116 @@ azurerm_storage_account:
     assert registry.has("aws_db_instance")
 
     assert registry.has("azurerm_storage_account")
+
+
+def test_missing_required_field(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+aws_db_instance:
+  provider: aws
+  service: rds
+""",
+    )
+
+    registry = CatalogRegistry()
+
+    loader = CatalogLoader()
+
+    with pytest.raises(ValueError):
+        loader.load(
+            registry,
+            str(yaml_file),
+        )
+
+
+def test_invalid_kind(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+aws_db_instance:
+  provider: aws
+  service: rds
+  display_name: Test
+
+  kind: invalid_kind
+  canonical_type: database
+""",
+    )
+
+    registry = CatalogRegistry()
+
+    loader = CatalogLoader()
+
+    with pytest.raises(ValueError):
+        loader.load(
+            registry,
+            str(yaml_file),
+        )
+
+
+def test_invalid_canonical_type(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+aws_db_instance:
+  provider: aws
+  service: rds
+  display_name: Test
+
+  kind: data
+  canonical_type: invalid_type
+""",
+    )
+
+    registry = CatalogRegistry()
+
+    loader = CatalogLoader()
+
+    with pytest.raises(ValueError):
+        loader.load(
+            registry,
+            str(yaml_file),
+        )
+
+
+def test_invalid_attribute_type(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+aws_db_instance:
+  provider: aws
+  service: rds
+  display_name: Test
+
+  kind: data
+  canonical_type: database
+
+  attributes:
+    encryption:
+      name: storage_encrypted
+      type: invalid
+""",
+    )
+
+    registry = CatalogRegistry()
+
+    loader = CatalogLoader()
+
+    with pytest.raises(ValueError):
+        loader.load(
+            registry,
+            str(yaml_file),
+        )
