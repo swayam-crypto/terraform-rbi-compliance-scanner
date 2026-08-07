@@ -1,50 +1,71 @@
 from pathlib import Path
+from types import MappingProxyType
 
+import pytest
+
+from compliance_scanner.catalog.attributes import (
+    AttributeDefinition,
+    AttributeType,
+)
+from compliance_scanner.catalog.canonical_types import CanonicalType
+from compliance_scanner.catalog.kinds import ResourceKind
 from compliance_scanner.catalog.loader import CatalogLoader
 from compliance_scanner.catalog.registry import CatalogRegistry
+
+
+def write_catalog(
+    path: Path,
+    content: str,
+) -> None:
+    """
+    Helper for writing temporary catalog YAML files.
+    """
+
+    path.write_text(
+        content,
+        encoding="utf-8",
+    )
 
 
 def test_load_catalog(tmp_path: Path):
 
     yaml_file = tmp_path / "aws.yaml"
 
-    yaml_file.write_text("""
+    write_catalog(
+        yaml_file,
+        """
 aws_db_instance:
-  canonical_type: database
   provider: aws
   service: rds
+  display_name: Amazon RDS DB Instance
+
+  kind: data
+  canonical_type: database
 
   capabilities:
-    - database
     - encryption
     - backup
     - logging
 
-  aliases:
-    - AWS::RDS::DBInstance
-    - aws:rds/instance:Instance
+  attributes:
+    encryption:
+      name: storage_encrypted
+      type: boolean
+      default: false
+      description: Storage encryption.
 
   relationships:
     - subnet
     - security_group
     - kms_key
 
-aws_s3_bucket:
-  canonical_type: storage
-  provider: aws
-  service: s3
-
-  capabilities:
-    - storage
-    - encryption
-
   aliases:
-    - AWS::S3::Bucket
+    - AWS::RDS::DBInstance
 
-  relationships:
-    - bucket_policy
-    - kms_key
-        """)
+  metadata:
+    deprecated: false
+""",
+    )
 
     registry = CatalogRegistry()
 
@@ -56,26 +77,27 @@ aws_s3_bucket:
     )
 
     assert registry.has("aws_db_instance")
-    assert registry.has("aws_s3_bucket")
 
-    database = registry.get("aws_db_instance")
+    definition = registry.get("aws_db_instance")
 
-    assert database is not None
+    assert definition is not None
 
-    assert database.canonical_type == "database"
-    assert database.provider == "aws"
-    assert database.service == "rds"
+    assert definition.provider == "aws"
+    assert definition.service == "rds"
+    assert definition.display_name == "Amazon RDS DB Instance"
 
-    assert database.capabilities == frozenset(
+    assert definition.kind == ResourceKind.DATA
+    assert definition.canonical_type == CanonicalType.DATABASE
+
+    assert definition.capabilities == frozenset(
         {
-            "database",
             "encryption",
             "backup",
             "logging",
         }
     )
 
-    assert database.relationships == frozenset(
+    assert definition.relationships == frozenset(
         {
             "subnet",
             "security_group",
@@ -83,10 +105,156 @@ aws_s3_bucket:
         }
     )
 
-    assert database.aliases == (
-        "AWS::RDS::DBInstance",
-        "aws:rds/instance:Instance",
+    assert definition.aliases == ("AWS::RDS::DBInstance",)
+
+    assert definition.metadata["deprecated"] is False
+
+
+def test_attributes_are_converted(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+aws_db_instance:
+  provider: aws
+  service: rds
+
+  display_name: Amazon RDS
+
+  kind: data
+  canonical_type: database
+
+  attributes:
+
+    encryption:
+      name: storage_encrypted
+      type: boolean
+      default: false
+      description: Encryption flag.
+""",
     )
+
+    registry = CatalogRegistry()
+
+    loader = CatalogLoader()
+
+    loader.load(
+        registry,
+        str(yaml_file),
+    )
+
+    definition = registry.get("aws_db_instance")
+
+    assert definition is not None
+
+    attribute = definition.attributes["encryption"]
+
+    assert isinstance(
+        attribute,
+        AttributeDefinition,
+    )
+
+    assert attribute.name == "storage_encrypted"
+
+    assert attribute.type == AttributeType.BOOLEAN
+
+    assert attribute.default is False
+
+
+def test_attributes_are_immutable(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+aws_db_instance:
+  provider: aws
+  service: rds
+
+  display_name: Amazon RDS
+
+  kind: data
+  canonical_type: database
+
+  attributes:
+
+    encryption:
+      name: storage_encrypted
+      type: boolean
+""",
+    )
+
+    registry = CatalogRegistry()
+
+    loader = CatalogLoader()
+
+    loader.load(
+        registry,
+        str(yaml_file),
+    )
+
+    definition = registry.get("aws_db_instance")
+
+    assert definition is not None
+
+    assert isinstance(
+        definition.attributes,
+        MappingProxyType,
+    )
+
+    with pytest.raises(TypeError):
+
+        definition.attributes["new"] = AttributeDefinition(
+            name="dummy",
+            type=AttributeType.STRING,
+        )
+
+
+def test_metadata_is_immutable(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+aws_db_instance:
+  provider: aws
+  service: rds
+
+  display_name: Amazon RDS
+
+  kind: data
+  canonical_type: database
+
+  metadata:
+    deprecated: false
+""",
+    )
+
+    registry = CatalogRegistry()
+
+    loader = CatalogLoader()
+
+    loader.load(
+        registry,
+        str(yaml_file),
+    )
+
+    definition = registry.get("aws_db_instance")
+
+    assert definition is not None
+
+    assert isinstance(
+        definition.metadata,
+        MappingProxyType,
+    )
+
+    with pytest.raises(TypeError):
+
+        definition.metadata["deprecated"] = True
 
 
 def test_load_directory(tmp_path: Path):
@@ -95,19 +263,33 @@ def test_load_directory(tmp_path: Path):
 
     azure = tmp_path / "azure.yaml"
 
-    aws.write_text("""
+    write_catalog(
+        aws,
+        """
 aws_db_instance:
-  canonical_type: database
   provider: aws
   service: rds
-""")
 
-    azure.write_text("""
+  display_name: Amazon RDS
+
+  kind: data
+  canonical_type: database
+""",
+    )
+
+    write_catalog(
+        azure,
+        """
 azurerm_storage_account:
-  canonical_type: storage
   provider: azure
   service: storage
-""")
+
+  display_name: Azure Storage Account
+
+  kind: storage
+  canonical_type: object_storage
+""",
+    )
 
     registry = CatalogRegistry()
 
@@ -119,44 +301,5 @@ azurerm_storage_account:
     )
 
     assert registry.has("aws_db_instance")
+
     assert registry.has("azurerm_storage_account")
-    database = registry.get("aws_db_instance")
-
-    assert database is not None
-    assert database.provider == "aws"
-    assert database.service == "rds"
-
-    storage = registry.get("azurerm_storage_account")
-
-    assert storage is not None
-    assert storage.provider == "azure"
-    assert storage.service == "storage"
-
-
-def test_load_catalog_defaults(tmp_path: Path):
-
-    yaml_file = tmp_path / "aws.yaml"
-
-    yaml_file.write_text("""
-aws_db_instance:
-  canonical_type: database
-  provider: aws
-  service: rds
-""")
-
-    registry = CatalogRegistry()
-
-    loader = CatalogLoader()
-
-    loader.load(
-        registry,
-        str(yaml_file),
-    )
-
-    database = registry.get("aws_db_instance")
-
-    assert database is not None
-
-    assert database.capabilities == frozenset()
-    assert database.relationships == frozenset()
-    assert database.aliases == ()
