@@ -1,14 +1,9 @@
+from compliance_scanner.catalog.global_catalog import catalog
 from compliance_scanner.graph.graph_predicates import GraphPredicates
 from compliance_scanner.graph.graph_query import GraphQuery
-
 from compliance_scanner.graph_rules.base import GraphRule
-
 from compliance_scanner.rules.base import Finding
-
-from compliance_scanner.models.resolved_resource import ResolvedResource
-
 from compliance_scanner.scan_context import ScanContext
-from compliance_scanner.catalog.global_catalog import catalog
 
 
 class PublicDatabaseExposureRule(GraphRule):
@@ -23,11 +18,10 @@ class PublicDatabaseExposureRule(GraphRule):
 
     required_capabilities = frozenset({"public_entry_point"})
 
-    def check(
+    def check_graph(
         self,
-        resource: ResolvedResource,
         context: ScanContext,
-    ) -> Finding | None:
+    ) -> list[Finding]:
 
         predicates = GraphPredicates(
             GraphQuery(
@@ -35,20 +29,31 @@ class PublicDatabaseExposureRule(GraphRule):
             )
         )
 
-        if not catalog.has_capabilities(resource, self.required_capabilities):
-            return None
+        findings: list[Finding] = []
 
-        if not predicates.depends_on_capabilities(
-            resource,
-            frozenset({"data_store"}),
-        ):
-            return None
+        for resource in context.resources:
 
-        return Finding(
-            rule_id=self.rule_id,
-            severity=self.severity,
-            resource_type=resource.resource_type,
-            resource_name=resource.resource_name,
-            message="Public entry point can reach a database.",
-            regulation_reference=self.regulation_reference,
-        )
+            if not catalog.has_capabilities(
+                resource,
+                self.required_capabilities,
+            ):
+                continue
+
+            if not predicates.depends_on_capabilities(
+                resource,
+                frozenset({"data_store"}),
+            ):
+                continue
+
+            findings.append(
+                Finding(
+                    rule_id=self.rule_id,
+                    severity=self.severity,
+                    resource_type=resource.resource_type,
+                    resource_name=resource.resource_name,
+                    message="Public entry point can reach a database.",
+                    regulation_reference=self.regulation_reference,
+                )
+            )
+
+        return findings
