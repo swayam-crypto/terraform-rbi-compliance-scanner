@@ -2,6 +2,7 @@ from compliance_scanner.graph.graph_query import GraphQuery
 from compliance_scanner.models.resolved_resource import ResolvedResource
 from compliance_scanner.catalog.global_catalog import catalog
 from compliance_scanner.catalog.catalog import Catalog
+from compliance_scanner.catalog.canonical_types import CanonicalType
 
 
 class GraphPredicates:
@@ -45,7 +46,7 @@ class GraphPredicates:
     def depends_on(
         self,
         resource: ResolvedResource,
-        capability: str,
+        resource_type: str,
     ) -> bool:
         """
         Return True if the resource depends on at least one resource
@@ -53,7 +54,7 @@ class GraphPredicates:
         """
         return self.query.has_dependency(
             resource,
-            capability,
+            resource_type,
         )
 
     def is_database(
@@ -64,10 +65,7 @@ class GraphPredicates:
         Return True if the resource is classified as a database.
         """
 
-        return self.catalog.has_capability(
-            resource,
-            "database",
-        )
+        return self.catalog.canonical_type(resource) == CanonicalType.DATABASE
 
     def is_public_entry_point(
         self,

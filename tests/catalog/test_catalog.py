@@ -1,4 +1,6 @@
 from compliance_scanner.catalog.catalog import Catalog
+from compliance_scanner.catalog.canonical_types import CanonicalType
+from compliance_scanner.catalog.kinds import ResourceKind
 from compliance_scanner.catalog.models import ResourceDefinition
 from compliance_scanner.catalog.registry import CatalogRegistry
 
@@ -6,6 +8,10 @@ from compliance_scanner.models.platform import Platform
 from compliance_scanner.models.resolved_resource import ResolvedResource
 from compliance_scanner.models.source_location import SourceLocation
 from compliance_scanner.parser.provider_utils import infer_provider
+
+from types import MappingProxyType
+
+EMPTY_MAPPING = MappingProxyType({})
 
 
 def make_resource(
@@ -17,7 +23,7 @@ def make_resource(
         provider=infer_provider(resource_type),
         resource_type=resource_type,
         resource_name=resource_name,
-        attributes={},
+        attributes=EMPTY_MAPPING,
         default_attributes={},
         source=SourceLocation(),
     )
@@ -30,17 +36,19 @@ def make_catalog() -> Catalog:
     registry.register(
         "aws_db_instance",
         ResourceDefinition(
-            canonical_type="database",
             provider="aws",
             service="rds",
+            display_name="Amazon RDS DB Instance",
+            kind=ResourceKind.DATA,
+            canonical_type=CanonicalType.DATABASE,
             capabilities=frozenset(
                 {
-                    "database",
                     "backup",
                     "encryption",
                     "logging",
                 }
             ),
+            attributes=EMPTY_MAPPING,
             aliases=(
                 "AWS::RDS::DBInstance",
                 "aws:rds/instance:Instance",
@@ -52,6 +60,7 @@ def make_catalog() -> Catalog:
                     "kms_key",
                 }
             ),
+            metadata=EMPTY_MAPPING,
         ),
     )
 
@@ -62,29 +71,35 @@ def test_definition():
 
     catalog = make_catalog()
 
-    resource = make_resource(
-        "aws_db_instance",
-        "database",
-    )
+    resource = make_database()
 
     definition = catalog.definition(resource)
 
     assert definition is not None
-    assert definition.canonical_type == "database"
+    assert definition.canonical_type == CanonicalType.DATABASE
 
 
 def test_has_capability():
 
     catalog = make_catalog()
 
-    resource = make_resource(
-        "aws_db_instance",
-        "database",
-    )
+    resource = make_database()
 
     assert catalog.has_capability(
         resource,
-        "database",
+        "backup",
+    )
+
+
+def test_missing_capability():
+
+    catalog = make_catalog()
+
+    resource = make_database()
+
+    assert not catalog.has_capability(
+        resource,
+        "non_existent_capability",
     )
 
 
@@ -92,34 +107,41 @@ def test_canonical_type():
 
     catalog = make_catalog()
 
-    resource = make_resource(
-        "aws_db_instance",
-        "database",
-    )
+    resource = make_database()
 
-    assert catalog.canonical_type(resource) == "database"
+    assert catalog.canonical_type(resource) == CanonicalType.DATABASE
 
 
 def test_provider():
 
     catalog = make_catalog()
 
-    resource = make_resource(
+    resource = make_database()
+
+    assert catalog.provider(resource) == "aws"
+
+
+def make_database() -> ResolvedResource:
+    return make_resource(
         "aws_db_instance",
         "database",
     )
 
-    assert catalog.provider(resource) == "aws"
+
+def test_kind():
+
+    catalog = make_catalog()
+
+    resource = make_database()
+
+    assert catalog.definition(resource).kind == ResourceKind.DATA
 
 
 def test_service():
 
     catalog = make_catalog()
 
-    resource = make_resource(
-        "aws_db_instance",
-        "database",
-    )
+    resource = make_database()
 
     assert catalog.service(resource) == "rds"
 
@@ -128,10 +150,7 @@ def test_aliases():
 
     catalog = make_catalog()
 
-    resource = make_resource(
-        "aws_db_instance",
-        "database",
-    )
+    resource = make_database()
 
     assert catalog.aliases(resource) == (
         "AWS::RDS::DBInstance",
@@ -143,10 +162,7 @@ def test_relationships():
 
     catalog = make_catalog()
 
-    resource = make_resource(
-        "aws_db_instance",
-        "database",
-    )
+    resource = make_database()
 
     assert catalog.relationships(resource) == frozenset(
         {

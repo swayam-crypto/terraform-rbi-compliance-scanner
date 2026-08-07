@@ -1,34 +1,47 @@
-from compliance_scanner.catalog.models import ResourceDefinition
-from compliance_scanner.catalog.registry import CatalogRegistry
+from types import MappingProxyType
+
 import pytest
 
+from compliance_scanner.catalog.canonical_types import CanonicalType
+from compliance_scanner.catalog.kinds import ResourceKind
+from compliance_scanner.catalog.models import ResourceDefinition
+from compliance_scanner.catalog.registry import CatalogRegistry
 
-def register(
-    self,
-    resource_type: str,
-    definition: ResourceDefinition,
-) -> None:
-    """
-    Register a resource definition.
+EMPTY_MAPPING = MappingProxyType({})
 
-    Raises:
-        ValueError: If the resource type has already been registered.
-    """
-    if resource_type in self._resources:
-        raise ValueError(f"Resource type '{resource_type}' is already registered.")
 
-    self._resources[resource_type] = definition
+def make_definition() -> ResourceDefinition:
+    return ResourceDefinition(
+        provider="aws",
+        service="rds",
+        display_name="Amazon RDS DB Instance",
+        kind=ResourceKind.DATA,
+        canonical_type=CanonicalType.DATABASE,
+        capabilities=frozenset(
+            {
+                "backup",
+                "encryption",
+                "logging",
+            }
+        ),
+        attributes=EMPTY_MAPPING,
+        aliases=("AWS::RDS::DBInstance",),
+        relationships=frozenset(
+            {
+                "subnet",
+                "security_group",
+                "kms_key",
+            }
+        ),
+        metadata=EMPTY_MAPPING,
+    )
 
 
 def test_all():
 
     registry = CatalogRegistry()
 
-    definition = ResourceDefinition(
-        canonical_type="database",
-        provider="aws",
-        service="rds",
-    )
+    definition = make_definition()
 
     registry.register(
         "aws_db_instance",
@@ -46,11 +59,7 @@ def test_clear():
 
     registry.register(
         "aws_db_instance",
-        ResourceDefinition(
-            canonical_type="database",
-            provider="aws",
-            service="rds",
-        ),
+        make_definition(),
     )
 
     registry.clear()
@@ -64,11 +73,7 @@ def test_contains():
 
     registry.register(
         "aws_db_instance",
-        ResourceDefinition(
-            canonical_type="database",
-            provider="aws",
-            service="rds",
-        ),
+        make_definition(),
     )
 
     assert "aws_db_instance" in registry
@@ -82,11 +87,7 @@ def test_len():
 
     registry.register(
         "aws_db_instance",
-        ResourceDefinition(
-            canonical_type="database",
-            provider="aws",
-            service="rds",
-        ),
+        make_definition(),
     )
 
     assert len(registry) == 1
@@ -96,11 +97,7 @@ def test_register_duplicate():
 
     registry = CatalogRegistry()
 
-    definition = ResourceDefinition(
-        canonical_type="database",
-        provider="aws",
-        service="rds",
-    )
+    definition = make_definition()
 
     registry.register(
         "aws_db_instance",
