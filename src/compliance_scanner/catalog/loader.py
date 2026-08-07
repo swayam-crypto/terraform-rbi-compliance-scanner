@@ -13,6 +13,7 @@ from compliance_scanner.catalog.attributes import (
 
 from compliance_scanner.catalog.canonical_types import CanonicalType
 from compliance_scanner.catalog.kinds import ResourceKind
+from compliance_scanner.catalog.exceptions import CatalogValidationError
 
 
 class CatalogLoader:
@@ -231,6 +232,16 @@ class CatalogLoader:
 
                 raise ValueError(f"{resource_type}: missing required field '{field}'.")
 
+            value = resource_data[field]
+
+            if value is None:
+
+                raise ValueError(f"{resource_type}: field '{field}' cannot be null.")
+
+            if isinstance(value, str) and not value.strip():
+
+                raise ValueError(f"{resource_type}: field '{field}' cannot be empty.")
+
     def _validate_kind(
         self,
         resource_type: str,
@@ -245,8 +256,12 @@ class CatalogLoader:
 
         except ValueError as error:
 
-            raise ValueError(
-                f"{resource_type}: invalid resource kind " f"'{resource_data['kind']}'."
+            raise CatalogValidationError(
+                resource=resource_type,
+                field="kind",
+                value=resource_data["kind"],
+                reason="Unknown resource kind.",
+                expected=", ".join(kind.value for kind in ResourceKind),
             ) from error
 
     def _validate_canonical_type(
@@ -263,9 +278,12 @@ class CatalogLoader:
 
         except ValueError as error:
 
-            raise ValueError(
-                f"{resource_type}: invalid canonical type "
-                f"'{resource_data['canonical_type']}'."
+            raise CatalogValidationError(
+                resource=resource_type,
+                field="canonical_type",
+                value=resource_data["canonical_type"],
+                reason="Unknown canonical type.",
+                expected=", ".join(value.value for value in CanonicalType),
             ) from error
 
     def _validate_attributes(
@@ -287,9 +305,21 @@ class CatalogLoader:
 
                 raise ValueError(f"{resource_type}.{key}: missing attribute name.")
 
+            if not str(attribute["name"]).strip():
+
+                raise ValueError(
+                    f"{resource_type}.{key}: attribute name cannot be empty."
+                )
+
             if "type" not in attribute:
 
                 raise ValueError(f"{resource_type}.{key}: missing attribute type.")
+
+            if not str(attribute["type"]).strip():
+
+                raise ValueError(
+                    f"{resource_type}.{key}: attribute type cannot be empty."
+                )
 
             try:
 
@@ -299,16 +329,21 @@ class CatalogLoader:
 
             except ValueError as error:
 
-                raise ValueError(
-                    f"{resource_type}.{key}: invalid attribute type "
-                    f"'{attribute['type']}'."
+                raise CatalogValidationError(
+                    resource=resource_type,
+                    field=f"attributes.{key}.type",
+                    value=attribute["type"],
+                    reason="Unknown attribute type.",
+                    expected=", ".join(value.value for value in AttributeType),
                 ) from error
 
             if attribute["name"] in names:
 
-                raise ValueError(
-                    f"{resource_type}: duplicate attribute "
-                    f"name '{attribute['name']}'."
+                raise CatalogValidationError(
+                    resource=resource_type,
+                    field="attributes",
+                    value=attribute["name"],
+                    reason="Duplicate attribute name.",
                 )
 
             names.add(
@@ -328,4 +363,8 @@ class CatalogLoader:
 
         if len(aliases) != len(set(aliases)):
 
-            raise ValueError(f"{resource_type}: duplicate aliases found.")
+            raise CatalogValidationError(
+                resource=resource_type,
+                field="aliases",
+                reason="Duplicate aliases detected.",
+            )

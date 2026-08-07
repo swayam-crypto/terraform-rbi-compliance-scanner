@@ -13,6 +13,9 @@ from compliance_scanner.catalog.loader import CatalogLoader
 from compliance_scanner.catalog.registry import CatalogRegistry
 
 
+from textwrap import dedent
+
+
 def write_catalog(
     path: Path,
     content: str,
@@ -22,7 +25,7 @@ def write_catalog(
     """
 
     path.write_text(
-        content,
+        dedent(content).strip() + "\n",
         encoding="utf-8",
     )
 
@@ -34,37 +37,37 @@ def test_load_catalog(tmp_path: Path):
     write_catalog(
         yaml_file,
         """
-aws_db_instance:
-  provider: aws
-  service: rds
-  display_name: Amazon RDS DB Instance
+        aws_db_instance:
+          provider: aws
+          service: rds
+          display_name: Amazon RDS DB Instance
 
-  kind: data
-  canonical_type: database
+          kind: data
+          canonical_type: database
 
-  capabilities:
-    - encryption
-    - backup
-    - logging
+          capabilities:
+            - encryption
+            - backup
+            - logging
 
-  attributes:
-    encryption:
-      name: storage_encrypted
-      type: boolean
-      default: false
-      description: Storage encryption.
+          attributes:
+            encryption:
+              name: storage_encrypted
+              type: boolean
+              default: false
+              description: Storage encryption.
 
-  relationships:
-    - subnet
-    - security_group
-    - kms_key
+          relationships:
+            - subnet
+            - security_group
+            - kms_key
 
-  aliases:
-    - AWS::RDS::DBInstance
+          aliases:
+            - AWS::RDS::DBInstance
 
-  metadata:
-    deprecated: false
-""",
+          metadata:
+            deprecated: false
+    """,
     )
 
     registry = CatalogRegistry()
@@ -117,23 +120,22 @@ def test_attributes_are_converted(tmp_path: Path):
     write_catalog(
         yaml_file,
         """
-aws_db_instance:
-  provider: aws
-  service: rds
+        aws_db_instance:
+          provider: aws
+          service: rds
 
-  display_name: Amazon RDS
+          display_name: Amazon RDS
 
-  kind: data
-  canonical_type: database
+          kind: data
+          canonical_type: database
 
-  attributes:
-
-    encryption:
-      name: storage_encrypted
-      type: boolean
-      default: false
-      description: Encryption flag.
-""",
+          attributes:
+            encryption:
+              name: storage_encrypted
+              type: boolean
+              default: false
+              description: Encryption flag.
+        """,
     )
 
     registry = CatalogRegistry()
@@ -170,21 +172,21 @@ def test_attributes_are_immutable(tmp_path: Path):
     write_catalog(
         yaml_file,
         """
-aws_db_instance:
-  provider: aws
-  service: rds
+        aws_db_instance:
+          provider: aws
+          service: rds
 
-  display_name: Amazon RDS
+          display_name: Amazon RDS
 
-  kind: data
-  canonical_type: database
+          kind: data
+          canonical_type: database
 
-  attributes:
+          attributes:
 
-    encryption:
-      name: storage_encrypted
-      type: boolean
-""",
+            encryption:
+              name: storage_encrypted
+              type: boolean
+        """,
     )
 
     registry = CatalogRegistry()
@@ -220,18 +222,18 @@ def test_metadata_is_immutable(tmp_path: Path):
     write_catalog(
         yaml_file,
         """
-aws_db_instance:
-  provider: aws
-  service: rds
+        aws_db_instance:
+          provider: aws
+          service: rds
 
-  display_name: Amazon RDS
+          display_name: Amazon RDS
 
-  kind: data
-  canonical_type: database
+          kind: data
+          canonical_type: database
 
-  metadata:
-    deprecated: false
-""",
+          metadata:
+            deprecated: false
+        """,
     )
 
     registry = CatalogRegistry()
@@ -266,29 +268,29 @@ def test_load_directory(tmp_path: Path):
     write_catalog(
         aws,
         """
-aws_db_instance:
-  provider: aws
-  service: rds
+        aws_db_instance:
+          provider: aws
+          service: rds
 
-  display_name: Amazon RDS
+          display_name: Amazon RDS
 
-  kind: data
-  canonical_type: database
-""",
+          kind: data
+          canonical_type: database
+        """,
     )
 
     write_catalog(
         azure,
         """
-azurerm_storage_account:
-  provider: azure
-  service: storage
+        azurerm_storage_account:
+          provider: azure
+          service: storage
 
-  display_name: Azure Storage Account
-
-  kind: storage
-  canonical_type: object_storage
-""",
+          display_name: Azure Storage Account
+          
+          kind: storage
+          canonical_type: object_storage
+        """,
     )
 
     registry = CatalogRegistry()
@@ -312,10 +314,10 @@ def test_missing_required_field(tmp_path: Path):
     write_catalog(
         yaml_file,
         """
-aws_db_instance:
-  provider: aws
-  service: rds
-""",
+        aws_db_instance:
+          provider: aws
+          service: rds
+        """,
     )
 
     registry = CatalogRegistry()
@@ -336,14 +338,14 @@ def test_invalid_kind(tmp_path: Path):
     write_catalog(
         yaml_file,
         """
-aws_db_instance:
-  provider: aws
-  service: rds
-  display_name: Test
+        aws_db_instance:
+          provider: aws
+          service: rds
+          display_name: Test
 
-  kind: invalid_kind
-  canonical_type: database
-""",
+          kind: invalid_kind
+          canonical_type: database
+        """,
     )
 
     registry = CatalogRegistry()
@@ -364,14 +366,14 @@ def test_invalid_canonical_type(tmp_path: Path):
     write_catalog(
         yaml_file,
         """
-aws_db_instance:
-  provider: aws
-  service: rds
-  display_name: Test
+        aws_db_instance:
+          provider: aws
+          service: rds
+          display_name: Test
 
-  kind: data
-  canonical_type: invalid_type
-""",
+          kind: data
+          canonical_type: invalid_type
+        """,
     )
 
     registry = CatalogRegistry()
@@ -392,19 +394,19 @@ def test_invalid_attribute_type(tmp_path: Path):
     write_catalog(
         yaml_file,
         """
-aws_db_instance:
-  provider: aws
-  service: rds
-  display_name: Test
+        aws_db_instance:
+          provider: aws
+          service: rds
+          display_name: Test
 
-  kind: data
-  canonical_type: database
+          kind: data
+          canonical_type: database
 
-  attributes:
-    encryption:
-      name: storage_encrypted
-      type: invalid
-""",
+          attributes:
+            encryption:
+              name: storage_encrypted
+              type: invalid
+        """,
     )
 
     registry = CatalogRegistry()
@@ -416,3 +418,288 @@ aws_db_instance:
             registry,
             str(yaml_file),
         )
+
+
+def test_missing_attribute_name(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+        aws_db_instance:
+          provider: aws
+          service: rds
+          display_name: Amazon RDS
+
+          kind: data
+          canonical_type: database
+
+          attributes:
+            encryption:
+              type: boolean
+        """,
+    )
+
+    registry = CatalogRegistry()
+
+    loader = CatalogLoader()
+
+    with pytest.raises(ValueError):
+        loader.load(
+            registry,
+            str(yaml_file),
+        )
+
+
+def test_missing_attribute_type(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+        aws_db_instance:
+          provider: aws
+          service: rds
+          display_name: Amazon RDS
+
+          kind: data
+          canonical_type: database
+
+          attributes:
+            encryption:
+             name: storage_encrypted
+        """,
+    )
+
+    registry = CatalogRegistry()
+
+    loader = CatalogLoader()
+
+    with pytest.raises(ValueError):
+        loader.load(
+            registry,
+            str(yaml_file),
+        )
+
+
+def test_duplicate_aliases(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+        aws_db_instance:
+          provider: aws
+          service: rds
+          display_name: Amazon RDS
+
+          kind: data
+          canonical_type: database
+
+          aliases:
+            - AWS::RDS::DBInstance
+            - AWS::RDS::DBInstance
+        """,
+    )
+
+    registry = CatalogRegistry()
+
+    loader = CatalogLoader()
+
+    with pytest.raises(ValueError):
+        loader.load(
+            registry,
+            str(yaml_file),
+        )
+
+
+def test_duplicate_attribute_names(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+        aws_db_instance:
+          provider: aws
+          service: rds
+          display_name: Amazon RDS
+
+          kind: data
+          canonical_type: database
+
+          attributes:
+            encryption:
+              name: storage_encrypted
+              type: boolean
+
+            another:
+              name: storage_encrypted
+              type: boolean
+        """,
+    )
+
+    registry = CatalogRegistry()
+
+    loader = CatalogLoader()
+
+    with pytest.raises(ValueError):
+        loader.load(
+            registry,
+            str(yaml_file),
+        )
+
+
+def test_empty_required_field(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+        aws_db_instance:
+          provider: ""
+          service: rds
+          display_name: Amazon RDS
+
+          kind: data
+          canonical_type: database
+        """,
+    )
+
+    registry = CatalogRegistry()
+
+    loader = CatalogLoader()
+
+    with pytest.raises(ValueError):
+        loader.load(
+            registry,
+            str(yaml_file),
+        )
+
+
+def test_empty_attributes_are_allowed(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+        aws_db_instance:
+          provider: aws
+          service: rds
+          display_name: Amazon RDS
+
+          kind: data
+          canonical_type: database
+
+          attributes: {}
+        """,
+    )
+
+    registry = CatalogRegistry()
+
+    loader = CatalogLoader()
+
+    loader.load(
+        registry,
+        str(yaml_file),
+    )
+
+    assert len(registry) == 1
+
+
+def test_empty_aliases_are_allowed(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+        aws_db_instance:
+          provider: aws
+          service: rds
+          display_name: Amazon RDS
+
+          kind: data
+          canonical_type: database
+
+          aliases: []
+        """,
+    )
+
+    registry = CatalogRegistry()
+
+    loader = CatalogLoader()
+
+    loader.load(
+        registry,
+        str(yaml_file),
+    )
+
+    assert len(registry) == 1
+
+
+def test_empty_relationships_are_allowed(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+        aws_db_instance:
+          provider: aws
+          service: rds
+          display_name: Amazon RDS
+
+          kind: data
+          canonical_type: database
+
+          relationships: []
+        """,
+    )
+
+    registry = CatalogRegistry()
+
+    loader = CatalogLoader()
+
+    loader.load(
+        registry,
+        str(yaml_file),
+    )
+
+    assert len(registry) == 1
+
+
+def test_empty_metadata_are_allowed(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+        aws_db_instance:
+          provider: aws
+          service: rds
+          display_name: Amazon RDS
+
+          kind: data
+          canonical_type: database
+
+          metadata: {}
+        """,
+    )
+
+    registry = CatalogRegistry()
+
+    loader = CatalogLoader()
+
+    loader.load(
+        registry,
+        str(yaml_file),
+    )
+
+    assert len(registry) == 1
