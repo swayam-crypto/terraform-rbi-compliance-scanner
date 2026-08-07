@@ -13,21 +13,16 @@ class CatalogValidationError(ValueError):
         expected: str | None = None,
     ) -> None:
 
-        message = (
-            "\n"
-            "========================================\n"
-            "Catalog Validation Error\n"
-            "========================================\n\n"
-            f"Resource : {resource}\n"
-            f"Field    : {field}\n"
-        )
+        lines = [
+            f"Catalog validation failed for '{resource}'",
+            f"Field: {field}",
+            f"Reason: {reason}",
+        ]
 
         if value is not None:
-            message += f"Value    : {value}\n"
+            lines.append(f"Value: {value}")
 
-        message += f"Reason   : {reason}\n"
+        if expected is not None:
+            lines.append(f"Expected: {expected}")
 
-        if expected:
-            message += f"Expected : {expected}\n"
-
-        super().__init__(message)
+        super().__init__("\n".join(lines))
