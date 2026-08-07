@@ -5,8 +5,6 @@ from compliance_scanner.graph_rules.base import GraphRule
 
 from compliance_scanner.rules.base import Finding
 
-from compliance_scanner.models.resolved_resource import ResolvedResource
-
 from compliance_scanner.scan_context import ScanContext
 
 
@@ -20,18 +18,10 @@ class PublicDatabaseExposureRule(GraphRule):
 
     severity = "critical"
 
-    applies_to = [
-        "aws_lb",
-        "aws_alb",
-        "aws_api_gateway_rest_api",
-        "aws_cloudfront_distribution",
-    ]
-
-    def check(
+    def check_graph(
         self,
-        resource: ResolvedResource,
         context: ScanContext,
-    ) -> Finding | None:
+    ) -> list[Finding]:
 
         predicates = GraphPredicates(
             GraphQuery(
@@ -39,20 +29,28 @@ class PublicDatabaseExposureRule(GraphRule):
             )
         )
 
-        if not predicates.is_public_entry_point(resource):
-            return None
+        findings: list[Finding] = []
 
-        if not predicates.depends_on(
-            resource,
-            "aws_db_instance",
-        ):
-            return None
+        for resource in context.resources:
 
-        return Finding(
-            rule_id=self.rule_id,
-            severity=self.severity,
-            resource_type=resource.resource_type,
-            resource_name=resource.resource_name,
-            message="Public entry point can reach a database.",
-            regulation_reference=self.regulation_reference,
-        )
+            if not predicates.is_public_entry_point(resource):
+                continue
+
+            if not predicates.depends_on(
+                resource,
+                "aws_db_instance",
+            ):
+                continue
+
+            findings.append(
+                Finding(
+                    rule_id=self.rule_id,
+                    severity=self.severity,
+                    resource_type=resource.resource_type,
+                    resource_name=resource.resource_name,
+                    message="Public entry point can reach a database.",
+                    regulation_reference=self.regulation_reference,
+                )
+            )
+
+        return findings

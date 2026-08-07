@@ -64,13 +64,10 @@ def test_public_database_exposure_detected():
 
     rule = PublicDatabaseExposureRule()
 
-    finding = rule.check(
-        load_balancer,
-        context,
-    )
+    finding = rule.check_graph(context)
 
-    assert finding is not None
-    assert finding.rule_id == "GRAPH-001"
+    assert len(finding) == 1
+    assert finding[0].rule_id == "GRAPH-001"
 
 
 def test_database_not_reachable():
@@ -95,12 +92,9 @@ def test_database_not_reachable():
 
     rule = PublicDatabaseExposureRule()
 
-    finding = rule.check(
-        load_balancer,
-        context,
-    )
+    finding = rule.check_graph(context)
 
-    assert finding is None
+    assert finding == []
 
 
 def test_non_public_resource_returns_none():
@@ -133,12 +127,9 @@ def test_non_public_resource_returns_none():
 
     rule = PublicDatabaseExposureRule()
 
-    finding = rule.check(
-        instance,
-        context,
-    )
+    finding = rule.check_graph(context)
 
-    assert finding is None
+    assert finding == []
 
 
 def test_public_resource_without_database_dependency():
@@ -171,9 +162,6 @@ def test_public_resource_without_database_dependency():
 
     rule = PublicDatabaseExposureRule()
 
-    finding = rule.check(
-        load_balancer,
-        context,
-    )
+    finding = rule.check_graph(context)
 
-    assert finding is None
+    assert finding == []
