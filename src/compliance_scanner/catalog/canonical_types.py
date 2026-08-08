@@ -26,6 +26,7 @@ class CanonicalType(StrEnum):
     VPC = "vpc"
     SUBNET = "subnet"
     ROUTE_TABLE = "route_table"
+    ROUTE = "route"
     SECURITY_GROUP = "security_group"
     NETWORK_ACL = "network_acl"
 

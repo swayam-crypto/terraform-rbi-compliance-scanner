@@ -115,3 +115,134 @@ aws_cloudfront_distribution:
   metadata:
     maturity: stable
     deprecated: false
+
+aws_vpc:
+  provider: aws
+  service: ec2
+  display_name: Amazon Virtual Private Cloud
+
+  kind: network
+  canonical_type: vpc
+
+  capabilities:
+    - network
+    - private_network
+    - routing
+
+  attributes:
+    cidr_block:
+      name: cidr_block
+      type: string
+      description: IPv4 CIDR block assigned to the VPC.
+
+    enable_dns_support:
+      name: enable_dns_support
+      type: boolean
+      default: true
+      description: Enables DNS resolution within the VPC.
+
+    enable_dns_hostnames:
+      name: enable_dns_hostnames
+      type: boolean
+      default: false
+      description: Enables DNS hostnames for instances.
+
+  relationships: []
+
+  aliases:
+    - AWS::EC2::VPC
+    - aws:ec2/vpc:Vpc
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_subnet:
+  provider: aws
+  service: ec2
+  display_name: Amazon VPC Subnet
+
+  kind: network
+  canonical_type: subnet
+
+  capabilities:
+    - network
+    - subnet
+
+  attributes:
+    cidr_block:
+      name: cidr_block
+      type: string
+      description: CIDR block assigned to the subnet.
+
+    map_public_ip_on_launch:
+      name: map_public_ip_on_launch
+      type: boolean
+      default: false
+      description: Automatically assign public IPs.
+
+  relationships:
+    - vpc
+
+  aliases:
+    - AWS::EC2::Subnet
+    - aws:ec2/subnet:Subnet
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_route_table:
+  provider: aws
+  service: ec2
+  display_name: Amazon Route Table
+
+  kind: network
+  canonical_type: route_table
+
+  capabilities:
+    - routing
+
+  attributes: {}
+
+  relationships:
+    - vpc
+
+  aliases:
+    - AWS::EC2::RouteTable
+    - aws:ec2/routeTable:RouteTable
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_route:
+  provider: aws
+  service: ec2
+  display_name: Amazon Route
+
+  kind: network
+  canonical_type: route
+
+  capabilities:
+    - routing
+
+  attributes:
+    destination_cidr_block:
+      name: destination_cidr_block
+      type: string
+      description: Destination IPv4 CIDR.
+
+  relationships:
+    - route_table
+    - internet_gateway
+    - nat_gateway
+    - vpc_endpoint
+
+  aliases:
+    - AWS::EC2::Route
+    - aws:ec2/route:Route
+
+  metadata:
+    maturity: stable
+    deprecated: false
