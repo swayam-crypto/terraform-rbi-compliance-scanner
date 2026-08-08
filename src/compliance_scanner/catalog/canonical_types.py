@@ -26,8 +26,15 @@ class CanonicalType(StrEnum):
     VPC = "vpc"
     SUBNET = "subnet"
     ROUTE_TABLE = "route_table"
+    ROUTE = "route"
     SECURITY_GROUP = "security_group"
     NETWORK_ACL = "network_acl"
+    INTERNET_GATEWAY = "internet_gateway"
+    NAT_GATEWAY = "nat_gateway"
+    ELASTIC_IP = "elastic_ip"
+    VPC_ENDPOINT = "vpc_endpoint"
+    VPC_PEERING_CONNECTION = "vpc_peering_connection"
+    NETWORK_INTERFACE = "network_interface"
 
     # Security
     KMS_KEY = "kms_key"

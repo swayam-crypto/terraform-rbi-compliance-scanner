@@ -172,7 +172,7 @@ class CatalogLoader:
 
         from pathlib import Path
 
-        for yaml_file in Path(directory).glob("*.yaml"):
+        for yaml_file in Path(directory).rglob("*.yaml"):
             self.load(
                 registry,
                 str(yaml_file),

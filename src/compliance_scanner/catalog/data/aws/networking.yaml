@@ -1,0 +1,490 @@
+aws_lb:
+  provider: aws
+  service: elb
+  display_name: Classic Load Balancer
+
+  kind: network
+  canonical_type: load_balancer
+
+  capabilities:
+    - public_entry_point
+    - tls_termination
+
+  attributes:
+    internal:
+      name: internal
+      type: boolean
+      default: false
+      description: Indicates whether the load balancer is internal.
+
+  relationships:
+    - subnet
+    - security_group
+
+  aliases:
+    - AWS::ElasticLoadBalancing::LoadBalancer
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_alb:
+  provider: aws
+  service: elbv2
+  display_name: Application Load Balancer
+
+  kind: network
+  canonical_type: load_balancer
+
+  capabilities:
+    - public_entry_point
+    - tls_termination
+    - layer7_routing
+
+  attributes:
+    internal:
+      name: internal
+      type: boolean
+      default: false
+      description: Indicates whether the ALB is internal.
+
+  relationships:
+    - subnet
+    - security_group
+    - target_group
+
+  aliases:
+    - AWS::ElasticLoadBalancingV2::LoadBalancer
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_api_gateway_rest_api:
+  provider: aws
+  service: apigateway
+  display_name: Amazon API Gateway REST API
+
+  kind: network
+  canonical_type: api_gateway
+
+  capabilities:
+    - public_entry_point
+    - api_management
+
+  attributes: {}
+
+  relationships:
+    - lambda_function
+    - vpc_link
+
+  aliases:
+    - AWS::ApiGateway::RestApi
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_cloudfront_distribution:
+  provider: aws
+  service: cloudfront
+  display_name: Amazon CloudFront Distribution
+
+  kind: network
+  canonical_type: cdn
+
+  capabilities:
+    - public_entry_point
+    - global_distribution
+    - caching
+
+  attributes:
+    enabled:
+      name: enabled
+      type: boolean
+      default: true
+      description: Indicates whether the distribution is enabled.
+
+  relationships:
+    - origin
+    - certificate
+
+  aliases:
+    - AWS::CloudFront::Distribution
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_vpc:
+  provider: aws
+  service: ec2
+  display_name: Amazon Virtual Private Cloud
+
+  kind: network
+  canonical_type: vpc
+
+  capabilities:
+    - network
+    - private_network
+    - routing
+
+  attributes:
+    cidr_block:
+      name: cidr_block
+      type: string
+      description: IPv4 CIDR block assigned to the VPC.
+
+    enable_dns_support:
+      name: enable_dns_support
+      type: boolean
+      default: true
+      description: Enables DNS resolution within the VPC.
+
+    enable_dns_hostnames:
+      name: enable_dns_hostnames
+      type: boolean
+      default: false
+      description: Enables DNS hostnames for instances.
+
+  relationships: []
+
+  aliases:
+    - AWS::EC2::VPC
+    - aws:ec2/vpc:Vpc
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_subnet:
+  provider: aws
+  service: ec2
+  display_name: Amazon VPC Subnet
+
+  kind: network
+  canonical_type: subnet
+
+  capabilities:
+    - network
+    - subnet
+
+  attributes:
+    cidr_block:
+      name: cidr_block
+      type: string
+      description: CIDR block assigned to the subnet.
+
+    map_public_ip_on_launch:
+      name: map_public_ip_on_launch
+      type: boolean
+      default: false
+      description: Automatically assign public IPs.
+
+  relationships:
+    - vpc
+
+  aliases:
+    - AWS::EC2::Subnet
+    - aws:ec2/subnet:Subnet
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_route_table:
+  provider: aws
+  service: ec2
+  display_name: Amazon Route Table
+
+  kind: network
+  canonical_type: route_table
+
+  capabilities:
+    - routing
+
+  attributes: {}
+
+  relationships:
+    - vpc
+
+  aliases:
+    - AWS::EC2::RouteTable
+    - aws:ec2/routeTable:RouteTable
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_route:
+  provider: aws
+  service: ec2
+  display_name: Amazon Route
+
+  kind: network
+  canonical_type: route
+
+  capabilities:
+    - routing
+
+  attributes:
+    destination_cidr_block:
+      name: destination_cidr_block
+      type: string
+      description: Destination IPv4 CIDR.
+
+  relationships:
+    - route_table
+    - internet_gateway
+    - nat_gateway
+    - vpc_endpoint
+
+  aliases:
+    - AWS::EC2::Route
+    - aws:ec2/route:Route
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_internet_gateway:
+  provider: aws
+  service: ec2
+  display_name: Amazon Internet Gateway
+
+  kind: network
+  canonical_type: internet_gateway
+
+  capabilities:
+    - internet_connectivity
+    - routing
+
+  attributes: {}
+
+  relationships:
+    - vpc
+
+  aliases:
+    - AWS::EC2::InternetGateway
+    - aws:ec2/internetGateway:InternetGateway
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_nat_gateway:
+  provider: aws
+  service: ec2
+  display_name: Amazon NAT Gateway
+
+  kind: network
+  canonical_type: nat_gateway
+
+  capabilities:
+    - nat
+    - routing
+    - outbound_connectivity
+
+  attributes:
+    connectivity_type:
+      name: connectivity_type
+      type: string
+      default: public
+      description: Specifies whether the NAT Gateway is public or private.
+
+  relationships:
+    - subnet
+    - eip
+
+  aliases:
+    - AWS::EC2::NatGateway
+    - aws:ec2/natGateway:NatGateway
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_eip:
+  provider: aws
+  service: ec2
+  display_name: Amazon Elastic IP
+
+  kind: network
+  canonical_type: elastic_ip
+
+  capabilities:
+    - public_ip
+
+  attributes:
+    domain:
+      name: domain
+      type: string
+      default: vpc
+      description: Indicates whether the Elastic IP is allocated for EC2-Classic or VPC.
+
+  relationships:
+    - nat_gateway
+    - network_interface
+    - virtual_machine
+
+  aliases:
+    - AWS::EC2::EIP
+    - aws:ec2/eip:Eip
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_vpc_endpoint:
+  provider: aws
+  service: ec2
+  display_name: Amazon VPC Endpoint
+
+  kind: network
+  canonical_type: vpc_endpoint
+
+  capabilities:
+    - private_connectivity
+    - endpoint
+
+  attributes:
+    vpc_endpoint_type:
+      name: vpc_endpoint_type
+      type: string
+      default: Gateway
+      description: Type of VPC endpoint.
+
+  relationships:
+    - vpc
+    - subnet
+    - security_group
+
+  aliases:
+    - AWS::EC2::VPCEndpoint
+    - aws:ec2/vpcEndpoint:VpcEndpoint
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_vpc_peering_connection:
+  provider: aws
+  service: ec2
+  display_name: Amazon VPC Peering Connection
+
+  kind: network
+  canonical_type: vpc_peering_connection
+
+  capabilities:
+    - network
+    - peering
+
+  attributes:
+    auto_accept:
+      name: auto_accept
+      type: boolean
+      default: false
+      description: Indicates whether the peering connection is automatically accepted.
+
+  relationships:
+    - vpc
+
+  aliases:
+    - AWS::EC2::VPCPeeringConnection
+    - aws:ec2/vpcPeeringConnection:VpcPeeringConnection
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_security_group:
+  provider: aws
+  service: ec2
+  display_name: Amazon EC2 Security Group
+
+  kind: network
+  canonical_type: security_group
+
+  capabilities:
+    - network_security
+    - stateful_firewall
+
+  attributes:
+    description:
+      name: description
+      type: string
+      default: ""
+      description: Description of the security group.
+
+  relationships:
+    - vpc
+
+  aliases:
+    - AWS::EC2::SecurityGroup
+    - aws:ec2/securityGroup:SecurityGroup
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_network_acl:
+  provider: aws
+  service: ec2
+  display_name: Amazon Network ACL
+
+  kind: network
+  canonical_type: network_acl
+
+  capabilities:
+    - network_security
+    - stateless_firewall
+
+  attributes:
+    is_default:
+      name: default_network_acl
+      type: boolean
+      default: false
+      description: Indicates whether this is the default network ACL.
+
+  relationships:
+    - vpc
+    - subnet
+
+  aliases:
+    - AWS::EC2::NetworkAcl
+    - aws:ec2/networkAcl:NetworkAcl
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_network_interface:
+  provider: aws
+  service: ec2
+  display_name: Amazon Elastic Network Interface
+
+  kind: network
+  canonical_type: network_interface
+
+  capabilities:
+    - network_interface
+
+  attributes:
+    source_dest_check:
+      name: source_dest_check
+      type: boolean
+      default: true
+      description: Indicates whether source/destination checking is enabled.
+
+  relationships:
+    - subnet
+    - security_group
+    - virtual_machine
+
+  aliases:
+    - AWS::EC2::NetworkInterface
+    - aws:ec2/networkInterface:NetworkInterface
+
+  metadata:
+    maturity: stable
+    deprecated: false

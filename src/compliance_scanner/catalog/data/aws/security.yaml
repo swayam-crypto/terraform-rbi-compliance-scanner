@@ -1,0 +1,28 @@
+aws_kms_key:
+  provider: aws
+  service: kms
+  display_name: AWS KMS Key
+
+  kind: security
+  canonical_type: kms_key
+
+  capabilities:
+    - encryption
+    - key_rotation
+
+  attributes:
+    key_rotation:
+      name: enable_key_rotation
+      type: boolean
+      default: false
+      description: Automatic key rotation.
+
+  relationships: []
+
+  aliases:
+    - AWS::KMS::Key
+    - aws:kms/key:Key
+
+  metadata:
+    maturity: stable
+    deprecated: false

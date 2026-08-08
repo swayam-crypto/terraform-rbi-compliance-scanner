@@ -1,0 +1,43 @@
+aws_s3_bucket:
+  provider: aws
+  service: s3
+  display_name: Amazon S3 Bucket
+
+  kind: storage
+  canonical_type: object_storage
+
+  capabilities:
+    - encryption
+    - logging
+    - versioning
+
+  attributes:
+    encryption:
+      name: server_side_encryption_configuration
+      type: object
+      default: null
+      description: Server-side encryption configuration.
+
+    versioning:
+      name: versioning
+      type: object
+      default: null
+      description: Bucket versioning configuration.
+
+    public_access:
+      name: acl
+      type: string
+      default: private
+      description: Bucket ACL.
+
+  relationships:
+    - bucket_policy
+    - kms_key
+
+  aliases:
+    - AWS::S3::Bucket
+    - aws:s3/bucket:Bucket
+
+  metadata:
+    maturity: stable
+    deprecated: false
