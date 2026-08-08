@@ -29,6 +29,9 @@ class CanonicalType(StrEnum):
     ROUTE = "route"
     SECURITY_GROUP = "security_group"
     NETWORK_ACL = "network_acl"
+    INTERNET_GATEWAY = "internet_gateway"
+    NAT_GATEWAY = "nat_gateway"
+    ELASTIC_IP = "elastic_ip"
 
     # Security
     KMS_KEY = "kms_key"

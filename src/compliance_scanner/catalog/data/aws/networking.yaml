@@ -246,3 +246,91 @@ aws_route:
   metadata:
     maturity: stable
     deprecated: false
+
+aws_internet_gateway:
+  provider: aws
+  service: ec2
+  display_name: Amazon Internet Gateway
+
+  kind: network
+  canonical_type: internet_gateway
+
+  capabilities:
+    - internet_connectivity
+    - routing
+
+  attributes: {}
+
+  relationships:
+    - vpc
+
+  aliases:
+    - AWS::EC2::InternetGateway
+    - aws:ec2/internetGateway:InternetGateway
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_nat_gateway:
+  provider: aws
+  service: ec2
+  display_name: Amazon NAT Gateway
+
+  kind: network
+  canonical_type: nat_gateway
+
+  capabilities:
+    - nat
+    - routing
+    - outbound_connectivity
+
+  attributes:
+    connectivity_type:
+      name: connectivity_type
+      type: string
+      default: public
+      description: Specifies whether the NAT Gateway is public or private.
+
+  relationships:
+    - subnet
+    - eip
+
+  aliases:
+    - AWS::EC2::NatGateway
+    - aws:ec2/natGateway:NatGateway
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_eip:
+  provider: aws
+  service: ec2
+  display_name: Amazon Elastic IP
+
+  kind: network
+  canonical_type: elastic_ip
+
+  capabilities:
+    - public_ip
+
+  attributes:
+    domain:
+      name: domain
+      type: string
+      default: vpc
+      description: Indicates whether the Elastic IP is allocated for EC2-Classic or VPC.
+
+  relationships:
+    - nat_gateway
+    - network_interface
+    - virtual_machine
+
+  aliases:
+    - AWS::EC2::EIP
+    - aws:ec2/eip:Eip
+
+  metadata:
+    maturity: stable
+    deprecated: false
