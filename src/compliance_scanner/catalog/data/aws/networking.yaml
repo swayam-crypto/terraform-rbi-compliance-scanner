@@ -334,3 +334,65 @@ aws_eip:
   metadata:
     maturity: stable
     deprecated: false
+
+aws_vpc_endpoint:
+  provider: aws
+  service: ec2
+  display_name: Amazon VPC Endpoint
+
+  kind: network
+  canonical_type: vpc_endpoint
+
+  capabilities:
+    - private_connectivity
+    - endpoint
+
+  attributes:
+    vpc_endpoint_type:
+      name: vpc_endpoint_type
+      type: string
+      default: Gateway
+      description: Type of VPC endpoint.
+
+  relationships:
+    - vpc
+    - subnet
+    - security_group
+
+  aliases:
+    - AWS::EC2::VPCEndpoint
+    - aws:ec2/vpcEndpoint:VpcEndpoint
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_vpc_peering_connection:
+  provider: aws
+  service: ec2
+  display_name: Amazon VPC Peering Connection
+
+  kind: network
+  canonical_type: vpc_peering_connection
+
+  capabilities:
+    - network
+    - peering
+
+  attributes:
+    auto_accept:
+      name: auto_accept
+      type: boolean
+      default: false
+      description: Indicates whether the peering connection is automatically accepted.
+
+  relationships:
+    - vpc
+
+  aliases:
+    - AWS::EC2::VPCPeeringConnection
+    - aws:ec2/vpcPeeringConnection:VpcPeeringConnection
+
+  metadata:
+    maturity: stable
+    deprecated: false

@@ -32,6 +32,8 @@ class CanonicalType(StrEnum):
     INTERNET_GATEWAY = "internet_gateway"
     NAT_GATEWAY = "nat_gateway"
     ELASTIC_IP = "elastic_ip"
+    VPC_ENDPOINT = "vpc_endpoint"
+    VPC_PEERING_CONNECTION = "vpc_peering_connection"
 
     # Security
     KMS_KEY = "kms_key"
