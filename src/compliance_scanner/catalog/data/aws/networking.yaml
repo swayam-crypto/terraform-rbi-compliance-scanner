@@ -396,3 +396,95 @@ aws_vpc_peering_connection:
   metadata:
     maturity: stable
     deprecated: false
+
+aws_security_group:
+  provider: aws
+  service: ec2
+  display_name: Amazon EC2 Security Group
+
+  kind: network
+  canonical_type: security_group
+
+  capabilities:
+    - network_security
+    - stateful_firewall
+
+  attributes:
+    description:
+      name: description
+      type: string
+      default: ""
+      description: Description of the security group.
+
+  relationships:
+    - vpc
+
+  aliases:
+    - AWS::EC2::SecurityGroup
+    - aws:ec2/securityGroup:SecurityGroup
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_network_acl:
+  provider: aws
+  service: ec2
+  display_name: Amazon Network ACL
+
+  kind: network
+  canonical_type: network_acl
+
+  capabilities:
+    - network_security
+    - stateless_firewall
+
+  attributes:
+    is_default:
+      name: default_network_acl
+      type: boolean
+      default: false
+      description: Indicates whether this is the default network ACL.
+
+  relationships:
+    - vpc
+    - subnet
+
+  aliases:
+    - AWS::EC2::NetworkAcl
+    - aws:ec2/networkAcl:NetworkAcl
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_network_interface:
+  provider: aws
+  service: ec2
+  display_name: Amazon Elastic Network Interface
+
+  kind: network
+  canonical_type: network_interface
+
+  capabilities:
+    - network_interface
+
+  attributes:
+    source_dest_check:
+      name: source_dest_check
+      type: boolean
+      default: true
+      description: Indicates whether source/destination checking is enabled.
+
+  relationships:
+    - subnet
+    - security_group
+    - virtual_machine
+
+  aliases:
+    - AWS::EC2::NetworkInterface
+    - aws:ec2/networkInterface:NetworkInterface
+
+  metadata:
+    maturity: stable
+    deprecated: false

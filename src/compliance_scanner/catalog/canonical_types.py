@@ -34,6 +34,7 @@ class CanonicalType(StrEnum):
     ELASTIC_IP = "elastic_ip"
     VPC_ENDPOINT = "vpc_endpoint"
     VPC_PEERING_CONNECTION = "vpc_peering_connection"
+    NETWORK_INTERFACE = "network_interface"
 
     # Security
     KMS_KEY = "kms_key"
