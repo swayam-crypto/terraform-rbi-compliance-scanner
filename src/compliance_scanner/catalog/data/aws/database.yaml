@@ -1,0 +1,44 @@
+aws_db_instance:
+  provider: aws
+  service: rds
+  display_name: Amazon RDS DB Instance
+
+  kind: data
+  canonical_type: database
+
+  capabilities:
+    - encryption
+    - backup
+    - logging
+
+  attributes:
+    encryption:
+      name: storage_encrypted
+      type: boolean
+      default: false
+      description: Indicates whether storage encryption is enabled.
+
+    backup_days:
+      name: backup_retention_period
+      type: integer
+      default: 7
+      description: Number of backup retention days.
+
+    publicly_accessible:
+      name: publicly_accessible
+      type: boolean
+      default: false
+      description: Indicates whether the database is publicly accessible.
+
+  relationships:
+    - subnet
+    - security_group
+    - kms_key
+
+  aliases:
+    - AWS::RDS::DBInstance
+    - aws:rds/instance:Instance
+
+  metadata:
+    maturity: stable
+    deprecated: false
