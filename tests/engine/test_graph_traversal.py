@@ -43,7 +43,7 @@ def test_reachable_from_single_neighbor():
         Relationship(
             source=instance,
             target=subnet,
-            relationship_type=RelationshipType.USES_SUBNET,
+            relationship_type=RelationshipType.SUBNET,
         )
     )
 
@@ -77,7 +77,7 @@ def test_reachable_from_chain():
         Relationship(
             source=instance,
             target=subnet,
-            relationship_type=RelationshipType.USES_SUBNET,
+            relationship_type=RelationshipType.SUBNET,
         )
     )
 
@@ -85,7 +85,7 @@ def test_reachable_from_chain():
         Relationship(
             source=subnet,
             target=vpc,
-            relationship_type=RelationshipType.USES_VPC,
+            relationship_type=RelationshipType.VPC,
         )
     )
 
@@ -122,7 +122,7 @@ def test_reachable_from_branch():
         Relationship(
             source=instance,
             target=subnet,
-            relationship_type=RelationshipType.USES_SUBNET,
+            relationship_type=RelationshipType.SUBNET,
         )
     )
 
@@ -130,7 +130,7 @@ def test_reachable_from_branch():
         Relationship(
             source=instance,
             target=security_group,
-            relationship_type=RelationshipType.ATTACHED_TO_SECURITY_GROUP,
+            relationship_type=RelationshipType.SECURITY_GROUP,
         )
     )
 
@@ -167,7 +167,7 @@ def test_reachable_from_cycle():
         Relationship(
             source=resource_a,
             target=resource_b,
-            relationship_type=RelationshipType.USES_SUBNET,
+            relationship_type=RelationshipType.SUBNET,
         )
     )
 
@@ -175,7 +175,7 @@ def test_reachable_from_cycle():
         Relationship(
             source=resource_b,
             target=resource_c,
-            relationship_type=RelationshipType.USES_VPC,
+            relationship_type=RelationshipType.VPC,
         )
     )
 
@@ -183,7 +183,7 @@ def test_reachable_from_cycle():
         Relationship(
             source=resource_c,
             target=resource_a,
-            relationship_type=RelationshipType.USES_VPC,
+            relationship_type=RelationshipType.VPC,
         )
     )
 
@@ -220,7 +220,7 @@ def test_reachable_from_disconnected_graph():
         Relationship(
             source=instance,
             target=subnet,
-            relationship_type=RelationshipType.USES_SUBNET,
+            relationship_type=RelationshipType.SUBNET,
         )
     )
 
@@ -261,7 +261,7 @@ def test_reachable_from_diamond_graph():
         Relationship(
             source=start,
             target=left,
-            relationship_type=RelationshipType.USES_SUBNET,
+            relationship_type=RelationshipType.SUBNET,
         )
     )
 
@@ -269,7 +269,7 @@ def test_reachable_from_diamond_graph():
         Relationship(
             source=start,
             target=right,
-            relationship_type=RelationshipType.ATTACHED_TO_SECURITY_GROUP,
+            relationship_type=RelationshipType.SECURITY_GROUP,
         )
     )
 
@@ -277,7 +277,7 @@ def test_reachable_from_diamond_graph():
         Relationship(
             source=left,
             target=end,
-            relationship_type=RelationshipType.USES_VPC,
+            relationship_type=RelationshipType.VPC,
         )
     )
 
@@ -285,7 +285,7 @@ def test_reachable_from_diamond_graph():
         Relationship(
             source=right,
             target=end,
-            relationship_type=RelationshipType.USES_VPC,
+            relationship_type=RelationshipType.VPC,
         )
     )
 

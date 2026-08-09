@@ -44,7 +44,7 @@ def test_reachable_resources():
         Relationship(
             source=instance,
             target=subnet,
-            relationship_type=RelationshipType.USES_SUBNET,
+            relationship_type=RelationshipType.SUBNET,
         )
     )
 
@@ -73,7 +73,7 @@ def test_is_reachable():
         Relationship(
             source=instance,
             target=subnet,
-            relationship_type=RelationshipType.USES_SUBNET,
+            relationship_type=RelationshipType.SUBNET,
         )
     )
 
@@ -108,7 +108,7 @@ def test_resources_of_type():
         Relationship(
             source=instance,
             target=subnet,
-            relationship_type=RelationshipType.USES_SUBNET,
+            relationship_type=RelationshipType.SUBNET,
         )
     )
 
@@ -116,7 +116,7 @@ def test_resources_of_type():
         Relationship(
             source=instance,
             target=security_group,
-            relationship_type=RelationshipType.ATTACHED_TO_SECURITY_GROUP,
+            relationship_type=RelationshipType.SECURITY_GROUP,
         )
     )
 
@@ -148,7 +148,7 @@ def test_has_dependency():
         Relationship(
             source=instance,
             target=subnet,
-            relationship_type=RelationshipType.USES_SUBNET,
+            relationship_type=RelationshipType.SUBNET,
         )
     )
 
