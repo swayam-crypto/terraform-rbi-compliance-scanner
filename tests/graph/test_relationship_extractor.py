@@ -68,7 +68,7 @@ def test_extract_subnet_relationship():
 
     assert relationship.source == instance
     assert relationship.target == subnet
-    assert relationship.relationship_type == RelationshipType.USES_SUBNET
+    assert relationship.relationship_type == RelationshipType.SUBNET
 
 
 def test_extract_vpc_relationship():
@@ -96,7 +96,7 @@ def test_extract_vpc_relationship():
 
     assert relationship.source == subnet
     assert relationship.target == vpc
-    assert relationship.relationship_type == RelationshipType.USES_VPC
+    assert relationship.relationship_type == RelationshipType.VPC
 
 
 def test_extract_security_group_relationship():
@@ -127,13 +127,9 @@ def test_extract_security_group_relationship():
 
     assert len(relationships) == 2
 
-    assert relationships[0].relationship_type == (
-        RelationshipType.ATTACHED_TO_SECURITY_GROUP
-    )
+    assert relationships[0].relationship_type == (RelationshipType.SECURITY_GROUP)
 
-    assert relationships[1].relationship_type == (
-        RelationshipType.ATTACHED_TO_SECURITY_GROUP
-    )
+    assert relationships[1].relationship_type == (RelationshipType.SECURITY_GROUP)
 
     targets = {relationship.target.resource_name for relationship in relationships}
 
@@ -168,7 +164,7 @@ def test_extract_kms_key_relationship():
 
     assert relationship.source == bucket
     assert relationship.target == kms_key
-    assert relationship.relationship_type == RelationshipType.USES_KMS_KEY
+    assert relationship.relationship_type == RelationshipType.KMS_KEY
 
 
 def test_extract_target_group_relationship():
@@ -196,7 +192,7 @@ def test_extract_target_group_relationship():
 
     assert relationship.source == listener
     assert relationship.target == target_group
-    assert relationship.relationship_type == RelationshipType.USES_TARGET_GROUP
+    assert relationship.relationship_type == RelationshipType.TARGET_GROUP
 
 
 def test_extract_bucket_relationship():
@@ -224,4 +220,4 @@ def test_extract_bucket_relationship():
 
     assert relationship.source == bucket_policy
     assert relationship.target == bucket
-    assert relationship.relationship_type == RelationshipType.ATTACHED_TO_BUCKET
+    assert relationship.relationship_type == RelationshipType.OBJECT_STORAGE

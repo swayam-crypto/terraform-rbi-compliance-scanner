@@ -52,7 +52,7 @@ def test_public_database_exposure_detected():
         Relationship(
             source=load_balancer,
             target=database,
-            relationship_type=RelationshipType.USES_TARGET_GROUP,
+            relationship_type=RelationshipType.TARGET_GROUP,
         )
     )
 
@@ -121,7 +121,7 @@ def test_non_public_resource_returns_none():
         Relationship(
             source=instance,
             target=database,
-            relationship_type=RelationshipType.USES_KMS_KEY,
+            relationship_type=RelationshipType.KMS_KEY,
         )
     )
 
@@ -159,7 +159,7 @@ def test_public_resource_without_database_dependency():
         Relationship(
             source=load_balancer,
             target=subnet,
-            relationship_type=RelationshipType.USES_SUBNET,
+            relationship_type=RelationshipType.SUBNET,
         )
     )
 

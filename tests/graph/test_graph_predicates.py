@@ -45,7 +45,7 @@ def test_reachable_resources():
         Relationship(
             source=instance,
             target=subnet,
-            relationship_type=RelationshipType.USES_SUBNET,
+            relationship_type=RelationshipType.SUBNET,
         )
     )
 
@@ -74,7 +74,7 @@ def test_is_reachable():
         Relationship(
             source=instance,
             target=subnet,
-            relationship_type=RelationshipType.USES_SUBNET,
+            relationship_type=RelationshipType.SUBNET,
         )
     )
 
@@ -104,7 +104,7 @@ def test_depends_on():
         Relationship(
             source=instance,
             target=kms,
-            relationship_type=RelationshipType.USES_KMS_KEY,
+            relationship_type=RelationshipType.KMS_KEY,
         )
     )
 

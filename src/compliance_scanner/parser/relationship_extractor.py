@@ -14,29 +14,32 @@ from typing import Final
 ATTRIBUTE_RELATIONSHIPS: Final[dict[str, tuple[RelationshipType, str]]] = {
     # Networking
     "subnet_id": (
-        RelationshipType.USES_SUBNET,
+        RelationshipType.SUBNET,
         "aws_subnet",
     ),
     "vpc_id": (
-        RelationshipType.USES_VPC,
+        RelationshipType.VPC,
         "aws_vpc",
     ),
     "vpc_security_group_ids": (
-        RelationshipType.ATTACHED_TO_SECURITY_GROUP,
+        RelationshipType.SECURITY_GROUP,
         "aws_security_group",
     ),
     # Encryption
     "kms_key_id": (
-        RelationshipType.USES_KMS_KEY,
+        RelationshipType.KMS_KEY,
         "aws_kms_key",
     ),
     # Load Balancing
     "target_group_arn": (
-        RelationshipType.USES_TARGET_GROUP,
+        RelationshipType.TARGET_GROUP,
         "aws_lb_target_group",
     ),
     # Storage
-    "bucket": (RelationshipType.ATTACHED_TO_BUCKET, "aws_s3_bucket"),
+    "bucket": (
+        RelationshipType.OBJECT_STORAGE,
+        "aws_s3_bucket",
+    ),
 }
 
 
