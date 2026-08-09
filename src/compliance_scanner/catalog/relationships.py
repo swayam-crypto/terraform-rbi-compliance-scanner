@@ -9,6 +9,6 @@ class RelationshipDefinition:
     Defines a relationship that a resource may have.
     """
 
-    type: RelationshipType
+    relationship_type: RelationshipType
 
     required: bool = False
