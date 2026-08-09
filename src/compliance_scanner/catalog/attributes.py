@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from compliance_scanner.catalog.canonical_types import CanonicalType
+from compliance_scanner.catalog.relationships import RelationshipDefinition
 
 
 class AttributeType(str, Enum):
@@ -32,4 +32,4 @@ class AttributeDefinition:
 
     description: str = ""
 
-    relationship_target: CanonicalType | None = None
+    relationship: RelationshipDefinition | None = None

@@ -11,7 +11,8 @@ from compliance_scanner.catalog.canonical_types import CanonicalType
 from compliance_scanner.catalog.kinds import ResourceKind
 from compliance_scanner.catalog.loader import CatalogLoader
 from compliance_scanner.catalog.registry import CatalogRegistry
-
+from compliance_scanner.catalog.relationship_types import RelationshipType
+from compliance_scanner.catalog.canonical_types import CanonicalType
 
 from textwrap import dedent
 
@@ -727,6 +728,7 @@ aws_instance:
       type: string
 
       relationship:
+        type: subnet
         target: subnet
 """,
     )
@@ -744,4 +746,8 @@ aws_instance:
 
     attribute = definition.attributes["subnet_id"]
 
-    assert attribute.relationship_target == CanonicalType.SUBNET
+    assert attribute.relationship is not None
+
+    assert attribute.relationship.relationship_type == RelationshipType.SUBNET
+    assert attribute.relationship.target == CanonicalType.SUBNET
+    assert attribute.relationship.required is False
