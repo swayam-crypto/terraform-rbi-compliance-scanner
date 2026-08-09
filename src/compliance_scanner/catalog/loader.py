@@ -121,6 +121,8 @@ class CatalogLoader:
             attribute_data,
         ) in attributes.items():
 
+            relationship = attribute_data.get("relationship")
+
             definitions[attribute_name] = AttributeDefinition(
                 name=attribute_data["name"],
                 type=AttributeType(
@@ -132,6 +134,13 @@ class CatalogLoader:
                 description=attribute_data.get(
                     "description",
                     "",
+                ),
+                relationship_target=(
+                    CanonicalType(
+                        relationship["target"],
+                    )
+                    if relationship
+                    else None
                 ),
             )
 

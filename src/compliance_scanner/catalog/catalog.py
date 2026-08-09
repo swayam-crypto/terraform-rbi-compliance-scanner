@@ -24,6 +24,14 @@ class Catalog:
         """
         Return the catalog definition for a resource.
         """
+        print("Looking up:", resource.resource_type)
+
+        definition = self.registry.get(resource.resource_type)
+
+        print("Definition:", definition)
+
+        return definition
+
         return self.registry.get(
             resource.resource_type,
         )

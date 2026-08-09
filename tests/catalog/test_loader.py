@@ -703,3 +703,45 @@ def test_empty_metadata_are_allowed(tmp_path: Path):
     )
 
     assert len(registry) == 1
+
+
+def test_attribute_relationship_metadata(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+aws_instance:
+  provider: aws
+  service: ec2
+
+  display_name: EC2 Instance
+
+  kind: compute
+  canonical_type: virtual_machine
+
+  attributes:
+    subnet_id:
+      name: subnet_id
+      type: string
+
+      relationship:
+        target: subnet
+""",
+    )
+
+    registry = CatalogRegistry()
+
+    loader = CatalogLoader()
+
+    loader.load(
+        registry,
+        str(yaml_file),
+    )
+
+    definition = registry.get("aws_instance")
+
+    attribute = definition.attributes["subnet_id"]
+
+    assert attribute.relationship_target == CanonicalType.SUBNET

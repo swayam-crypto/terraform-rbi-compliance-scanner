@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
+from compliance_scanner.catalog.canonical_types import CanonicalType
+
 
 class AttributeType(str, Enum):
     """
@@ -29,3 +31,5 @@ class AttributeDefinition:
     default: Any | None = None
 
     description: str = ""
+
+    relationship_target: CanonicalType | None = None
