@@ -13,6 +13,7 @@ aws_s3_bucket:
     - data_residency
     - logging
     - versioning
+    - access_logging
 
   attributes:
     resource_name:
@@ -44,6 +45,12 @@ aws_s3_bucket:
       type: object
       default: null
       description: Bucket versioning configuration.
+
+    access_logging:
+      name: logging
+      type: object
+      default: null
+      description: Bucket access logging configuration.
 
     public_access:
       name: acl

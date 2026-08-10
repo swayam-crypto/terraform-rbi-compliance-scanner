@@ -1,0 +1,64 @@
+aws_ebs_volume:
+  provider: aws
+  service: ec2
+  display_name: Amazon EBS Volume
+  kind: storage
+  canonical_type: block_storage
+  capabilities: [block_storage, encryption_at_rest]
+  attributes:
+    encryption: {name: encrypted, type: boolean, default: false}
+  relationships: []
+  aliases: [AWS::EC2::Volume]
+  metadata: {maturity: stable, deprecated: false}
+
+aws_efs_file_system:
+  provider: aws
+  service: efs
+  display_name: Amazon EFS File System
+  kind: storage
+  canonical_type: file_storage
+  capabilities: [file_storage, encryption_at_rest]
+  attributes:
+    encryption: {name: encrypted, type: boolean, default: false}
+  relationships: []
+  aliases: [AWS::EFS::FileSystem]
+  metadata: {maturity: stable, deprecated: false}
+
+aws_sqs_queue:
+  provider: aws
+  service: sqs
+  display_name: Amazon SQS Queue
+  kind: integration
+  canonical_type: message_queue
+  capabilities: [message_queue, encryption_at_rest]
+  attributes:
+    encryption_key: {name: kms_master_key_id, type: string}
+  relationships: []
+  aliases: [AWS::SQS::Queue]
+  metadata: {maturity: stable, deprecated: false}
+
+aws_sns_topic:
+  provider: aws
+  service: sns
+  display_name: Amazon SNS Topic
+  kind: integration
+  canonical_type: message_queue
+  capabilities: [notification, encryption_at_rest]
+  attributes:
+    encryption_key: {name: kms_master_key_id, type: string}
+  relationships: []
+  aliases: [AWS::SNS::Topic]
+  metadata: {maturity: stable, deprecated: false}
+
+aws_lambda_function:
+  provider: aws
+  service: lambda
+  display_name: AWS Lambda Function
+  kind: compute
+  canonical_type: serverless_function
+  capabilities: [serverless_compute, private_networking]
+  attributes:
+    network_attachment: {name: vpc_config, type: object}
+  relationships: []
+  aliases: [AWS::Lambda::Function]
+  metadata: {maturity: stable, deprecated: false}

@@ -13,6 +13,8 @@ aws_db_instance:
     - data_residency
     - backup
     - logging
+    - deletion_protection
+    - high_availability
 
   attributes:
     resource_name:
@@ -36,6 +38,18 @@ aws_db_instance:
       type: integer
       default: 7
       description: Number of backup retention days.
+
+    deletion_protection:
+      name: deletion_protection
+      type: boolean
+      default: false
+      description: Prevents accidental deletion.
+
+    multi_az:
+      name: multi_az
+      type: boolean
+      default: false
+      description: Deploys a standby in a second availability zone.
 
     public_access:
       name: publicly_accessible

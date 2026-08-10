@@ -10,6 +10,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Added
 
+- v0.8.0: introduced a parser contract, framework-aware reporting, and a
+  capability-native baseline rule pack with 20 controls.
+
 - Added framework-neutral compliance controls with centralized RBI, DPDP,
   CERT-In, and CIS mappings for the existing five rules.
 - Findings and JSON reports now include a canonical control ID, category,

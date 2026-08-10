@@ -416,8 +416,14 @@ aws_security_group:
   capabilities:
     - network_security
     - stateful_firewall
+    - ingress_rules
 
   attributes:
+    ingress:
+      name: ingress
+      type: list
+      description: Inbound security group rules.
+
     description:
       name: description
       type: string

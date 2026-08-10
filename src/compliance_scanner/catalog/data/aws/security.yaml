@@ -7,7 +7,7 @@ aws_kms_key:
   canonical_type: kms_key
 
   capabilities:
-    - encryption
+    - encryption_key
     - key_rotation
 
   attributes:
