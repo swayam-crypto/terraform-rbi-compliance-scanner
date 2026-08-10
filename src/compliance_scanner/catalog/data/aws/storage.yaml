@@ -12,6 +12,14 @@ aws_s3_bucket:
     - versioning
 
   attributes:
+    kms_key_id:
+      name: kms_key_id
+      type: string
+
+      relationship:
+        type: kms_key
+        target: kms_key
+
     encryption:
       name: server_side_encryption_configuration
       type: object
@@ -41,3 +49,23 @@ aws_s3_bucket:
   metadata:
     maturity: stable
     deprecated: false
+
+aws_s3_bucket_policy:
+  provider: aws
+  service: s3
+
+  display_name: Bucket Policy
+
+  kind: storage
+  canonical_type: object_storage
+
+  attributes:
+    bucket:
+      name: bucket
+      type: string
+
+      relationship:
+        type: object_storage
+        target: object_storage
+
+  relationships: []

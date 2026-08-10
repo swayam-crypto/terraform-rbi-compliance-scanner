@@ -181,6 +181,14 @@ aws_subnet:
       default: false
       description: Automatically assign public IPs.
 
+    vpc_id:
+      name: vpc_id
+      type: string
+
+      relationship:
+        type: vpc
+        target: vpc
+
   relationships:
     - vpc
 

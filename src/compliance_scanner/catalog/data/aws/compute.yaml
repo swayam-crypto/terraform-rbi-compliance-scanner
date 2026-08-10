@@ -1,1 +1,69 @@
-{}
+aws_instance:
+  provider: aws
+  service: ec2
+
+  display_name: EC2 Instance
+
+  kind: compute
+  canonical_type: virtual_machine
+
+  capabilities:
+    - compute
+
+  attributes:
+    subnet_id:
+      name: subnet_id
+      type: string
+
+      relationship:
+        type: subnet
+        target: subnet
+
+    vpc_security_group_ids:
+      name: vpc_security_group_ids
+      type: list
+
+      relationship:
+        type: security_group
+        target: security_group
+
+  relationships: []
+
+aws_lb_target_group:
+  provider: aws
+  service: elbv2
+
+  display_name: Target Group
+
+  kind: network
+  canonical_type: target_group
+
+  capabilities:
+    - network
+
+  attributes: {}
+
+  relationships: []
+
+aws_lb_listener:
+  provider: aws
+  service: elbv2
+
+  display_name: Load Balancer Listener
+
+  kind: network
+  canonical_type: load_balancer
+
+  capabilities:
+    - network
+
+  attributes:
+    target_group_arn:
+      name: target_group_arn
+      type: string
+
+      relationship:
+        type: target_group
+        target: target_group
+
+  relationships: []
