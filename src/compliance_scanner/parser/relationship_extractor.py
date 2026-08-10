@@ -7,6 +7,7 @@ from compliance_scanner.graph.relationship import (
 from compliance_scanner.graph.resource_index import ResourceIndex
 
 from typing import Final
+from compliance_scanner.catalog.catalog import Catalog
 
 # Maps Terraform attribute names to:
 # (RelationshipType, Expected Target Resource Type)
@@ -44,6 +45,12 @@ ATTRIBUTE_RELATIONSHIPS: Final[dict[str, tuple[RelationshipType, str]]] = {
 
 
 class RelationshipExtractor:
+
+    def __init__(
+        self,
+        catalog: Catalog,
+    ) -> None:
+        self.catalog = catalog
 
     def extract(
         self,

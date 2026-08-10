@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from compliance_scanner.graph.relationship import RelationshipType
+from compliance_scanner.catalog.relationship_types import RelationshipType
 from compliance_scanner.catalog.canonical_types import CanonicalType
 
 
