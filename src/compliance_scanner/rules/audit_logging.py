@@ -18,9 +18,11 @@ groups where retention is explicitly set to something LESS than 180 days,
 not log groups where it's simply unset.
 """
 
-from .base import BaseRule, Finding
+from compliance_scanner.catalog.global_catalog import catalog
 
-CHECKED_RESOURCES = {"aws_cloudwatch_log_group"}
+from .base import BaseRule, Finding
+from compliance_scanner.compliance.control_catalog import AUDIT_LOG_RETENTION
+
 MINIMUM_RETENTION_DAYS = 180
 
 
@@ -31,13 +33,15 @@ class AuditLogRetentionRule(BaseRule):
     )
     regulation_reference = "CERT-In Cybersecurity Directions 2022, Direction (iv), issued under IT Act Section 70B(6)"
     severity = "high"
-    applies_to = list(CHECKED_RESOURCES)
+    required_capabilities = frozenset({"audit_logging", "log_retention"})
+    control = AUDIT_LOG_RETENTION
 
     def check(self, resource) -> Finding | None:
-        if resource.resource_type not in CHECKED_RESOURCES:
+        if not self.applies_to_resource(resource, catalog):
             return None
 
-        retention = resource.attributes.get("retention_in_days")
+        retention_attribute = catalog.attribute_name(resource, "retention_days")
+        retention = resource.get(retention_attribute) if retention_attribute else None
 
         # Not set at all == AWS default "Never Expire", which satisfies
         # the 180-day minimum implicitly. Only flag if explicitly too short.
@@ -50,18 +54,13 @@ class AuditLogRetentionRule(BaseRule):
             return None  # unexpected value shape, skip rather than guess
 
         if retention_days < MINIMUM_RETENTION_DAYS:
-            return Finding(
-                rule_id=self.rule_id,
-                severity=self.severity,
-                resource_type=resource.resource_type,
-                resource_name=resource.resource_name,
-                message=(
-                    f"Log group '{resource.resource_name}' has retention_in_days set to "
+            return self.finding(
+                resource,
+                (
+                    f"Log group '{resource.resource_name}' has {retention_attribute} set to "
                     f"{retention_days}, below the CERT-In mandated minimum of "
                     f"{MINIMUM_RETENTION_DAYS} days."
                 ),
-                regulation_reference=self.regulation_reference,
-                file_path=resource.source.file_path,
             )
 
         return None

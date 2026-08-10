@@ -10,6 +10,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Added
 
+- Added framework-neutral compliance controls with centralized RBI, DPDP,
+  CERT-In, and CIS mappings for the existing five rules.
+- Findings and JSON reports now include a canonical control ID, category,
+  remediation guidance, and framework traceability metadata.
+- Added capability-based rule targeting for encryption-at-rest and public
+  sensitive-data controls, including DynamoDB catalog coverage.
+- Migrated data residency, audit-log retention, and IAM least-privilege
+  controls to catalog capabilities and canonical attributes.
 - Introduced `ResourceIndex` for efficient resource lookup during compliance analysis.
 - Added `RelationshipGraph` as the foundation for graph-based infrastructure analysis.
 - Added `GraphBuilder` to construct infrastructure relationship graphs.

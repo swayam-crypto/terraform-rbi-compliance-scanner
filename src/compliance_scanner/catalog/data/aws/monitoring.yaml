@@ -1,1 +1,26 @@
-{}
+aws_cloudwatch_log_group:
+  provider: aws
+  service: cloudwatch
+  display_name: Amazon CloudWatch Log Group
+
+  kind: observability
+  canonical_type: log_group
+
+  capabilities:
+    - audit_logging
+    - log_retention
+
+  attributes:
+    retention_days:
+      name: retention_in_days
+      type: integer
+      description: Configured retention period in days.
+
+  relationships: []
+
+  aliases:
+    - AWS::Logs::LogGroup
+
+  metadata:
+    maturity: stable
+    deprecated: false

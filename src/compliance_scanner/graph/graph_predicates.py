@@ -57,6 +57,17 @@ class GraphPredicates:
             resource_type,
         )
 
+    def depends_on_capabilities(
+        self,
+        resource: ResolvedResource,
+        capabilities: frozenset[str],
+    ) -> bool:
+        """Return whether a reachable resource declares all capabilities."""
+        return any(
+            self.catalog.has_capabilities(candidate, capabilities)
+            for candidate in self.reachable_resources(resource)
+        )
+
     def is_database(
         self,
         resource: ResolvedResource,
