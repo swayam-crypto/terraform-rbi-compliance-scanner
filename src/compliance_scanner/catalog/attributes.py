@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
+from compliance_scanner.catalog.relationships import RelationshipDefinition
+
 
 class AttributeType(str, Enum):
     """
@@ -29,3 +31,5 @@ class AttributeDefinition:
     default: Any | None = None
 
     description: str = ""
+
+    relationship: RelationshipDefinition | None = None

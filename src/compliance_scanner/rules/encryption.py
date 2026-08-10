@@ -5,45 +5,37 @@ Flags storage resources (S3, RDS, DynamoDB) that don't have
 encryption explicitly enabled.
 """
 
+from compliance_scanner.catalog.global_catalog import catalog
+
 from .base import BaseRule, Finding
-
-CHECKED_RESOURCES = {"aws_s3_bucket", "aws_db_instance", "aws_dynamodb_table"}
-
-# Terraform attribute name that indicates encryption, per resource type
-ENCRYPTION_ATTR = {
-    "aws_s3_bucket": "server_side_encryption_configuration",
-    "aws_db_instance": "storage_encrypted",
-    "aws_dynamodb_table": "server_side_encryption",
-}
-
+from compliance_scanner.compliance.control_catalog import ENCRYPTION_AT_REST
 
 class EncryptionAtRestRule(BaseRule):
     rule_id = "RBI-002"
     description = "Storage resources must have encryption at rest enabled"
     regulation_reference = "RBI Cybersecurity Framework — Data Protection requirement"
     severity = "high"
-    applies_to = list(CHECKED_RESOURCES)
+    required_capabilities = frozenset({"data_store", "encryption_at_rest"})
+    control = ENCRYPTION_AT_REST
 
     def check(self, resource) -> Finding | None:
-        if resource.resource_type not in CHECKED_RESOURCES:
+        if not self.applies_to_resource(resource, catalog):
             return None
 
-        attr = ENCRYPTION_ATTR[resource.resource_type]
-        value = resource.attributes.get(attr)
+        attribute_name = catalog.attribute_name(resource, "encryption")
+        if attribute_name is None:
+            return None
+
+        value = resource.get(attribute_name)
 
         is_encrypted = bool(value) and value is not False
         if not is_encrypted:
-            return Finding(
-                rule_id=self.rule_id,
-                severity=self.severity,
-                resource_type=resource.resource_type,
-                resource_name=resource.resource_name,
-                message=(
+            return self.finding(
+                resource,
+                (
                     f"Resource '{resource.resource_name}' does not have encryption at rest "
-                    f"explicitly enabled ('{attr}' missing or false)."
+                    f"explicitly enabled ('{attribute_name}' missing or false)."
                 ),
-                regulation_reference=self.regulation_reference,
-                file_path=resource.source.file_path,
             )
 
         return None

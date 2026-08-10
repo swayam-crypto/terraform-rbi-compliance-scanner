@@ -1,11 +1,13 @@
 from compliance_scanner.catalog.relationships import RelationshipDefinition
-from compliance_scanner.graph.relationship import RelationshipType
+from compliance_scanner.catalog.relationship_types import RelationshipType
+from compliance_scanner.catalog.canonical_types import CanonicalType
 
 
 def test_relationship_definition():
 
     relationship = RelationshipDefinition(
         relationship_type=RelationshipType.SUBNET,
+        target=CanonicalType.SUBNET,
     )
 
     assert relationship.relationship_type is RelationshipType.SUBNET
@@ -17,6 +19,7 @@ def test_required_relationship():
 
     relationship = RelationshipDefinition(
         relationship_type=RelationshipType.KMS_KEY,
+        target=CanonicalType.KMS_KEY,
         required=True,
     )
 

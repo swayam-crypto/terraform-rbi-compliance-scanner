@@ -22,6 +22,7 @@ class CanonicalType(StrEnum):
     # Networking
     LOAD_BALANCER = "load_balancer"
     API_GATEWAY = "api_gateway"
+    TARGET_GROUP = "target_group"
     CDN = "cdn"
     VPC = "vpc"
     SUBNET = "subnet"

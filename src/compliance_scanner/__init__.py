@@ -35,6 +35,7 @@ from compliance_scanner.reporting import to_json
 from compliance_scanner.models.platform import Platform
 from compliance_scanner.models.source_location import SourceLocation
 from compliance_scanner.parser.provider_utils import infer_provider
+from compliance_scanner.catalog.global_catalog import catalog
 
 __version__ = "0.3.0"
 
@@ -107,7 +108,7 @@ def scan_string(terraform_text: str) -> list[Finding]:
                 ),
             )
             for rule in ALL_RULES:
-                if resource_type not in rule.applies_to:
+                if not rule.applies_to_resource(resource, catalog):
                     continue
                 result = rule.check(resource)
                 if result is not None:

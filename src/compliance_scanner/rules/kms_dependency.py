@@ -7,7 +7,8 @@ More compliance checks will be added in later versions.
 
 from compliance_scanner.rules.graph_base import GraphRule
 from compliance_scanner.rules.base import Finding
-from compliance_scanner.graph.relationship import RelationshipType
+from compliance_scanner.catalog.global_catalog import catalog
+from compliance_scanner.catalog.relationship_types import RelationshipType
 
 
 class KMSDependencyRule(GraphRule):
@@ -31,7 +32,10 @@ class KMSDependencyRule(GraphRule):
 
         for resource in context.resources:
 
-            if resource.resource_type != "aws_s3_bucket":
+            if not catalog.has_capabilities(
+                resource,
+                frozenset({"data_store", "encryption_at_rest"}),
+            ):
                 continue
 
             kms_relationships = context.relationship_graph.outgoing_by_type(

@@ -8,6 +8,7 @@ from compliance_scanner.rules.base import Finding
 from compliance_scanner.models.resolved_resource import ResolvedResource
 
 from compliance_scanner.scan_context import ScanContext
+from compliance_scanner.catalog.global_catalog import catalog
 
 
 class PublicDatabaseExposureRule(GraphRule):
@@ -20,12 +21,7 @@ class PublicDatabaseExposureRule(GraphRule):
 
     severity = "critical"
 
-    applies_to = [
-        "aws_lb",
-        "aws_alb",
-        "aws_api_gateway_rest_api",
-        "aws_cloudfront_distribution",
-    ]
+    required_capabilities = frozenset({"public_entry_point"})
 
     def check(
         self,
@@ -39,12 +35,12 @@ class PublicDatabaseExposureRule(GraphRule):
             )
         )
 
-        if not predicates.is_public_entry_point(resource):
+        if not catalog.has_capabilities(resource, self.required_capabilities):
             return None
 
-        if not predicates.depends_on(
+        if not predicates.depends_on_capabilities(
             resource,
-            "aws_db_instance",
+            frozenset({"data_store"}),
         ):
             return None
 

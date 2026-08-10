@@ -1,49 +1,18 @@
 from compliance_scanner.models.resolved_resource import ResolvedResource
 
-from compliance_scanner.graph.relationship import (
-    Relationship,
-    RelationshipType,
-)
+from compliance_scanner.graph.relationship import Relationship
+
 from compliance_scanner.graph.resource_index import ResourceIndex
-
-from typing import Final
-
-# Maps Terraform attribute names to:
-# (RelationshipType, Expected Target Resource Type)
-
-ATTRIBUTE_RELATIONSHIPS: Final[dict[str, tuple[RelationshipType, str]]] = {
-    # Networking
-    "subnet_id": (
-        RelationshipType.SUBNET,
-        "aws_subnet",
-    ),
-    "vpc_id": (
-        RelationshipType.VPC,
-        "aws_vpc",
-    ),
-    "vpc_security_group_ids": (
-        RelationshipType.SECURITY_GROUP,
-        "aws_security_group",
-    ),
-    # Encryption
-    "kms_key_id": (
-        RelationshipType.KMS_KEY,
-        "aws_kms_key",
-    ),
-    # Load Balancing
-    "target_group_arn": (
-        RelationshipType.TARGET_GROUP,
-        "aws_lb_target_group",
-    ),
-    # Storage
-    "bucket": (
-        RelationshipType.OBJECT_STORAGE,
-        "aws_s3_bucket",
-    ),
-}
+from compliance_scanner.catalog.catalog import Catalog
 
 
 class RelationshipExtractor:
+
+    def __init__(
+        self,
+        catalog: Catalog,
+    ) -> None:
+        self.catalog = catalog
 
     def extract(
         self,
@@ -52,31 +21,35 @@ class RelationshipExtractor:
     ) -> list[Relationship]:
         """
         Extract relationships between normalized resources.
-
-        Args:
-            resources: Resources to inspect.
-            index: Index used to resolve referenced resources.
-
-        Returns:
-            A list of discovered relationships.
         """
 
         relationships: list[Relationship] = []
 
         for resource in resources:
-            for attribute_name, attribute_value in resource.attributes.items():
-                if attribute_name not in ATTRIBUTE_RELATIONSHIPS:
+
+            definition = self.catalog.definition(resource)
+
+            if definition is None:
+                continue
+
+            for (
+                attribute_name,
+                attribute_definition,
+            ) in definition.attributes.items():
+
+                relationship = attribute_definition.relationship
+
+                if relationship is None:
                     continue
 
-                mapping = ATTRIBUTE_RELATIONSHIPS[attribute_name]
-                relationship_type, target_resource_type = mapping
+                attribute_value = resource.attributes.get(attribute_name)
+
+                if attribute_value is None:
+                    continue
 
                 references = self._parse_references(attribute_value)
 
                 for resource_type, resource_name in references:
-
-                    if resource_type != target_resource_type:
-                        continue
 
                     targets = index.find(
                         resource_type=resource_type,
@@ -86,18 +59,24 @@ class RelationshipExtractor:
                     if not targets:
                         continue
 
+                    target = targets[0]
+
+                    target_definition = self.catalog.definition(target)
+
+                    if target_definition is None:
+                        continue
+
+                    if target_definition.canonical_type != relationship.target:
+                        continue
+
                     relationships.append(
                         Relationship(
                             source=resource,
-                            target=targets[0],
-                            relationship_type=relationship_type,
+                            target=target,
+                            relationship_type=relationship.relationship_type,
                         )
                     )
 
-        # Resolve the reference
-        # Find the target resource
-        # Create a Relationship
-        # Append it to relationships
         return relationships
 
     def _parse_references(
@@ -137,10 +116,12 @@ class RelationshipExtractor:
 
             if len(parts) < 3:
                 continue
+
             references.append(
                 (
                     parts[0],
                     parts[1],
                 )
             )
+
         return references
