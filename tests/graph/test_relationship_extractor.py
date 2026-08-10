@@ -1,4 +1,4 @@
-from compliance_scanner.graph.relationship import RelationshipType, Relationship
+from compliance_scanner.catalog.relationship_types import RelationshipType
 from compliance_scanner.parser.relationship_extractor import RelationshipExtractor
 from compliance_scanner.graph.resource_index import ResourceIndex
 
@@ -6,6 +6,8 @@ from compliance_scanner.models.platform import Platform
 from compliance_scanner.models.resolved_resource import ResolvedResource
 from compliance_scanner.models.source_location import SourceLocation
 from compliance_scanner.parser.provider_utils import infer_provider
+from compliance_scanner.catalog.global_catalog import catalog
+from compliance_scanner.graph.relationship import Relationship
 
 
 def make_resource(
@@ -35,7 +37,7 @@ def extract_relationships(
 
     index = ResourceIndex(resources)
 
-    extractor = RelationshipExtractor()
+    extractor = RelationshipExtractor(catalog)
 
     return extractor.extract(
         resources,

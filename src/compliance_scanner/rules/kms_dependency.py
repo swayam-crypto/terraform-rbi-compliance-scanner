@@ -7,7 +7,7 @@ More compliance checks will be added in later versions.
 
 from compliance_scanner.rules.graph_base import GraphRule
 from compliance_scanner.rules.base import Finding
-from compliance_scanner.graph.relationship import RelationshipType
+from compliance_scanner.catalog.relationship_types import RelationshipType
 
 
 class KMSDependencyRule(GraphRule):

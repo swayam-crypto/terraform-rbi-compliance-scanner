@@ -15,6 +15,11 @@ from compliance_scanner.catalog.canonical_types import CanonicalType
 from compliance_scanner.catalog.kinds import ResourceKind
 from compliance_scanner.catalog.exceptions import CatalogValidationError
 
+from compliance_scanner.catalog.relationships import (
+    RelationshipDefinition,
+    RelationshipType,
+)
+
 
 class CatalogLoader:
 
@@ -121,17 +126,28 @@ class CatalogLoader:
             attribute_data,
         ) in attributes.items():
 
+            relationship_data = attribute_data.get("relationship")
+
             definitions[attribute_name] = AttributeDefinition(
                 name=attribute_data["name"],
-                type=AttributeType(
-                    attribute_data["type"],
-                ),
-                default=attribute_data.get(
-                    "default",
-                ),
-                description=attribute_data.get(
-                    "description",
-                    "",
+                type=AttributeType(attribute_data["type"]),
+                default=attribute_data.get("default"),
+                description=attribute_data.get("description", ""),
+                relationship=(
+                    RelationshipDefinition(
+                        relationship_type=RelationshipType(
+                            relationship_data["type"],
+                        ),
+                        target=CanonicalType(
+                            relationship_data["target"],
+                        ),
+                        required=relationship_data.get(
+                            "required",
+                            False,
+                        ),
+                    )
+                    if relationship_data
+                    else None
                 ),
             )
 

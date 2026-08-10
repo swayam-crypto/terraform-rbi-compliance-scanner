@@ -50,6 +50,8 @@ from compliance_scanner.graph.resource_index import ResourceIndex
 from compliance_scanner.graph.graph_builder import GraphBuilder
 from compliance_scanner.scan_context import ScanContext
 
+from compliance_scanner.catalog.global_catalog import catalog
+
 
 def _run_rules_on_resources(
     resources: list[ResolvedResource],
@@ -173,7 +175,9 @@ def scan_directory(
 
     index = ResourceIndex(resolved_resources)
 
-    relationships = RelationshipExtractor().extract(
+    relationships = RelationshipExtractor(
+        catalog,
+    ).extract(
         resolved_resources,
         index,
     )
