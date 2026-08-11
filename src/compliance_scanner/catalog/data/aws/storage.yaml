@@ -7,11 +7,25 @@ aws_s3_bucket:
   canonical_type: object_storage
 
   capabilities:
-    - encryption
+    - data_store
+    - encryption_at_rest
+    - public_access_configuration
+    - data_residency
     - logging
     - versioning
+    - access_logging
 
   attributes:
+    resource_name:
+      name: bucket
+      type: string
+      description: Bucket name.
+
+    region:
+      name: region
+      type: string
+      description: Deployment region, if overridden on the resource.
+
     kms_key_id:
       name: kms_key_id
       type: string
@@ -31,6 +45,12 @@ aws_s3_bucket:
       type: object
       default: null
       description: Bucket versioning configuration.
+
+    access_logging:
+      name: logging
+      type: object
+      default: null
+      description: Bucket access logging configuration.
 
     public_access:
       name: acl

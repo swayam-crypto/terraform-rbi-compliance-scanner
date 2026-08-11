@@ -15,6 +15,12 @@ from .network_exposure import NetworkExposureRule
 from .access_control import LeastPrivilegeRule
 from .graph_base import GraphRule
 from .kms_dependency import KMSDependencyRule
+from .baseline import (
+    BASELINE_RULES,
+    RDP_RESTRICTION_RULE,
+    SSH_RESTRICTION_RULE,
+    UnrestrictedIngressRule,
+)
 
 ALL_RULES = [
     DataLocalizationRule(),
@@ -22,6 +28,10 @@ ALL_RULES = [
     AuditLogRetentionRule(),
     NetworkExposureRule(),
     LeastPrivilegeRule(),
+    *BASELINE_RULES,
+    SSH_RESTRICTION_RULE,
+    RDP_RESTRICTION_RULE,
+    UnrestrictedIngressRule(),
 ]
 
 GRAPH_RULES = [

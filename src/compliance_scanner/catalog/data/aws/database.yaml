@@ -7,11 +7,26 @@ aws_db_instance:
   canonical_type: database
 
   capabilities:
-    - encryption
+    - data_store
+    - encryption_at_rest
+    - public_access_configuration
+    - data_residency
     - backup
     - logging
+    - deletion_protection
+    - high_availability
 
   attributes:
+    resource_name:
+      name: identifier
+      type: string
+      description: Database instance identifier.
+
+    region:
+      name: region
+      type: string
+      description: Deployment region, if overridden on the resource.
+
     encryption:
       name: storage_encrypted
       type: boolean
@@ -24,7 +39,19 @@ aws_db_instance:
       default: 7
       description: Number of backup retention days.
 
-    publicly_accessible:
+    deletion_protection:
+      name: deletion_protection
+      type: boolean
+      default: false
+      description: Prevents accidental deletion.
+
+    multi_az:
+      name: multi_az
+      type: boolean
+      default: false
+      description: Deploys a standby in a second availability zone.
+
+    public_access:
       name: publicly_accessible
       type: boolean
       default: false
@@ -38,6 +65,80 @@ aws_db_instance:
   aliases:
     - AWS::RDS::DBInstance
     - aws:rds/instance:Instance
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_dynamodb_table:
+  provider: aws
+  service: dynamodb
+  display_name: Amazon DynamoDB Table
+
+  kind: data
+  canonical_type: database
+
+  capabilities:
+    - data_store
+    - encryption_at_rest
+    - backup
+    - data_residency
+
+  attributes:
+    resource_name:
+      name: name
+      type: string
+      description: Table name.
+
+    region:
+      name: region
+      type: string
+      description: Deployment region, if overridden on the resource.
+
+    encryption:
+      name: server_side_encryption
+      type: object
+      default: null
+      description: Server-side encryption configuration.
+
+  relationships: []
+
+  aliases:
+    - AWS::DynamoDB::Table
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_rds_cluster:
+  provider: aws
+  service: rds
+  display_name: Amazon RDS Cluster
+
+  kind: data
+  canonical_type: database
+
+  capabilities:
+    - data_store
+    - data_residency
+    - backup
+    - logging
+
+  attributes:
+    resource_name:
+      name: cluster_identifier
+      type: string
+      description: Database cluster identifier.
+
+    region:
+      name: region
+      type: string
+      description: Deployment region, if overridden on the resource.
+
+  relationships: []
+
+  aliases:
+    - AWS::RDS::DBCluster
 
   metadata:
     maturity: stable

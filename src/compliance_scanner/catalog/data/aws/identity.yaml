@@ -1,1 +1,50 @@
-{}
+aws_iam_policy:
+  provider: aws
+  service: iam
+  display_name: AWS IAM Policy
+
+  kind: identity
+  canonical_type: iam_policy
+
+  capabilities:
+    - identity_policy
+
+  attributes:
+    policy_document:
+      name: policy
+      type: object
+      description: IAM policy document.
+
+  relationships: []
+
+  aliases:
+    - AWS::IAM::ManagedPolicy
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_iam_role_policy:
+  provider: aws
+  service: iam
+  display_name: AWS IAM Role Policy
+
+  kind: identity
+  canonical_type: iam_policy
+
+  capabilities:
+    - identity_policy
+
+  attributes:
+    policy_document:
+      name: policy
+      type: object
+      description: Inline IAM policy document.
+
+  relationships: []
+
+  aliases: []
+
+  metadata:
+    maturity: stable
+    deprecated: false

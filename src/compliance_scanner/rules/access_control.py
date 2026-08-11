@@ -16,10 +16,10 @@ Resource fields.
 
 import json
 
+from compliance_scanner.catalog.global_catalog import catalog
+
 from .base import BaseRule, Finding
-
-CHECKED_RESOURCES = {"aws_iam_policy", "aws_iam_role_policy"}
-
+from compliance_scanner.compliance.control_catalog import LEAST_PRIVILEGE
 
 class LeastPrivilegeRule(BaseRule):
     rule_id = "RBI-005"
@@ -29,13 +29,15 @@ class LeastPrivilegeRule(BaseRule):
         "'Access Control' principle (least privilege) — not a specific numeric circular"
     )
     severity = "high"
-    applies_to = list(CHECKED_RESOURCES)
+    required_capabilities = frozenset({"identity_policy"})
+    control = LEAST_PRIVILEGE
 
     def check(self, resource) -> Finding | None:
-        if resource.resource_type not in CHECKED_RESOURCES:
+        if not self.applies_to_resource(resource, catalog):
             return None
 
-        policy_raw = resource.attributes.get("policy")
+        policy_attribute = catalog.attribute_name(resource, "policy_document")
+        policy_raw = resource.get(policy_attribute) if policy_attribute else None
         if not policy_raw:
             return None
 
@@ -61,17 +63,12 @@ class LeastPrivilegeRule(BaseRule):
             resources = [resources] if isinstance(resources, str) else resources
 
             if "*" in actions or "*" in resources:
-                return Finding(
-                    rule_id=self.rule_id,
-                    severity=self.severity,
-                    resource_type=resource.resource_type,
-                    resource_name=resource.resource_name,
-                    message=(
+                return self.finding(
+                    resource,
+                    (
                         f"IAM policy '{resource.resource_name}' grants a wildcard (*) "
                         f"action or resource, violating least-privilege access control."
                     ),
-                    regulation_reference=self.regulation_reference,
-                    file_path=resource.source.file_path,
                 )
 
         return None

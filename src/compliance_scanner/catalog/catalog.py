@@ -46,6 +46,28 @@ class Catalog:
 
         return capability in definition.capabilities
 
+    def has_capabilities(
+        self,
+        resource: ResolvedResource,
+        capabilities: frozenset[str],
+    ) -> bool:
+        """Return whether a resource declares every requested capability."""
+        definition = self.definition(resource)
+        return definition is not None and capabilities.issubset(definition.capabilities)
+
+    def attribute_name(
+        self,
+        resource: ResolvedResource,
+        attribute_key: str,
+    ) -> str | None:
+        """Resolve a canonical catalog attribute key to a provider attribute name."""
+        definition = self.definition(resource)
+        if definition is None:
+            return None
+
+        attribute = definition.attributes.get(attribute_key)
+        return attribute.name if attribute else None
+
     def canonical_type(
         self,
         resource: ResolvedResource,

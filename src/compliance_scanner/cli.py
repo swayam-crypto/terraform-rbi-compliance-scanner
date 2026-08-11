@@ -15,7 +15,7 @@ from compliance_scanner.core import (
     scan_directory_large,
     scan_plan,
 )
-from compliance_scanner.reporting import to_json, print_console_summary
+from compliance_scanner.reporting import filter_by_framework, to_json, print_console_summary
 
 
 def main():
@@ -25,6 +25,7 @@ def main():
     parser.add_argument("--path", help="Directory containing .tf files")
     parser.add_argument("--plan", help="Terraform plan JSON file")
     parser.add_argument("--format", choices=["console", "json"], default="console")
+    parser.add_argument("--framework", help="Only report one framework mapping (RBI, DPDP, CERT-In, CIS)")
     parser.add_argument(
         "--fail-on",
         choices=["critical", "high", "medium", "low", "none"],
@@ -95,6 +96,8 @@ def main():
 
     except ValueError as e:
         parser.error(str(e))
+
+    findings = filter_by_framework(findings, args.framework)
 
     if args.format == "json":
         print(to_json(findings))

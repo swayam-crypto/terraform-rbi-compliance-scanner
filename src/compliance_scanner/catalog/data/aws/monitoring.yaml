@@ -1,1 +1,32 @@
-{}
+aws_cloudwatch_log_group:
+  provider: aws
+  service: cloudwatch
+  display_name: Amazon CloudWatch Log Group
+
+  kind: observability
+  canonical_type: log_group
+
+  capabilities:
+    - audit_logging
+    - log_retention
+    - encryption_at_rest
+
+  attributes:
+    encryption_key:
+      name: kms_key_id
+      type: string
+      description: KMS key used to encrypt log data.
+
+    retention_days:
+      name: retention_in_days
+      type: integer
+      description: Configured retention period in days.
+
+  relationships: []
+
+  aliases:
+    - AWS::Logs::LogGroup
+
+  metadata:
+    maturity: stable
+    deprecated: false

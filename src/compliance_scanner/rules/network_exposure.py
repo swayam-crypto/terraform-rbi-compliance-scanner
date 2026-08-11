@@ -19,9 +19,10 @@ implying every rule has a specific circular behind it, and reviewers
 who know the space will respect that precision.
 """
 
-from .base import BaseRule, Finding
+from compliance_scanner.catalog.global_catalog import catalog
 
-CHECKED_RESOURCES = {"aws_s3_bucket", "aws_db_instance"}
+from .base import BaseRule, Finding
+from compliance_scanner.compliance.control_catalog import PUBLIC_SENSITIVE_DATA
 
 PUBLIC_ACLS = {"public-read", "public-read-write", "authenticated-read"}
 
@@ -55,10 +56,11 @@ class NetworkExposureRule(BaseRule):
         "safeguards — not a specific numeric circular"
     )
     severity = "critical"
-    applies_to = list(CHECKED_RESOURCES)
+    required_capabilities = frozenset({"data_store", "public_access_configuration"})
+    control = PUBLIC_SENSITIVE_DATA
 
     def check(self, resource) -> Finding | None:
-        if resource.resource_type not in CHECKED_RESOURCES:
+        if not self.applies_to_resource(resource, catalog):
             return None
 
         tags = resource.attributes.get("tags", {}) or {}
@@ -67,15 +69,15 @@ class NetworkExposureRule(BaseRule):
 
         resource_name = resource.resource_name.lower()
 
-        bucket_name = str(resource.attributes.get("bucket", "")).lower()
-
-        db_identifier = str(resource.attributes.get("identifier", "")).lower()
+        resource_name_attribute = catalog.attribute_name(resource, "resource_name")
+        configured_name = str(
+            resource.get(resource_name_attribute) if resource_name_attribute else ""
+        ).lower()
 
         search_text = " ".join(
             [
                 f"{resource_name}",
-                f"{bucket_name}",
-                f"{db_identifier}",
+                f"{configured_name}",
                 f"{tag_values}",
             ]
         )
@@ -85,40 +87,22 @@ class NetworkExposureRule(BaseRule):
         if not looks_sensitive:
             return None  # same conservative approach as RBI-001 — skip if unconfirmed
 
-        if resource.resource_type == "aws_s3_bucket":
-            acl = resource.attributes.get("acl")
+        public_access_attribute = catalog.attribute_name(resource, "public_access")
+        public_access = resource.get(public_access_attribute) if public_access_attribute else None
+        normalized_access = (
+            public_access.strip().lower()
+            if isinstance(public_access, str)
+            else public_access
+        )
 
-            if isinstance(acl, str):
-                acl = acl.strip().lower()
-
-            if acl in PUBLIC_ACLS:
-                return Finding(
-                    rule_id=self.rule_id,
-                    severity=self.severity,
-                    resource_type=resource.resource_type,
-                    resource_name=resource.resource_name,
-                    message=(
-                        f"Bucket '{resource.resource_name}' appears to contain sensitive data "
-                        f"and uses the '{acl}' ACL, which may allow public access."
-                    ),
-                    regulation_reference=self.regulation_reference,
-                    file_path=resource.source.file_path,
-                )
-
-        if resource.resource_type == "aws_db_instance":
-            publicly_accessible = resource.attributes.get("publicly_accessible")
-            if publicly_accessible is True:
-                return Finding(
-                    rule_id=self.rule_id,
-                    severity=self.severity,
-                    resource_type=resource.resource_type,
-                    resource_name=resource.resource_name,
-                    message=(
-                        f"Database '{resource.resource_name}' appears to hold sensitive data "
-                        f"but has publicly_accessible = true."
-                    ),
-                    regulation_reference=self.regulation_reference,
-                    file_path=resource.source.file_path,
-                )
+        is_public = normalized_access in PUBLIC_ACLS or normalized_access is True
+        if is_public:
+            return self.finding(
+                resource,
+                (
+                    f"Resource '{resource.resource_name}' appears to contain sensitive data "
+                    f"but has public access configured via '{public_access_attribute}'."
+                ),
+            )
 
         return None

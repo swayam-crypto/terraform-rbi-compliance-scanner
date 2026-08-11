@@ -69,7 +69,7 @@ def _run_rules_on_resources(
     """
     for resource in resources:
         for rule in ALL_RULES:
-            if resource.resource_type not in rule.applies_to:
+            if not rule.applies_to_resource(resource, catalog):
                 continue
             result = rule.check(resource)
             if result is None:
