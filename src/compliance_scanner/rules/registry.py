@@ -1,6 +1,12 @@
 """
-Rule registry. Import every rule here so the scan engine can discover
-them automatically without you editing engine code each time you add one.
+Production rule registry. Import every rule here so the scan engine can
+discover them automatically without you editing engine code each time you add
+one.
+
+``GRAPH_RULES`` is the sole graph-rule registry executed by production scans.
+The similarly named collection in ``compliance_scanner.graph_rules`` is an
+experimental/future-only rule-pack surface and is intentionally not imported
+here.
 
 To add a new rule:
 1. Create a new file in this folder, e.g. audit_logging.py
@@ -35,5 +41,6 @@ ALL_RULES = [
 ]
 
 GRAPH_RULES = [
+    # Production graph-rule registry consumed by core.scan_engine.
     KMSDependencyRule(),
 ]
