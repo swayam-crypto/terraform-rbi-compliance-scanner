@@ -12,6 +12,7 @@ from compliance_scanner.catalog.kinds import ResourceKind
 from compliance_scanner.catalog.loader import CatalogLoader
 from compliance_scanner.catalog.registry import CatalogRegistry
 from compliance_scanner.catalog.relationship_types import RelationshipType
+from compliance_scanner.catalog.exceptions import CatalogValidationError
 from compliance_scanner.catalog.canonical_types import CanonicalType
 
 from textwrap import dedent
@@ -673,6 +674,113 @@ def test_empty_relationships_are_allowed(tmp_path: Path):
     )
 
     assert len(registry) == 1
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("capabilities", "encryption"),
+        ("capabilities", "[encryption, 1]"),
+        ("relationships", "subnet"),
+        ("relationships", "[subnet, 1]"),
+        ("relationships", "[{name: subnet}]"),
+    ],
+)
+def test_collection_fields_must_be_lists_of_strings(
+    tmp_path: Path, field: str, value: str
+):
+    yaml_file = tmp_path / "aws.yaml"
+    write_catalog(
+        yaml_file,
+        f"""
+        aws_db_instance:
+          provider: aws
+          service: rds
+          display_name: Amazon RDS
+          kind: data
+          canonical_type: database
+          {field}: {value}
+        """,
+    )
+
+    with pytest.raises(CatalogValidationError):
+        CatalogLoader().load(CatalogRegistry(), str(yaml_file))
+
+
+def test_descriptive_resource_relationships_are_allowed(tmp_path: Path):
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+        aws_s3_bucket:
+          provider: aws
+          service: s3
+          display_name: Amazon S3 Bucket
+          kind: storage
+          canonical_type: object_storage
+          relationships:
+            - bucket_policy
+            - kms_key
+        """,
+    )
+
+    registry = CatalogRegistry()
+    CatalogLoader().load(registry, str(yaml_file))
+
+    definition = registry.get("aws_s3_bucket")
+
+    assert definition is not None
+    assert definition.relationships == frozenset(
+        {
+            "bucket_policy",
+            "kms_key",
+        }
+    )
+
+
+def test_duplicate_resource_relationships_are_rejected(tmp_path: Path):
+    yaml_file = tmp_path / "aws.yaml"
+    write_catalog(
+        yaml_file,
+        """
+        aws_db_instance:
+          provider: aws
+          service: rds
+          display_name: Amazon RDS
+          kind: data
+          canonical_type: database
+          relationships: [subnet, subnet]
+        """,
+    )
+
+    with pytest.raises(CatalogValidationError, match="Duplicate relationship entries"):
+        CatalogLoader().load(CatalogRegistry(), str(yaml_file))
+
+
+def test_valid_capabilities_and_relationships_are_loaded(tmp_path: Path):
+    yaml_file = tmp_path / "aws.yaml"
+    write_catalog(
+        yaml_file,
+        """
+        aws_db_instance:
+          provider: aws
+          service: rds
+          display_name: Amazon RDS
+          kind: data
+          canonical_type: database
+          capabilities: [encryption_at_rest, backup]
+          relationships: [subnet, kms_key]
+        """,
+    )
+
+    registry = CatalogRegistry()
+    CatalogLoader().load(registry, str(yaml_file))
+
+    definition = registry.get("aws_db_instance")
+    assert definition is not None
+    assert definition.capabilities == frozenset({"encryption_at_rest", "backup"})
+    assert definition.relationships == frozenset({"subnet", "kms_key"})
 
 
 def test_empty_metadata_are_allowed(tmp_path: Path):
