@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import Any, Mapping
 
 from compliance_scanner.catalog.attributes import AttributeDefinition
+from compliance_scanner.catalog.canonical_types import CanonicalType
 from compliance_scanner.catalog.kinds import ResourceKind
 
 
@@ -28,7 +29,7 @@ class ResourceDefinition:
 
     kind: ResourceKind
 
-    canonical_type: str
+    canonical_type: CanonicalType
 
     # Optional identity
 
