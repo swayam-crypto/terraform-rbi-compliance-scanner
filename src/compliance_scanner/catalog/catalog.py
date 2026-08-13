@@ -1,4 +1,5 @@
 from compliance_scanner.catalog.models import ResourceDefinition
+from compliance_scanner.catalog.canonical_types import CanonicalType
 from compliance_scanner.catalog.registry import CatalogRegistry
 from compliance_scanner.models.resolved_resource import ResolvedResource
 
@@ -25,11 +26,7 @@ class Catalog:
         Return the catalog definition for a resource.
         """
 
-        definition = self.registry.get(resource.resource_type)
-
-        return self.registry.get(
-            resource.resource_type,
-        )
+        return self.registry.get(resource.resource_type)
 
     def has_capability(
         self,
@@ -59,7 +56,7 @@ class Catalog:
         self,
         resource: ResolvedResource,
         attribute_key: str,
-    ) -> str | None:
+    ) -> CanonicalType | None:
         """Resolve a canonical catalog attribute key to a provider attribute name."""
         definition = self.definition(resource)
         if definition is None:

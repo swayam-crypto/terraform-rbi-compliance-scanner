@@ -223,6 +223,16 @@ class CatalogLoader:
             resource_data,
         )
 
+        self._validate_capabilities(
+            resource_type,
+            resource_data,
+        )
+
+        self._validate_relationships(
+            resource_type,
+            resource_data,
+        )
+
         self._validate_aliases(
             resource_type,
             resource_data,
@@ -383,4 +393,61 @@ class CatalogLoader:
                 resource=resource_type,
                 field="aliases",
                 reason="Duplicate aliases detected.",
+            )
+
+    def _validate_capabilities(
+        self,
+        resource_type: str,
+        resource_data: dict[str, Any],
+    ) -> None:
+        """Validate the optional capability collection without constraining vocabulary."""
+        capabilities = resource_data.get("capabilities", [])
+
+        if not isinstance(capabilities, list):
+            raise CatalogValidationError(
+                resource=resource_type,
+                field="capabilities",
+                value=capabilities,
+                reason="Capabilities must be a list of strings.",
+            )
+
+        for capability in capabilities:
+            if not isinstance(capability, str) or not capability.strip():
+                raise CatalogValidationError(
+                    resource=resource_type,
+                    field="capabilities",
+                    value=capability,
+                    reason="Capability entries must be non-empty strings.",
+                )
+
+    def _validate_relationships(
+        self,
+        resource_type: str,
+        resource_data: dict[str, Any],
+    ) -> None:
+        """Validate the structure of descriptive resource-level relationship metadata."""
+        relationships = resource_data.get("relationships", [])
+
+        if not isinstance(relationships, list):
+            raise CatalogValidationError(
+                resource=resource_type,
+                field="relationships",
+                value=relationships,
+                reason="Relationships must be a list of strings.",
+            )
+
+        for relationship in relationships:
+            if not isinstance(relationship, str) or not relationship.strip():
+                raise CatalogValidationError(
+                    resource=resource_type,
+                    field="relationships",
+                    value=relationship,
+                    reason="Relationship entries must be strings.",
+                )
+
+        if len(relationships) != len(set(relationships)):
+            raise CatalogValidationError(
+                resource=resource_type,
+                field="relationships",
+                reason="Duplicate relationship entries detected.",
             )

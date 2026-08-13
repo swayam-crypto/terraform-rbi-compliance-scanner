@@ -70,7 +70,6 @@ def _resolve_jsonencode(value: str):
         parsed = hcl2.load(io.StringIO(wrapped))
         return _strip_quotes(parsed["value"])
     except Exception as e:
-        print(f"[resolver] Failed to parse jsonencode(): {e}")
         return value
 
 
