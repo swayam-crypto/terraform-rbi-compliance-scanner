@@ -37,7 +37,7 @@ from compliance_scanner.models.source_location import SourceLocation
 from compliance_scanner.parser.provider_utils import infer_provider
 from compliance_scanner.catalog.global_catalog import catalog
 
-__version__ = "0.8.0"
+__version__ = "0.8.1"
 
 
 def scan(path: str, suppressed_count: list | None = None) -> list[Finding]:
