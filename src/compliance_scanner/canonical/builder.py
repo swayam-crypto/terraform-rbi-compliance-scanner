@@ -1,10 +1,10 @@
 from types import MappingProxyType
-from compliance_scanner.catalog.models import ResourceDefinition
+
 from compliance_scanner.canonical.resource import CanonicalResource
-from compliance_scanner.models.resolved_resource import ResolvedResource
+from compliance_scanner.canonical.context import CanonicalContext
 
 
-class CanonicalBuilder:
+class CanonicalResourceBuilder:
     """
     Builds immutable CanonicalResource objects from parser output
     and catalog definitions.
@@ -12,9 +12,10 @@ class CanonicalBuilder:
 
     def build(
         self,
-        resource: ResolvedResource,
-        definition: ResourceDefinition,
+        context: CanonicalContext,
     ) -> CanonicalResource:
+        resource = context.resource
+        definition = context.definition
 
         return CanonicalResource(
             platform=resource.platform,

@@ -1,6 +1,6 @@
 from types import MappingProxyType
 
-from compliance_scanner.canonical.builder import CanonicalBuilder
+from compliance_scanner.canonical.builder import CanonicalResourceBuilder
 from compliance_scanner.catalog.models import ResourceDefinition
 from compliance_scanner.catalog.canonical_types import CanonicalType
 from compliance_scanner.catalog.kinds import ResourceKind
@@ -9,6 +9,7 @@ from compliance_scanner.models.provider import CloudProvider
 from compliance_scanner.models.resolved_resource import ResolvedResource
 from compliance_scanner.models.source_location import SourceLocation
 import pytest
+from compliance_scanner.canonical.context import CanonicalContext
 
 EMPTY_MAPPING = MappingProxyType({})
 
@@ -58,16 +59,18 @@ def make_definition() -> ResourceDefinition:
 
 def test_builder_creates_canonical_resource():
 
-    builder = CanonicalBuilder()
+    builder = CanonicalResourceBuilder()
 
     resource = make_resource()
 
     definition = make_definition()
 
-    canonical = builder.build(
-        resource,
-        definition,
+    context = CanonicalContext(
+        resource=resource,
+        definition=definition,
     )
+
+    canonical = builder.build(context)
 
     assert canonical.platform is Platform.TERRAFORM
 
@@ -95,16 +98,18 @@ def test_builder_creates_canonical_resource():
 
 def test_builder_copies_attributes():
 
-    builder = CanonicalBuilder()
+    builder = CanonicalResourceBuilder()
 
     resource = make_resource()
 
     definition = make_definition()
 
-    canonical = builder.build(
-        resource,
-        definition,
+    context = CanonicalContext(
+        resource=resource,
+        definition=definition,
     )
+
+    canonical = builder.build(context)
 
     resource.attributes["versioning"] = False
 
@@ -113,12 +118,14 @@ def test_builder_copies_attributes():
 
 def test_attributes_are_immutable():
 
-    builder = CanonicalBuilder()
-
-    canonical = builder.build(
-        make_resource(),
-        make_definition(),
+    builder = CanonicalResourceBuilder()
+    resource = make_resource()
+    definition = make_definition()
+    context = CanonicalContext(
+        resource=resource,
+        definition=definition,
     )
+    canonical = builder.build(context)
 
     with pytest.raises(TypeError):
 

@@ -29,7 +29,8 @@ class ResourceClassifier:
         Return the canonical type for a resolved resource.
 
         Raises:
-            KeyError: if the resource is not defined in the catalog.
+            UnknownCanonicalResourceError:
+                If no catalog definition exists.
         """
 
         definition = self._catalog.definition(resource)
