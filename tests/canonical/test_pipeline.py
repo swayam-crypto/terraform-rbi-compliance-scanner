@@ -48,6 +48,8 @@ def test_pipeline_returns_builder_result():
 
     builder = Mock()
 
+    attribute_mapper = Mock()
+
     resource = make_resource()
 
     definition = Mock()
@@ -61,6 +63,7 @@ def test_pipeline_returns_builder_result():
     pipeline = CanonicalPipeline(
         catalog,
         builder,
+        attribute_mapper,
     )
 
     result = pipeline.transform(resource)
@@ -74,6 +77,8 @@ def test_pipeline_queries_catalog():
 
     builder = Mock()
 
+    attribute_mapper = Mock()
+
     resource = make_resource()
 
     definition = Mock()
@@ -85,6 +90,7 @@ def test_pipeline_queries_catalog():
     pipeline = CanonicalPipeline(
         catalog,
         builder,
+        attribute_mapper,
     )
 
     pipeline.transform(resource)
@@ -98,6 +104,8 @@ def test_pipeline_calls_builder():
 
     builder = Mock()
 
+    attribute_mapper = Mock()
+
     resource = make_resource()
 
     definition = Mock()
@@ -109,13 +117,15 @@ def test_pipeline_calls_builder():
     pipeline = CanonicalPipeline(
         catalog,
         builder,
+        attribute_mapper,
     )
 
     pipeline.transform(resource)
 
     builder.build.assert_called_once()
+    attribute_mapper.map.assert_called_once()
 
-    context = builder.build.call_args.args[0]
+    context = attribute_mapper.map.call_args.args[0]
 
     assert context.resource is resource
     assert context.definition is definition
@@ -127,11 +137,14 @@ def test_pipeline_unknown_resource():
 
     builder = Mock()
 
+    attribute_mapper = Mock()
+
     catalog.definition.return_value = None
 
     pipeline = CanonicalPipeline(
         catalog,
         builder,
+        attribute_mapper,
     )
 
     with pytest.raises(

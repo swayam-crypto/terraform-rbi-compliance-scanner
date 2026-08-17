@@ -57,6 +57,9 @@ def make_definition() -> ResourceDefinition:
     )
 
 
+from types import MappingProxyType
+
+
 def test_builder_creates_canonical_resource():
 
     builder = CanonicalResourceBuilder()
@@ -70,18 +73,21 @@ def test_builder_creates_canonical_resource():
         definition=definition,
     )
 
+    context.canonical_attributes = MappingProxyType(
+        {
+            "versioning": True,
+            "encryption": True,
+        }
+    )
+
     canonical = builder.build(context)
 
     assert canonical.platform is Platform.TERRAFORM
-
     assert canonical.provider is CloudProvider.AWS
-
     assert canonical.canonical_type is CanonicalType.OBJECT_STORAGE
-
     assert canonical.resource_name == "bucket"
 
     assert canonical.attributes["versioning"] is True
-
     assert canonical.attributes["encryption"] is True
 
     assert canonical.capabilities == frozenset(
@@ -96,7 +102,10 @@ def test_builder_creates_canonical_resource():
     assert canonical.source.file_path == "main.tf"
 
 
-def test_builder_copies_attributes():
+from types import MappingProxyType
+
+
+def test_builder_uses_canonical_attributes():
 
     builder = CanonicalResourceBuilder()
 
@@ -107,6 +116,12 @@ def test_builder_copies_attributes():
     context = CanonicalContext(
         resource=resource,
         definition=definition,
+    )
+
+    context.canonical_attributes = MappingProxyType(
+        {
+            "versioning": True,
+        }
     )
 
     canonical = builder.build(context)

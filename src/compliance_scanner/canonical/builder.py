@@ -22,7 +22,7 @@ class CanonicalResourceBuilder:
             provider=resource.provider,
             canonical_type=definition.canonical_type,
             resource_name=resource.resource_name,
-            attributes=MappingProxyType(dict(resource.attributes)),
+            attributes=context.canonical_attributes,
             capabilities=definition.capabilities,
             metadata=definition.metadata,
             source=resource.source,

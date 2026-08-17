@@ -7,6 +7,9 @@ from compliance_scanner.canonical.exceptions import (
     UnknownCanonicalResourceError,
 )
 from compliance_scanner.canonical.context import CanonicalContext
+from compliance_scanner.canonical.attribute_mapper import (
+    CanonicalAttributeMapper,
+)
 
 
 class CanonicalPipeline:
@@ -21,9 +24,11 @@ class CanonicalPipeline:
         self,
         catalog: Catalog,
         builder: CanonicalResourceBuilder,
+        attribute_mapper: CanonicalAttributeMapper,
     ) -> None:
         self._catalog = catalog
         self._builder = builder
+        self._attribute_mapper = attribute_mapper
 
     def transform(
         self,
@@ -40,4 +45,10 @@ class CanonicalPipeline:
             definition=definition,
         )
 
-        return self._builder.build(context)
+        self._attribute_mapper.map(
+            context,
+        )
+
+        return self._builder.build(
+            context,
+        )
