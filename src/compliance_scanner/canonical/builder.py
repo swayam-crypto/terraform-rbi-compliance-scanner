@@ -4,7 +4,7 @@ from compliance_scanner.canonical.resource import CanonicalResource
 from compliance_scanner.models.resolved_resource import ResolvedResource
 
 
-class CanonicalBuilder:
+class CanonicalResourceBuilder:
     """
     Builds immutable CanonicalResource objects from parser output
     and catalog definitions.

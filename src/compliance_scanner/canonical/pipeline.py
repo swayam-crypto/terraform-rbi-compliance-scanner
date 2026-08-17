@@ -1,6 +1,6 @@
 from compliance_scanner.catalog.catalog import Catalog
 from compliance_scanner.catalog.models import ResourceDefinition
-from compliance_scanner.canonical.builder import CanonicalBuilder
+from compliance_scanner.canonical.builder import CanonicalResourceBuilder
 from compliance_scanner.canonical.resource import CanonicalResource
 from compliance_scanner.models.resolved_resource import ResolvedResource
 from compliance_scanner.canonical.exceptions import (
@@ -19,7 +19,7 @@ class CanonicalPipeline:
     def __init__(
         self,
         catalog: Catalog,
-        builder: CanonicalBuilder,
+        builder: CanonicalResourceBuilder,
     ) -> None:
         self._catalog = catalog
         self._builder = builder
