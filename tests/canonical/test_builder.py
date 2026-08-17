@@ -119,14 +119,17 @@ def test_builder_copies_attributes():
 def test_attributes_are_immutable():
 
     builder = CanonicalResourceBuilder()
+
     resource = make_resource()
+
     definition = make_definition()
+
     context = CanonicalContext(
         resource=resource,
         definition=definition,
     )
+
     canonical = builder.build(context)
 
     with pytest.raises(TypeError):
-
         canonical.attributes["new"] = True
