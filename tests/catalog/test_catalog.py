@@ -10,6 +10,11 @@ from compliance_scanner.models.source_location import SourceLocation
 from compliance_scanner.parser.provider_utils import infer_provider
 
 from types import MappingProxyType
+import pytest
+
+from compliance_scanner.canonical import (
+    UnknownCanonicalResourceError,
+)
 
 EMPTY_MAPPING = MappingProxyType({})
 
@@ -75,7 +80,6 @@ def test_definition():
 
     definition = catalog.definition(resource)
 
-    assert definition is not None
     assert definition.canonical_type == CanonicalType.DATABASE
 
 
