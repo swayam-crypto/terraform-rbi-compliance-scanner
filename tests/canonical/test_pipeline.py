@@ -113,10 +113,12 @@ def test_pipeline_calls_builder():
 
     pipeline.transform(resource)
 
-    builder.build.assert_called_once_with(
-        resource,
-        definition,
-    )
+    builder.build.assert_called_once()
+
+    context = builder.build.call_args.args[0]
+
+    assert context.resource is resource
+    assert context.definition is definition
 
 
 def test_pipeline_unknown_resource():

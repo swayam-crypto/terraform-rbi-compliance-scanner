@@ -6,6 +6,7 @@ from compliance_scanner.models.resolved_resource import ResolvedResource
 from compliance_scanner.canonical.exceptions import (
     UnknownCanonicalResourceError,
 )
+from compliance_scanner.canonical.context import CanonicalContext
 
 
 class CanonicalPipeline:
@@ -30,13 +31,13 @@ class CanonicalPipeline:
     ) -> CanonicalResource:
 
         definition = self._catalog.definition(resource)
-
         if definition is None:
             raise UnknownCanonicalResourceError(
                 resource.resource_type,
             )
-
-        return self._builder.build(
-            resource,
-            definition,
+        context = CanonicalContext(
+            resource=resource,
+            definition=definition,
         )
+
+        return self._builder.build(context)

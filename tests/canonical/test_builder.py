@@ -9,6 +9,7 @@ from compliance_scanner.models.provider import CloudProvider
 from compliance_scanner.models.resolved_resource import ResolvedResource
 from compliance_scanner.models.source_location import SourceLocation
 import pytest
+from compliance_scanner.canonical.context import CanonicalContext
 
 EMPTY_MAPPING = MappingProxyType({})
 
@@ -64,10 +65,12 @@ def test_builder_creates_canonical_resource():
 
     definition = make_definition()
 
-    canonical = builder.build(
-        resource,
-        definition,
+    context = CanonicalContext(
+        resource=resource,
+        definition=definition,
     )
+
+    canonical = builder.build(context)
 
     assert canonical.platform is Platform.TERRAFORM
 
@@ -101,10 +104,12 @@ def test_builder_copies_attributes():
 
     definition = make_definition()
 
-    canonical = builder.build(
-        resource,
-        definition,
+    context = CanonicalContext(
+        resource=resource,
+        definition=definition,
     )
+
+    canonical = builder.build(context)
 
     resource.attributes["versioning"] = False
 
@@ -115,11 +120,16 @@ def test_attributes_are_immutable():
 
     builder = CanonicalResourceBuilder()
 
-    canonical = builder.build(
-        make_resource(),
-        make_definition(),
+    resource = make_resource()
+
+    definition = make_definition()
+
+    context = CanonicalContext(
+        resource=resource,
+        definition=definition,
     )
 
-    with pytest.raises(TypeError):
+    canonical = builder.build(context)
 
+    with pytest.raises(TypeError):
         canonical.attributes["new"] = True
