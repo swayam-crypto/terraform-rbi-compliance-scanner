@@ -6,7 +6,7 @@ from collections.abc import Mapping
 from compliance_scanner.catalog.global_catalog import catalog
 from compliance_scanner.graph.graph_builder import GraphBuilder
 from compliance_scanner.graph.resource_index import ResourceIndex
-from compliance_scanner.parser.relationship_extractor import RelationshipExtractor
+from compliance_scanner.canonical.relationship_resolver import RelationshipResolver
 from compliance_scanner.rules.base import Finding
 from compliance_scanner.rules.registry import ALL_RULES, GRAPH_RULES
 from compliance_scanner.scan_context import ScanContext
@@ -20,8 +20,12 @@ def _run_rules_on_resources(resources, file_path, suppressions, suppressed_count
             result = rule.check(resource)
             if result is None:
                 continue
-            suppression = suppressions.get((resource.resource_type, resource.resource_name))
-            if suppression and (suppression["all"] or rule.rule_id in suppression["rules"]):
+            suppression = suppressions.get(
+                (resource.resource_type, resource.resource_name)
+            )
+            if suppression and (
+                suppression["all"] or rule.rule_id in suppression["rules"]
+            ):
                 suppressed_count[0] += 1
                 continue
             result.file_path = file_path
@@ -54,15 +58,28 @@ def scan_resources(
     findings: list[Finding] = []
     resources_by_file = defaultdict(list)
     for resource in resources:
-        resources_by_file[resource.source.file_path or finding_file_path].append(resource)
+        resources_by_file[resource.source.file_path or finding_file_path].append(
+            resource
+        )
 
     for file_path, grouped_resources in resources_by_file.items():
-        findings.extend(_run_rules_on_resources(grouped_resources, file_path, suppressions_by_file.get(file_path, {}), suppressed_count))
+        findings.extend(
+            _run_rules_on_resources(
+                grouped_resources,
+                file_path,
+                suppressions_by_file.get(file_path, {}),
+                suppressed_count,
+            )
+        )
 
     if include_graph_rules:
         index = ResourceIndex(resources)
-        relationships = RelationshipExtractor(catalog).extract(resources, index)
-        context = ScanContext(resources=resources, resource_index=index, relationship_graph=GraphBuilder().build(relationships))
+        relationships = RelationshipResolver(catalog).extract(resources, index)
+        context = ScanContext(
+            resources=resources,
+            resource_index=index,
+            relationship_graph=GraphBuilder().build(relationships),
+        )
         findings.extend(_run_graph_rules(context))
 
     return findings
@@ -72,14 +89,17 @@ def scan_resources(
 # lazy imports keep this generic module independent of Terraform implementation.
 def scan_directory(dir_path: str, suppressed_count: list | None = None):
     from .terraform_scan import scan_directory as terraform_scan_directory
+
     return terraform_scan_directory(dir_path, suppressed_count=suppressed_count)
 
 
 def scan_plan(plan_path: str, suppressed_count: list | None = None):
     from .terraform_scan import scan_plan as terraform_scan_plan
+
     return terraform_scan_plan(plan_path, suppressed_count=suppressed_count)
 
 
 def scan_directory_large(*args, **kwargs):
     from .terraform_scan import scan_directory_large as terraform_scan_directory_large
+
     return terraform_scan_directory_large(*args, **kwargs)
