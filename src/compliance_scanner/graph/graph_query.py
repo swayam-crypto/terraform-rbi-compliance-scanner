@@ -46,6 +46,37 @@ class GraphQuery:
             if reachable_resources.resource_type == resource_type
         )
 
+    def outgoing(
+        self,
+        resource: ResolvedResource,
+    ):
+        return self.graph.outgoing(resource)
+
+    def incoming(
+        self,
+        resource: ResolvedResource,
+    ):
+        return self.graph.incoming(resource)
+
+    def neighbors(
+        self,
+        resource: ResolvedResource,
+    ):
+        return self.graph.neighbors(resource)
+
+    def relationships(self):
+        return self.graph.relationships()
+
+    def has_relationship(
+        self,
+        source: ResolvedResource,
+        target: ResolvedResource,
+    ):
+        return self.graph.has_relationship(
+            source,
+            target,
+        )
+
     def has_dependency(
         self,
         resource: ResolvedResource,
