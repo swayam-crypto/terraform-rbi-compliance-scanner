@@ -24,7 +24,7 @@ This document describes the execution flow of the scanner, the responsibilities 
             ┌──────────────┼──────────────┐
             │              │              │
             ▼              ▼              ▼
-     Compliance Rules   ResourceIndex   RelationshipExtractor
+     Compliance Rules   ResourceIndex   RelationshipResolver
             │              │              │
             │              ▼              ▼
             │       RelationshipGraph ◄──┘
@@ -175,7 +175,7 @@ Supports
 
 Used by
 
-- RelationshipExtractor
+- RelationshipResolver
 - Graph Rules
 
 ---
@@ -534,7 +534,7 @@ Scan Engine
         │
         ├──────────────► ResourceIndex
         │
-        ├──────────────► RelationshipExtractor
+        ├──────────────► RelationshipResolver
         │
         ├──────────────► GraphBuilder
         │
@@ -559,7 +559,7 @@ Scan Engine
         │
         ├──────────────► ResourceIndex
         │
-        ├──────────────► RelationshipExtractor
+        ├──────────────► RelationshipResolver
         │
         ├──────────────► GraphBuilder
         │
@@ -743,7 +743,7 @@ CanonicalResource
 ScanContext
         │
         ├────────► ResourceIndex
-        ├────────► RelationshipExtractor
+        ├────────► RelationshipResolver
         ├────────► RelationshipGraph
         ├────────► Resource Rules
         └────────► Graph Rules
