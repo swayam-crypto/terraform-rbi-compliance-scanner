@@ -4,6 +4,7 @@ from compliance_scanner.models.resolved_resource import ResolvedResource
 from compliance_scanner.catalog.catalog import Catalog
 from compliance_scanner.catalog.global_catalog import catalog
 from compliance_scanner.catalog.canonical_types import CanonicalType
+from compliance_scanner.graph.relationship import Relationship
 
 
 class GraphQuery:
@@ -105,29 +106,31 @@ class GraphQuery:
     def outgoing(
         self,
         resource: ResolvedResource,
-    ):
+    ) -> tuple[Relationship, ...]:
         return self.graph.outgoing(resource)
 
     def incoming(
         self,
         resource: ResolvedResource,
-    ):
+    ) -> tuple[Relationship, ...]:
         return self.graph.incoming(resource)
 
     def neighbors(
         self,
         resource: ResolvedResource,
-    ):
+    ) -> tuple[Relationship, ...]:
         return self.graph.neighbors(resource)
 
-    def relationships(self):
+    def relationships(
+        self,
+    ) -> tuple[Relationship, ...]:
         return self.graph.relationships()
 
     def has_relationship(
         self,
         source: ResolvedResource,
         target: ResolvedResource,
-    ):
+    ) -> tuple[Relationship, ...]:
         return self.graph.has_relationship(
             source,
             target,
