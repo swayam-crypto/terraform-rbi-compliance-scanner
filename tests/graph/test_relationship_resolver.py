@@ -1,5 +1,5 @@
 from compliance_scanner.catalog.relationship_types import RelationshipType
-from compliance_scanner.parser.relationship_extractor import RelationshipExtractor
+from compliance_scanner.canonical.relationship_resolver import RelationshipResolver
 from compliance_scanner.graph.resource_index import ResourceIndex
 
 from compliance_scanner.models.platform import Platform
@@ -30,14 +30,14 @@ def extract_relationships(
     *resources: ResolvedResource,
 ) -> list[Relationship]:
     """
-    Build a ResourceIndex and run the RelationshipExtractor.
+    Build a ResourceIndex and run the RelationshipResolver.
     """
 
     resources = list(resources)
 
     index = ResourceIndex(resources)
 
-    extractor = RelationshipExtractor(catalog)
+    extractor = RelationshipResolver(catalog)
 
     return extractor.extract(
         resources,

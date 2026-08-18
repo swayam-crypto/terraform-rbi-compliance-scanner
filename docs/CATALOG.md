@@ -176,7 +176,7 @@ The catalog and graph layers use three related but distinct concepts.
 | Concept | Owner | Meaning | Current behavior |
 |---|---|---|---|
 | `ResourceDefinition.relationships` | Resource-level catalog YAML | A descriptive set of relationship categories known to be relevant for this resource. | Descriptive metadata today; it is not directly used by extraction. |
-| `AttributeDefinition.relationship` | An individual catalog attribute | Executable extraction metadata: relationship type, required flag, and expected target canonical type. | Consumed by `RelationshipExtractor`. |
+| `AttributeDefinition.relationship` | An individual catalog attribute | Executable extraction metadata: relationship type, required flag, and expected target canonical type. | Consumed by `RelationshipResolver`. |
 | `Relationship` | Graph runtime model | A concrete directed edge from one resolved resource to another. | Added to `RelationshipGraph` for traversal and graph rules. |
 
 ### Resource-level relationship metadata
@@ -225,7 +225,7 @@ AttributeDefinition.relationship
 (RelationshipDefinition)
      |
      v
-RelationshipExtractor
+RelationshipResolver
      |
      v
 Relationship
@@ -234,7 +234,7 @@ Relationship
 RelationshipGraph
 ```
 
-At runtime, `RelationshipExtractor` iterates catalog attributes that have an
+At runtime, `RelationshipResolver` iterates catalog attributes that have an
 `AttributeDefinition.relationship`, reads the corresponding resource value,
 parses supported Terraform-style references, resolves a target through
 `ResourceIndex`, and confirms that the target's canonical type matches the

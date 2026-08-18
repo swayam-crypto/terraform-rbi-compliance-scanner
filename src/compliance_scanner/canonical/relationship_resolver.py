@@ -6,7 +6,7 @@ from compliance_scanner.graph.resource_index import ResourceIndex
 from compliance_scanner.catalog.catalog import Catalog
 
 
-class RelationshipExtractor:
+class RelationshipResolver:
 
     def __init__(
         self,
