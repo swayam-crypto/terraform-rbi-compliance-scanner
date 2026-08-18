@@ -475,7 +475,51 @@ The parser remains responsible for provider-specific normalization.
 The runtime becomes entirely provider-independent.
 
 ---
+# Canonical Boundary
 
+The Canonical Boundary separates provider-specific infrastructure
+representation from the provider-independent compliance runtime.
+
+Every infrastructure definition must cross this boundary exactly once.
+
+```
+Terraform Files
+        │
+        ▼
+Terraform Parser
+        │
+        ▼
+ResolvedResource
+        │
+        ▼
+Canonical Pipeline
+──────────────────────────────────────────────
+            CANONICAL BOUNDARY
+──────────────────────────────────────────────
+        │
+        ▼
+CanonicalResource
+        │
+        ▼
+Compliance Runtime
+```
+
+Above the Canonical Boundary:
+
+- Provider-specific interpretation is allowed.
+- Parser-specific syntax is allowed.
+- Provider defaults may exist.
+- Resource classification may occur.
+- Attribute mapping may occur.
+
+Below the Canonical Boundary:
+
+- Runtime components operate only on semantic cloud objects.
+- Runtime components must not interpret provider-specific resource types.
+- Runtime components must not resolve provider-specific attribute names.
+- Runtime components must not parse infrastructure syntax.
+- Runtime components evaluate infrastructure using only semantic models.
+---
 # Runtime Execution Model
 
 Current runtime execution:
@@ -635,7 +679,33 @@ Runtime Layer
 Each layer owns one responsibility.
 
 ---
+# Runtime Contract
 
+The Compliance Runtime operates exclusively on semantic cloud models.
+
+Every runtime component assumes that semantic normalization has already
+been completed by the Canonical Pipeline.
+
+Runtime components may rely on:
+
+- CanonicalType
+- canonical attributes
+- semantic capabilities
+- semantic metadata
+- source location
+
+Runtime components must never rely on:
+
+- Terraform resource types
+- CloudFormation resource types
+- Pulumi resource types
+- provider-specific attribute names
+- provider defaults
+- parser-specific syntax
+
+If a runtime component requires provider-specific information, that
+information belongs above the Canonical Boundary.
+---
 # Migration Scope
 
 The runtime refactor changes the internal execution model only.
@@ -700,3 +770,45 @@ ScanContext
 - Rule migration
 - Graph rule migration
 - Runtime cleanup
+---
+# Long-Term Vision
+
+The long-term architecture of the platform follows four logical layers.
+
+```
+Parser Layer
+        │
+        ▼
+Normalization Layer
+        │
+        ▼
+Semantic Layer
+        │
+        ▼
+Compliance Runtime
+```
+
+Parser Layer
+
+- Parses infrastructure definitions.
+- Produces normalized infrastructure models.
+
+Semantic Layer
+
+- Classifies resources.
+- Maps provider-specific attributes.
+- Resolves semantic capabilities.
+- Produces CanonicalResource.
+
+Compliance Runtime
+
+- Executes compliance rules.
+- Builds resource graphs.
+- Evaluates graph rules.
+- Produces findings.
+
+Each layer has exactly one responsibility.
+
+The runtime should never perform semantic interpretation.
+
+Semantic interpretation belongs entirely to the Canonical Cloud Model.
