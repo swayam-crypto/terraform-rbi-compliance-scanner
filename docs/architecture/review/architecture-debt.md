@@ -343,12 +343,12 @@ None.
 
 | Phase | Status | Score | Debt Added | Summary |
 |--------|--------|------:|------------|---------|
-| Phase 01 – Runtime Architecture | Complete | 8.5 / 10 | AD-001 – AD-006 | Reviewed the runtime orchestration, execution flow, and shared runtime state. Identified long-term runtime evolution as the primary architectural concern. |
-| Phase 02 – Canonical Architecture | Complete | 8.8 / 10 | AD-007 – AD-008 | Validated the canonical model and catalog architecture. Identified runtime ownership as the primary long-term architectural decision. |
-| Phase 03 – Graph Runtime | Complete | 9.5 / 10 | None | Validated the graph runtime as the analytical foundation of the platform. No additional architectural debt identified. |
-| Phase 04 – Rule & Compliance Engine | Complete | 9.7 / 10 | None | Confirmed the separation between detection, controls, framework mappings, findings, and reporting. No additional architectural debt identified. |
-| Phase 05 – Parser Architecture | Complete | 8.9 / 10 | AD-009 | Validated the parser abstraction and identified parser responsibility growth as a future architectural evolution point. |
-| Phase 06 – Testing Architecture | Pending | — | — | Not Started |
+| Phase 01 – Runtime Architecture | Complete | 8.5 / 10 | AD-001 – AD-006 | Reviewed the runtime orchestration, execution flow, and shared runtime state. |
+| Phase 02 – Canonical Architecture | Complete | 8.8 / 10 | AD-007 – AD-008 | Validated the canonical model and catalog architecture. |
+| Phase 03 – Graph Runtime | Complete | 9.5 / 10 | None | Validated the graph runtime as the analytical foundation of the platform. |
+| Phase 04 – Rule & Compliance Engine | Complete | 9.7 / 10 | None | Confirmed framework-neutral compliance architecture. |
+| Phase 05 – Parser Architecture | Complete | 8.9 / 10 | AD-009 | Validated parser abstraction and documented parser responsibility growth. |
+| Phase 06 – Testing Architecture | Complete | 9.6 / 10 | None | Validated the testing architecture, architectural contract testing, and regression strategy. Identified integration testing as the primary future expansion area without requiring architectural changes. |
 | Phase 07 – Platform & Repository Architecture | Pending | — | — | Not Started |
 | Phase 08 – Final Architecture Review | Pending | — | — | Not Started |
 ---
