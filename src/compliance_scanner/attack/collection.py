@@ -39,3 +39,9 @@ class AttackPathCollection:
         self,
     ) -> bool:
         return bool(self.paths)
+
+    def __getitem__(
+        self,
+        index: int,
+    ) -> AttackPath:
+        return self.paths[index]
