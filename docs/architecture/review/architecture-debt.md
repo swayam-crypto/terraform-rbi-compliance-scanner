@@ -279,6 +279,54 @@ Review catalog interfaces during Runtime V2 planning.
 
 ---
 
+## AD-009 – Parser Responsibility Growth
+
+**Status:** Open
+
+**Priority:** Medium
+
+**Phase Identified:** Phase 05 – Parser Architecture Review
+
+### Problem
+
+The parser package has expanded beyond infrastructure parsing.
+
+Current responsibilities include:
+
+- Terraform parsing
+- Terraform Plan parsing
+- Expression resolution
+- Provider resolution
+- Resource normalization
+- Caching
+- Suppression handling
+
+While these responsibilities are closely related today, continued platform growth may cause the parser package to become difficult to maintain.
+
+### Impact
+
+As additional Infrastructure-as-Code formats are supported, parser implementations may accumulate unrelated runtime responsibilities, increasing complexity and reducing maintainability.
+
+### Recommendation
+
+Maintain the current implementation.
+
+Re-evaluate parser responsibilities when introducing additional infrastructure formats.
+
+Potential future separations include:
+
+- Expression evaluation
+- Provider resolution
+- Cache management
+- Suppression processing
+
+### Rationale
+
+The current implementation remains appropriate for the existing platform.
+
+This debt records a likely future architectural evolution rather than an immediate refactoring requirement.
+
+
 # Completed
 
 None.
@@ -293,11 +341,16 @@ None.
 
 # Review History
 
-| Phase | Debt Items |
-|--------|------------|
-| Phase 01 – Runtime Architecture | AD-001 – AD-006 |
-| Phase 02 – Canonical Architecture | AD-007 – AD-008 |
-
+| Phase | Status | Score | Debt Added | Summary |
+|--------|--------|------:|------------|---------|
+| Phase 01 – Runtime Architecture | Complete | 8.5 / 10 | AD-001 – AD-006 | Reviewed the runtime orchestration, execution flow, and shared runtime state. Identified long-term runtime evolution as the primary architectural concern. |
+| Phase 02 – Canonical Architecture | Complete | 8.8 / 10 | AD-007 – AD-008 | Validated the canonical model and catalog architecture. Identified runtime ownership as the primary long-term architectural decision. |
+| Phase 03 – Graph Runtime | Complete | 9.5 / 10 | None | Validated the graph runtime as the analytical foundation of the platform. No additional architectural debt identified. |
+| Phase 04 – Rule & Compliance Engine | Complete | 9.7 / 10 | None | Confirmed the separation between detection, controls, framework mappings, findings, and reporting. No additional architectural debt identified. |
+| Phase 05 – Parser Architecture | Complete | 8.9 / 10 | AD-009 | Validated the parser abstraction and identified parser responsibility growth as a future architectural evolution point. |
+| Phase 06 – Testing Architecture | Pending | — | — | Not Started |
+| Phase 07 – Platform & Repository Architecture | Pending | — | — | Not Started |
+| Phase 08 – Final Architecture Review | Pending | — | — | Not Started |
 ---
 
 # Notes
