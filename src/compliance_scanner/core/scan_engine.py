@@ -10,6 +10,7 @@ from compliance_scanner.canonical.relationship_resolver import RelationshipResol
 from compliance_scanner.rules.base import Finding
 from compliance_scanner.rules.registry import ALL_RULES, GRAPH_RULES
 from compliance_scanner.scan_context import ScanContext
+from compliance_scanner.attack.engine import AttackPathEngine
 
 
 def _run_rules_on_resources(resources, file_path, suppressions, suppressed_count):
@@ -74,13 +75,36 @@ def scan_resources(
 
     if include_graph_rules:
         index = ResourceIndex(resources)
-        relationships = RelationshipResolver(catalog).extract(resources, index)
+        relationships = RelationshipResolver(
+            catalog,
+        ).extract(
+            resources,
+            index,
+        )
+
+        graph = GraphBuilder().build(
+            relationships,
+        )
+
         context = ScanContext(
             resources=resources,
             resource_index=index,
-            relationship_graph=GraphBuilder().build(relationships),
+            relationship_graph=graph,
         )
-        findings.extend(_run_graph_rules(context))
+
+        attack_paths = AttackPathEngine(
+            context,
+        )
+
+        # Perform infrastructure attack-path analysis before executing
+        # graph-aware compliance rules.
+        context.attack_paths = attack_paths.analyze()
+
+        findings.extend(
+            _run_graph_rules(
+                context,
+            )
+        )
 
     return findings
 
