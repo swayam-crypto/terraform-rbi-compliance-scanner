@@ -1,7 +1,14 @@
 from compliance_scanner.attack.collection import AttackPathCollection
 from compliance_scanner.attack.finder import AttackPathFinder
 from compliance_scanner.catalog.global_catalog import catalog
-from compliance_scanner.scan_context import ScanContext
+from compliance_scanner.catalog.catalog import Catalog
+from compliance_scanner.attack.models import AttackPath
+from compliance_scanner.models.resolved_resource import ResolvedResource
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from compliance_scanner.scan_context import ScanContext
 
 
 class AttackPathEngine:
@@ -13,54 +20,69 @@ class AttackPathEngine:
     AttackPathFinder.
     """
 
-    ENTRY_POINT_CAPABILITY = "public_entry_point"
+    _ENTRY_POINT_CAPABILITY = "public_entry_point"
 
-    TARGET_CAPABILITY = "data_store"
+    _TARGET_CAPABILITY = "data_store"
 
     def __init__(
         self,
-        context: ScanContext,
+        context: "ScanContext",
+        catalog_instance: Catalog = catalog,
+        finder: AttackPathFinder | None = None,
     ) -> None:
-        self.context = context
 
-        self.finder = AttackPathFinder(
-            context.relationship_graph,
+        self.context = context
+        self.catalog = catalog_instance
+
+        self.finder = (
+            finder
+            if finder is not None
+            else AttackPathFinder(
+                context.relationship_graph,
+            )
+        )
+
+    def _sources(
+        self,
+    ) -> tuple[ResolvedResource, ...]:
+        return tuple(
+            resource
+            for resource in self.context.resources
+            if self.catalog.has_capability(
+                resource,
+                self._ENTRY_POINT_CAPABILITY,
+            )
+        )
+
+    def _targets(
+        self,
+    ) -> tuple[ResolvedResource, ...]:
+        return tuple(
+            resource
+            for resource in self.context.resources
+            if self.catalog.has_capability(
+                resource,
+                self._TARGET_CAPABILITY,
+            )
         )
 
     def analyze(
         self,
     ) -> AttackPathCollection:
 
-        paths = []
+        paths: list[AttackPath] = []
 
-        sources = [
-            resource
-            for resource in self.context.resources
-            if catalog.has_capability(
-                resource,
-                self.ENTRY_POINT_CAPABILITY,
-            )
-        ]
+        for source in self._sources():
 
-        targets = [
-            resource
-            for resource in self.context.resources
-            if catalog.has_capability(
-                resource,
-                self.TARGET_CAPABILITY,
-            )
-        ]
-
-        for source in sources:
-
-            for target in targets:
+            for target in self._targets():
 
                 collection = self.finder.find_paths(
                     source,
                     target,
                 )
 
-                paths.extend(collection)
+                for path in collection:
+                    paths.append(path)
 
         return AttackPathCollection(
             paths=tuple(paths),
