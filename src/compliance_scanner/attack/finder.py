@@ -1,6 +1,7 @@
-from compliance_scanner.attack.models import AttackPath
 from compliance_scanner.graph.relationship_graph import RelationshipGraph
 from compliance_scanner.models.resolved_resource import ResolvedResource
+from compliance_scanner.attack.algorithms import ShortestPathAlgorithm
+from compliance_scanner.attack.collection import AttackPathCollection
 
 
 class AttackPathFinder:
@@ -23,5 +24,22 @@ class AttackPathFinder:
         self,
         source: ResolvedResource,
         target: ResolvedResource,
-    ) -> tuple[AttackPath, ...]:
-        raise NotImplementedError
+    ) -> AttackPathCollection:
+
+        algorithm = ShortestPathAlgorithm(
+            self.graph,
+        )
+
+        path = algorithm.find_path(
+            source,
+            target,
+        )
+
+        if path is None:
+            return AttackPathCollection(
+                paths=(),
+            )
+
+        return AttackPathCollection(
+            paths=(path,),
+        )
