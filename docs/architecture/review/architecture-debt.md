@@ -219,6 +219,65 @@ This creates unnecessary duplication and increases maintenance effort.
 Unify graph-rule inheritance under a single shared GraphRule abstraction.
 
 ---
+## AD-007 - Runtime Model Ownership
+
+**Status**
+
+Open
+
+**Priority**
+
+High
+
+**Review Phase**
+
+Phase 02 – Canonical Architecture
+
+**Description**
+
+The platform currently contains two primary resource models:
+    ResolvedResource
+    CanonicalResource
+The long-term ownership of the runtime model has not yet been formally defined.
+
+**Impact**
+
+Future runtime evolution, graph analysis, attack analysis, and rule execution depend on establishing a single authoritative runtime resource model.
+
+**Proposed Resolution**
+
+Document runtime ownership before implementing Runtime V2.
+
+---
+
+## AD-008 - Catalog API Coupling
+
+**Status**
+
+Open
+
+**Priority**
+
+Medium
+
+**Review Phase**
+
+Phase 02 – Canonical Architecture
+
+**Description**
+
+The catalog currently exposes APIs that operate directly on ResolvedResource.
+If the platform adopts CanonicalResource as the runtime model, these interfaces may require architectural revision.
+
+**Impact**
+
+Future runtime migration may require catalog API changes.
+
+**Proposed Resolution**
+
+Review catalog interfaces during Runtime V2 planning.
+
+---
 
 # Completed
 
@@ -236,7 +295,8 @@ None.
 
 | Phase | Debt Items |
 |--------|------------|
-| Phase 01 – Runtime Architecture | AD-001, AD-002, AD-003, AD-004, AD-005, AD-006 |
+| Phase 01 – Runtime Architecture | AD-001 – AD-006 |
+| Phase 02 – Canonical Architecture | AD-007 – AD-008 |
 
 ---
 

@@ -63,23 +63,23 @@ phase-01-runtime.md
 
 ## Phase 02 – Canonical Architecture
 
-Status: ⏳ Planned
+Status: ✅ Completed
 
 Scope
 
 - Canonical pipeline
-- CanonicalResource
-- ResolvedResource
+- Catalog architecture
+- Resource definitions
+- Runtime models
 - Runtime ownership
-- Canonical relationships
 
-Objective
+Deliverable
 
-Determine the future Runtime V2 architecture and resolve the relationship between `ResolvedResource` and `CanonicalResource`.
+phase-02-canonical.md
 
 ---
 
-## Phase 03 – Catalog Architecture
+## Phase 03 – Graph Architecture
 
 Status: ⏳ Planned
 
@@ -94,7 +94,7 @@ Scope
 
 ---
 
-## Phase 04 – Graph Architecture
+## Phase 04 - Rule Engine
 
 Status: ⏳ Planned
 
@@ -112,7 +112,7 @@ Evaluate graph scalability for future analysis engines.
 
 ---
 
-## Phase 05 – Rule Engine
+## Phase 05 – Parser Architecture
 
 Status: ⏳ Planned
 
@@ -126,7 +126,7 @@ Scope
 
 ---
 
-## Phase 06 – Parser Architecture
+## Phase 06 – Testing Architecture
 
 Status: ⏳ Planned
 
@@ -140,7 +140,7 @@ Scope
 
 ---
 
-## Phase 07 – Testing Architecture
+## Phase 07 – Platform Roadmap
 
 Status: ⏳ Planned
 
@@ -153,7 +153,7 @@ Scope
 
 ---
 
-## Phase 08 – Platform Roadmap
+## Phase 08 – Final Architecture Review
 
 Status: ⏳ Planned
 
