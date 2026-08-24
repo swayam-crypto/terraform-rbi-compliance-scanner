@@ -39,9 +39,8 @@ class PublicDatabaseExposureRule(GraphRule):
             ):
                 continue
 
-            if not predicates.depends_on_capabilities(
+            if not predicates.depends_on_data_store(
                 resource,
-                frozenset({"data_store"}),
             ):
                 continue
 
