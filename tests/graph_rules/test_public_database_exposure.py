@@ -17,6 +17,9 @@ from compliance_scanner.models.source_location import SourceLocation
 from compliance_scanner.parser.provider_utils import infer_provider
 
 from compliance_scanner.scan_context import ScanContext
+from compliance_scanner.canonical.runtime_integration import (
+    build_canonical_resources,
+)
 
 
 def make_resource(
@@ -56,9 +59,12 @@ def test_public_database_exposure_detected():
         )
     )
 
+    resources = [load_balancer, database]
+
     context = ScanContext(
-        resources=[load_balancer, database],
-        resource_index=ResourceIndex([load_balancer, database]),
+        resources=resources,
+        canonical_resources=build_canonical_resources(resources),
+        resource_index=ResourceIndex(resources),
         relationship_graph=graph,
     )
 
@@ -84,9 +90,12 @@ def test_database_not_reachable():
 
     graph = RelationshipGraph()
 
+    resources = [load_balancer, database]
+
     context = ScanContext(
-        resources=[load_balancer, database],
-        resource_index=ResourceIndex([load_balancer, database]),
+        resources=resources,
+        canonical_resources=build_canonical_resources(resources),
+        resource_index=ResourceIndex(resources),
         relationship_graph=graph,
     )
 
@@ -119,9 +128,12 @@ def test_non_public_resource_returns_none():
         )
     )
 
+    resources = [instance, database]
+
     context = ScanContext(
-        resources=[instance, database],
-        resource_index=ResourceIndex([instance, database]),
+        resources=resources,
+        canonical_resources=build_canonical_resources(resources),
+        resource_index=ResourceIndex(resources),
         relationship_graph=graph,
     )
 
@@ -154,9 +166,12 @@ def test_public_resource_without_database_dependency():
         )
     )
 
+    resources = [load_balancer, subnet]
+
     context = ScanContext(
-        resources=[load_balancer, subnet],
-        resource_index=ResourceIndex([load_balancer, subnet]),
+        resources=resources,
+        canonical_resources=build_canonical_resources(resources),
+        resource_index=ResourceIndex(resources),
         relationship_graph=graph,
     )
 

@@ -11,8 +11,10 @@ from .terraform_scan import (
     scan_directory_large,
     scan_plan,
 )
+from compliance_scanner.canonical.runtime_integration import build_canonical_resources
 
 __all__ = [
+    "build_canonical_resources",
     "scan_directory",
     "scan_directory_large",
     "scan_plan",

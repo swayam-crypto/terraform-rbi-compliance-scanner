@@ -4,6 +4,7 @@ from compliance_scanner.graph.relationship_graph import RelationshipGraph
 from compliance_scanner.graph.resource_index import ResourceIndex
 from compliance_scanner.models.resolved_resource import ResolvedResource
 from compliance_scanner.attack.collection import AttackPathCollection
+from compliance_scanner.canonical.resource import CanonicalResource
 
 
 @dataclass(slots=True)
@@ -16,6 +17,11 @@ class ScanContext:
     """
 
     resources: list[ResolvedResource]
+
+    canonical_resources: tuple[CanonicalResource, ...]
+
     resource_index: ResourceIndex
+
     relationship_graph: RelationshipGraph
+
     attack_paths: AttackPathCollection | None = None

@@ -11,6 +11,9 @@ from compliance_scanner.rules.base import Finding
 from compliance_scanner.rules.registry import ALL_RULES, GRAPH_RULES
 from compliance_scanner.scan_context import ScanContext
 from compliance_scanner.attack.engine import AttackPathEngine
+from compliance_scanner.canonical.runtime_integration import (
+    build_canonical_resources,
+)
 
 
 def _run_rules_on_resources(resources, file_path, suppressions, suppressed_count):
@@ -86,8 +89,13 @@ def scan_resources(
             relationships,
         )
 
+        canonical_resources = build_canonical_resources(
+            resources,
+        )
+
         context = ScanContext(
             resources=resources,
+            canonical_resources=canonical_resources,
             resource_index=index,
             relationship_graph=graph,
         )
