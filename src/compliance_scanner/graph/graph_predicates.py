@@ -3,6 +3,11 @@ from compliance_scanner.models.resolved_resource import ResolvedResource
 from compliance_scanner.catalog.global_catalog import catalog
 from compliance_scanner.catalog.catalog import Catalog
 from compliance_scanner.catalog.canonical_types import CanonicalType
+from compliance_scanner.blast_radius.models import BlastRadius
+from compliance_scanner.catalog.kinds import ResourceKind
+from compliance_scanner.attack.models import AttackPath
+from compliance_scanner.attack.collection import AttackPathCollection
+from compliance_scanner.blast_radius.collections import BlastRadiusCollection
 
 PUBLIC_ENTRY_POINT = "public_entry_point"
 DATA_STORE = frozenset({"data_store"})
@@ -23,10 +28,14 @@ class GraphPredicates:
     def __init__(
         self,
         query: GraphQuery,
+        attack_paths: AttackPathCollection | None = None,
+        blast_radius: BlastRadiusCollection | None = None,
         catalog_instance: Catalog = catalog,
     ):
         self.query = query
         self.catalog = catalog_instance
+        self._attack_paths = attack_paths
+        self._blast_radius = blast_radius
 
     # Reachability
 
@@ -195,4 +204,317 @@ class GraphPredicates:
         return self.catalog.has_capabilities(
             resource,
             capabilities,
+        )
+
+        #   Blast_Radius
+
+    def blast_radius(
+        self,
+        resource: ResolvedResource,
+    ) -> BlastRadius | None:
+        """
+        Return the blast radius for the resource.
+        """
+
+        if self._blast_radius is None:
+            return None
+
+        return self._blast_radius.for_resource(
+            resource,
+        )
+
+    def blast_radius_size(
+        self,
+        resource: ResolvedResource,
+    ) -> int:
+        """
+        Return the number of affected resources.
+        """
+
+        blast_radius = self.blast_radius(
+            resource,
+        )
+
+        if blast_radius is None:
+            return 0
+
+        return len(
+            blast_radius.affected_resources,
+        )
+
+    def blast_radius_contains(
+        self,
+        resource: ResolvedResource,
+        target: ResolvedResource,
+    ) -> bool:
+        """
+        Return whether the blast radius contains the target.
+        """
+
+        blast_radius = self.blast_radius(
+            resource,
+        )
+
+        if blast_radius is None:
+            return False
+
+        return target in blast_radius.affected_resources
+
+    def blast_radius_contains_capability(
+        self,
+        resource: ResolvedResource,
+        capability: str,
+    ) -> bool:
+        """
+        Return whether the blast radius contains a resource
+        declaring the capability.
+        """
+
+        blast_radius = self.blast_radius(
+            resource,
+        )
+
+        if blast_radius is None:
+            return False
+
+        return any(
+            self.catalog.has_capability(
+                candidate,
+                capability,
+            )
+            for candidate in blast_radius.affected_resources
+        )
+
+    def blast_radius_contains_capabilities(
+        self,
+        resource: ResolvedResource,
+        capabilities: frozenset[str],
+    ) -> bool:
+        """
+        Return whether the blast radius contains a resource
+        declaring every requested capability.
+        """
+
+        blast_radius = self.blast_radius(
+            resource,
+        )
+
+        if blast_radius is None:
+            return False
+
+        return any(
+            self.catalog.has_capabilities(
+                candidate,
+                capabilities,
+            )
+            for candidate in blast_radius.affected_resources
+        )
+
+    def blast_radius_contains_type(
+        self,
+        resource: ResolvedResource,
+        canonical_type: CanonicalType,
+    ) -> bool:
+        """
+        Return whether the blast radius contains a resource
+        of the given canonical type.
+        """
+
+        blast_radius = self.blast_radius(
+            resource,
+        )
+
+        if blast_radius is None:
+            return False
+
+        return any(
+            self.catalog.canonical_type(
+                candidate,
+            )
+            == canonical_type
+            for candidate in blast_radius.affected_resources
+        )
+
+    def blast_radius_contains_kind(
+        self,
+        resource: ResolvedResource,
+        kind: ResourceKind,
+    ) -> bool:
+        """
+        Return whether the blast radius contains a resource
+        of the given resource kind.
+        """
+
+        blast_radius = self.blast_radius(
+            resource,
+        )
+
+        if blast_radius is None:
+            return False
+
+        return any(
+            (
+                definition := self.catalog.definition(
+                    candidate,
+                )
+            )
+            is not None
+            and definition.kind == kind
+            for candidate in blast_radius.affected_resources
+        )
+
+    #   Attack_Path
+    def attack_path(
+        self,
+        resource: ResolvedResource,
+    ) -> AttackPath | None:
+        """
+        Return the attack path for the resource.
+        """
+
+        if self._attack_paths is None:
+            return None
+
+        return self._attack_paths.for_resource(
+            resource,
+        )
+
+    def attack_path_size(
+        self,
+        resource: ResolvedResource,
+    ) -> int:
+        """
+        Return the number of resources contained in the attack path.
+        """
+
+        attack_path = self.attack_path(
+            resource,
+        )
+
+        if attack_path is None:
+            return 0
+
+        return len(
+            attack_path.resources,
+        )
+
+    def attack_path_contains(
+        self,
+        resource: ResolvedResource,
+        target: ResolvedResource,
+    ) -> bool:
+        """
+        Return whether the attack path contains the target resource.
+        """
+
+        attack_path = self.attack_path(
+            resource,
+        )
+
+        if attack_path is None:
+            return False
+
+        return target in attack_path.resources
+
+    def attack_path_contains_capability(
+        self,
+        resource: ResolvedResource,
+        capability: str,
+    ) -> bool:
+        """
+        Return whether the attack path contains a resource
+        declaring the capability.
+        """
+
+        attack_path = self.attack_path(
+            resource,
+        )
+
+        if attack_path is None:
+            return False
+
+        return any(
+            self.catalog.has_capability(
+                candidate,
+                capability,
+            )
+            for candidate in attack_path.resources
+        )
+
+    def attack_path_contains_capabilities(
+        self,
+        resource: ResolvedResource,
+        capabilities: frozenset[str],
+    ) -> bool:
+        """
+        Return whether the attack path contains a resource
+        declaring every requested capability.
+        """
+
+        attack_path = self.attack_path(
+            resource,
+        )
+
+        if attack_path is None:
+            return False
+
+        return any(
+            self.catalog.has_capabilities(
+                candidate,
+                capabilities,
+            )
+            for candidate in attack_path.resources
+        )
+
+    def attack_path_contains_type(
+        self,
+        resource: ResolvedResource,
+        canonical_type: CanonicalType,
+    ) -> bool:
+        """
+        Return whether the attack path contains a resource
+        of the given canonical type.
+        """
+
+        attack_path = self.attack_path(
+            resource,
+        )
+
+        if attack_path is None:
+            return False
+
+        return any(
+            self.catalog.canonical_type(
+                candidate,
+            )
+            == canonical_type
+            for candidate in attack_path.resources
+        )
+
+    def attack_path_contains_kind(
+        self,
+        resource: ResolvedResource,
+        kind: ResourceKind,
+    ) -> bool:
+        """
+        Return whether the attack path contains a resource
+        of the given resource kind.
+        """
+
+        attack_path = self.attack_path(
+            resource,
+        )
+
+        if attack_path is None:
+            return False
+
+        return any(
+            (
+                definition := self.catalog.definition(
+                    candidate,
+                )
+            )
+            is not None
+            and definition.kind == kind
+            for candidate in attack_path.resources
         )

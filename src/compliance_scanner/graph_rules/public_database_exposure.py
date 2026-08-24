@@ -26,7 +26,9 @@ class PublicDatabaseExposureRule(GraphRule):
         predicates = GraphPredicates(
             GraphQuery(
                 context.relationship_graph,
-            )
+            ),
+            attack_paths=context.attack_paths,
+            blast_radius=context.blast_radius,
         )
 
         findings: list[Finding] = []

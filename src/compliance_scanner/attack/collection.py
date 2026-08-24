@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from compliance_scanner.attack.models import AttackPath
 from collections.abc import Iterator
+from compliance_scanner.models.resolved_resource import ResolvedResource
 
 
 @dataclass(
@@ -45,3 +46,12 @@ class AttackPathCollection:
         index: int,
     ) -> AttackPath:
         return self.paths[index]
+
+    def for_resource(
+        self,
+        resource: ResolvedResource,
+    ) -> AttackPath | None:
+        for path in self.paths:
+            if path.source == resource:
+                return path
+        return None

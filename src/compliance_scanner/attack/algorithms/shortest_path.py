@@ -36,6 +36,7 @@ class ShortestPathAlgorithm:
             [
                 (
                     source,
+                    (source,),
                     (),
                 )
             ]
@@ -45,12 +46,13 @@ class ShortestPathAlgorithm:
 
         while queue:
 
-            current, relationships = queue.popleft()
+            current, resources, relationships = queue.popleft()
 
             if current == target:
                 return AttackPath(
                     source=source,
                     target=target,
+                    resources=resources,
                     relationships=relationships,
                 )
 
@@ -66,6 +68,7 @@ class ShortestPathAlgorithm:
                 queue.append(
                     (
                         neighbor,
+                        resources + (neighbor,),
                         relationships + (relationship,),
                     )
                 )

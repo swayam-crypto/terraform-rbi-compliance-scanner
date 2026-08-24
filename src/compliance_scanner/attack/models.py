@@ -25,4 +25,6 @@ class AttackPath:
 
     target: ResolvedResource
 
+    resources: tuple[ResolvedResource, ...]
+
     relationships: tuple[Relationship, ...]
