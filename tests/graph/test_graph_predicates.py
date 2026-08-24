@@ -86,7 +86,7 @@ def test_is_reachable():
     )
 
 
-def test_depends_on():
+def test_depends_on_type():
 
     graph = RelationshipGraph()
 
@@ -110,12 +110,12 @@ def test_depends_on():
 
     predicates = GraphPredicates(GraphQuery(graph))
 
-    assert predicates.depends_on(
+    assert predicates.depends_on_type(
         instance,
         "aws_kms_key",
     )
 
-    assert not predicates.depends_on(
+    assert not predicates.depends_on_type(
         instance,
         "aws_vpc",
     )
@@ -165,3 +165,183 @@ def test_is_public_entry_point():
     assert predicates.is_public_entry_point(load_balancer)
 
     assert not predicates.is_public_entry_point(instance)
+
+
+def test_has_capability():
+
+    graph = RelationshipGraph()
+
+    predicates = GraphPredicates(GraphQuery(graph))
+
+    load_balancer = make_resource(
+        "aws_lb",
+        "public",
+    )
+
+    instance = make_resource(
+        "aws_instance",
+        "web",
+    )
+
+    assert predicates.has_capability(
+        load_balancer,
+        "public_entry_point",
+    )
+
+    assert not predicates.has_capability(
+        instance,
+        "public_entry_point",
+    )
+
+
+def test_has_capabilities():
+
+    graph = RelationshipGraph()
+
+    predicates = GraphPredicates(GraphQuery(graph))
+
+    database = make_resource(
+        "aws_db_instance",
+        "database",
+    )
+
+    instance = make_resource(
+        "aws_instance",
+        "web",
+    )
+
+    assert predicates.has_capabilities(
+        database,
+        frozenset({"data_store"}),
+    )
+
+    assert not predicates.has_capabilities(
+        instance,
+        frozenset({"data_store"}),
+    )
+
+
+def test_depends_on_capability():
+
+    graph = RelationshipGraph()
+
+    load_balancer = make_resource(
+        "aws_lb",
+        "public",
+    )
+
+    database = make_resource(
+        "aws_db_instance",
+        "database",
+    )
+
+    graph.add(
+        Relationship(
+            source=load_balancer,
+            target=database,
+            relationship_type=RelationshipType.TARGET_GROUP,
+        )
+    )
+
+    predicates = GraphPredicates(GraphQuery(graph))
+
+    assert predicates.depends_on_capability(
+        load_balancer,
+        "data_store",
+    )
+
+    assert not predicates.depends_on_capability(
+        database,
+        "data_store",
+    )
+
+
+def test_depends_on_data_store():
+
+    graph = RelationshipGraph()
+
+    load_balancer = make_resource(
+        "aws_lb",
+        "public",
+    )
+
+    database = make_resource(
+        "aws_db_instance",
+        "database",
+    )
+
+    graph.add(
+        Relationship(
+            source=load_balancer,
+            target=database,
+            relationship_type=RelationshipType.TARGET_GROUP,
+        )
+    )
+
+    predicates = GraphPredicates(GraphQuery(graph))
+
+    assert predicates.depends_on_data_store(
+        load_balancer,
+    )
+
+    assert not predicates.depends_on_data_store(
+        database,
+    )
+
+
+def test_depends_on_compute():
+
+    graph = RelationshipGraph()
+
+    load_balancer = make_resource(
+        "aws_lb",
+        "public",
+    )
+
+    instance = make_resource(
+        "aws_instance",
+        "web",
+    )
+
+    graph.add(
+        Relationship(
+            source=load_balancer,
+            target=instance,
+            relationship_type=RelationshipType.TARGET_GROUP,
+        )
+    )
+
+    predicates = GraphPredicates(GraphQuery(graph))
+
+    assert predicates.depends_on_compute(
+        load_balancer,
+    )
+
+
+def test_depends_on_network():
+
+    graph = RelationshipGraph()
+
+    instance = make_resource(
+        "aws_instance",
+        "web",
+    )
+
+    subnet = make_resource(
+        "aws_subnet",
+        "private",
+    )
+
+    graph.add(
+        Relationship(
+            source=instance,
+            target=subnet,
+            relationship_type=RelationshipType.SUBNET,
+        )
+    )
+
+    predicates = GraphPredicates(GraphQuery(graph))
+
+    assert predicates.depends_on_network(
+        instance,
+    )
