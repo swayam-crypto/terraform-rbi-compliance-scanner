@@ -5,6 +5,7 @@ from compliance_scanner.graph.resource_index import ResourceIndex
 from compliance_scanner.models.resolved_resource import ResolvedResource
 from compliance_scanner.attack.collection import AttackPathCollection
 from compliance_scanner.canonical.resource import CanonicalResource
+from compliance_scanner.blast_radius.collections import BlastRadiusCollection
 
 
 @dataclass(slots=True)
@@ -25,3 +26,5 @@ class ScanContext:
     relationship_graph: RelationshipGraph
 
     attack_paths: AttackPathCollection | None = None
+
+    blast_radius: BlastRadiusCollection | None = None

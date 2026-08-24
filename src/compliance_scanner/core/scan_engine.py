@@ -10,6 +10,7 @@ from compliance_scanner.rules.registry import ALL_RULES, GRAPH_RULES
 from compliance_scanner.scan_context import ScanContext
 from compliance_scanner.attack.engine import AttackPathEngine
 from compliance_scanner.runtime import RuntimeBuilder
+from compliance_scanner.blast_radius.engine import BlastRadiusEngine
 
 
 def _run_rules_on_resources(resources, file_path, suppressions, suppressed_count):
@@ -77,13 +78,16 @@ def scan_resources(
             resources,
         )
 
-        attack_paths = AttackPathEngine(
+        context.attack_paths = AttackPathEngine(
             context,
-        )
+        ).analyze()
+
+        context.blast_radius = BlastRadiusEngine(
+            context,
+        ).analyze()
 
         # Perform infrastructure attack-path analysis before executing
         # graph-aware compliance rules.
-        context.attack_paths = attack_paths.analyze()
 
         findings.extend(
             _run_graph_rules(
