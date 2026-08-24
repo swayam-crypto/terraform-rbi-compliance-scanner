@@ -26,7 +26,9 @@ class PublicDatabaseExposureRule(GraphRule):
         predicates = GraphPredicates(
             GraphQuery(
                 context.relationship_graph,
-            )
+            ),
+            attack_paths=context.attack_paths,
+            blast_radius=context.blast_radius,
         )
 
         findings: list[Finding] = []
@@ -39,8 +41,9 @@ class PublicDatabaseExposureRule(GraphRule):
             ):
                 continue
 
-            if not predicates.depends_on_data_store(
+            if not predicates.attack_path_contains_capability(
                 resource,
+                "data_store",
             ):
                 continue
 

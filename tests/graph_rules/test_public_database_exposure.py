@@ -20,6 +20,8 @@ from compliance_scanner.scan_context import ScanContext
 from compliance_scanner.canonical.runtime_integration import (
     build_canonical_resources,
 )
+from compliance_scanner.attack.collection import AttackPathCollection
+from compliance_scanner.attack.models import AttackPath
 
 
 def make_resource(
@@ -61,9 +63,24 @@ def test_public_database_exposure_detected():
 
     resources = [load_balancer, database]
 
+    attack_paths = AttackPathCollection(
+        (
+            AttackPath(
+                source=load_balancer,
+                target=database,
+                resources=(
+                    load_balancer,
+                    database,
+                ),
+                relationships=(),
+            ),
+        )
+    )
+
     context = ScanContext(
         resources=resources,
         canonical_resources=build_canonical_resources(resources),
+        attack_paths=attack_paths,
         resource_index=ResourceIndex(resources),
         relationship_graph=graph,
     )
@@ -95,6 +112,7 @@ def test_database_not_reachable():
     context = ScanContext(
         resources=resources,
         canonical_resources=build_canonical_resources(resources),
+        attack_paths=AttackPathCollection(()),
         resource_index=ResourceIndex(resources),
         relationship_graph=graph,
     )
@@ -130,9 +148,24 @@ def test_non_public_resource_returns_none():
 
     resources = [instance, database]
 
+    attack_paths = AttackPathCollection(
+        (
+            AttackPath(
+                source=instance,
+                target=database,
+                resources=(
+                    instance,
+                    database,
+                ),
+                relationships=(),
+            ),
+        )
+    )
+
     context = ScanContext(
         resources=resources,
         canonical_resources=build_canonical_resources(resources),
+        attack_paths=attack_paths,
         resource_index=ResourceIndex(resources),
         relationship_graph=graph,
     )
@@ -171,6 +204,7 @@ def test_public_resource_without_database_dependency():
     context = ScanContext(
         resources=resources,
         canonical_resources=build_canonical_resources(resources),
+        attack_paths=AttackPathCollection(()),
         resource_index=ResourceIndex(resources),
         relationship_graph=graph,
     )
