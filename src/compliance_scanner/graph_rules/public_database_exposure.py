@@ -41,8 +41,9 @@ class PublicDatabaseExposureRule(GraphRule):
             ):
                 continue
 
-            if not predicates.depends_on_data_store(
+            if not predicates.attack_path_contains_capability(
                 resource,
+                "data_store",
             ):
                 continue
 
