@@ -1,6 +1,6 @@
 from compliance_scanner.models.resolved_resource import ResolvedResource
 
-from compliance_scanner.graph.relationship import Relationship
+from compliance_scanner.engine.relationship.relationship import Relationship
 
 from compliance_scanner.graph.resource_index import ResourceIndex
 from compliance_scanner.catalog.catalog import Catalog

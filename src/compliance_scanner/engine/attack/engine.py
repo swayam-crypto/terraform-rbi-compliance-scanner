@@ -1,14 +1,14 @@
-from compliance_scanner.attack.collection import AttackPathCollection
-from compliance_scanner.attack.finder import AttackPathFinder
+from compliance_scanner.engine.attack.collection import AttackPathCollection
+from compliance_scanner.engine.attack.finder import AttackPathFinder
 from compliance_scanner.catalog.global_catalog import catalog
 from compliance_scanner.catalog.catalog import Catalog
-from compliance_scanner.attack.models import AttackPath
+from compliance_scanner.engine.attack.models import AttackPath
 from compliance_scanner.models.resolved_resource import ResolvedResource
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from compliance_scanner.scan_context import ScanContext
+    from compliance_scanner.runtime.scan_context import ScanContext
 
 
 class AttackPathEngine:

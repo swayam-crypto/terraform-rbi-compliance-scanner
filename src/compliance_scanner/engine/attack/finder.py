@@ -1,7 +1,7 @@
-from compliance_scanner.graph.relationship_graph import RelationshipGraph
+from compliance_scanner.engine.relationship.relationship_graph import RelationshipGraph
 from compliance_scanner.models.resolved_resource import ResolvedResource
-from compliance_scanner.attack.algorithms import ShortestPathAlgorithm
-from compliance_scanner.attack.collection import AttackPathCollection
+from compliance_scanner.engine.attack.algorithms import ShortestPathAlgorithm
+from compliance_scanner.engine.attack.collection import AttackPathCollection
 
 
 class AttackPathFinder:

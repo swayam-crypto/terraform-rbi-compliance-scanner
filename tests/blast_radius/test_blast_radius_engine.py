@@ -1,20 +1,20 @@
-from compliance_scanner.blast_radius.engine import BlastRadiusEngine
+from compliance_scanner.engine.blast_radius.engine import BlastRadiusEngine
 from compliance_scanner.canonical.runtime_integration import (
     build_canonical_resources,
 )
-from compliance_scanner.graph.relationship import (
+from compliance_scanner.engine.relationship.relationship import (
     Relationship,
     RelationshipType,
 )
-from compliance_scanner.graph.relationship_graph import RelationshipGraph
+from compliance_scanner.engine.relationship.relationship_graph import RelationshipGraph
 from compliance_scanner.graph.resource_index import ResourceIndex
-from compliance_scanner.scan_context import ScanContext
+from compliance_scanner.runtime.scan_context import ScanContext
 
 from compliance_scanner.models.platform import Platform
 from compliance_scanner.models.resolved_resource import ResolvedResource
 from compliance_scanner.models.source_location import SourceLocation
 from compliance_scanner.parser.provider_utils import infer_provider
-from compliance_scanner.graph.privilege_graph import PrivilegeGraph
+from compliance_scanner.engine.privilege.graph import PrivilegeGraph
 
 
 def make_resource(

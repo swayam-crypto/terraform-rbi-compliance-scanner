@@ -3,11 +3,11 @@ from compliance_scanner.models.resolved_resource import ResolvedResource
 from compliance_scanner.catalog.global_catalog import catalog
 from compliance_scanner.catalog.catalog import Catalog
 from compliance_scanner.catalog.canonical_types import CanonicalType
-from compliance_scanner.blast_radius.models import BlastRadius
+from compliance_scanner.engine.blast_radius.models import BlastRadius
 from compliance_scanner.catalog.kinds import ResourceKind
-from compliance_scanner.attack.models import AttackPath
-from compliance_scanner.attack.collection import AttackPathCollection
-from compliance_scanner.blast_radius.collection import BlastRadiusCollection
+from compliance_scanner.engine.attack.models import AttackPath
+from compliance_scanner.engine.attack.collection import AttackPathCollection
+from compliance_scanner.engine.blast_radius.collection import BlastRadiusCollection
 
 PUBLIC_ENTRY_POINT = "public_entry_point"
 DATA_STORE = frozenset({"data_store"})

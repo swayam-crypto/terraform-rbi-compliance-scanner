@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from compliance_scanner.graph.relationship import Relationship
+from compliance_scanner.engine.relationship.relationship import Relationship
 from compliance_scanner.models.resolved_resource import ResolvedResource
 
 

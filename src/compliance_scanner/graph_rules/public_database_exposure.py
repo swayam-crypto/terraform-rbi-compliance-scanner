@@ -3,7 +3,7 @@ from compliance_scanner.graph.graph_predicates import GraphPredicates
 from compliance_scanner.graph.graph_query import GraphQuery
 from compliance_scanner.graph_rules.base import GraphRule
 from compliance_scanner.rules.base import Finding
-from compliance_scanner.scan_context import ScanContext
+from compliance_scanner.runtime.scan_context import ScanContext
 
 
 class PublicDatabaseExposureRule(GraphRule):

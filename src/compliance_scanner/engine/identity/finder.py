@@ -1,6 +1,6 @@
-from compliance_scanner.identity.collection import IdentityCollection
-from compliance_scanner.identity.models import EffectiveIdentity
-from compliance_scanner.graph.privilege_graph import PrivilegeGraph
+from compliance_scanner.engine.identity.collection import IdentityCollection
+from compliance_scanner.engine.identity.models import EffectiveIdentity
+from compliance_scanner.engine.privilege.graph import PrivilegeGraph
 from compliance_scanner.models.resolved_resource import ResolvedResource
 
 

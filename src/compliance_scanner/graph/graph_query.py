@@ -1,10 +1,10 @@
-from compliance_scanner.graph.relationship_graph import RelationshipGraph
+from compliance_scanner.engine.relationship.relationship_graph import RelationshipGraph
 from compliance_scanner.graph.traversal import GraphTraversal
 from compliance_scanner.models.resolved_resource import ResolvedResource
 from compliance_scanner.catalog.catalog import Catalog
 from compliance_scanner.catalog.global_catalog import catalog
 from compliance_scanner.catalog.canonical_types import CanonicalType
-from compliance_scanner.graph.relationship import Relationship
+from compliance_scanner.engine.relationship.relationship import Relationship
 
 
 class GraphQuery:

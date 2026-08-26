@@ -1,8 +1,8 @@
 from compliance_scanner.catalog.privilege_relationship_types import (
     PrivilegeRelationshipType,
 )
-from compliance_scanner.graph.privilege_graph import PrivilegeGraph
-from compliance_scanner.graph.privilege_relationship import (
+from compliance_scanner.engine.privilege.graph import PrivilegeGraph
+from compliance_scanner.engine.privilege.privilege_relationship import (
     PrivilegeRelationship,
 )
 from compliance_scanner.models.platform import Platform

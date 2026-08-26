@@ -6,7 +6,7 @@ multiple resources using the RelationshipGraph.
 """
 
 from compliance_scanner.rules.base import BaseRule, Finding
-from compliance_scanner.scan_context import ScanContext
+from compliance_scanner.runtime.scan_context import ScanContext
 
 
 class GraphRule(BaseRule):

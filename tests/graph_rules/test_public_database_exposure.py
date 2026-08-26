@@ -1,8 +1,8 @@
-from compliance_scanner.graph.relationship import (
+from compliance_scanner.engine.relationship.relationship import (
     Relationship,
     RelationshipType,
 )
-from compliance_scanner.graph.relationship_graph import RelationshipGraph
+from compliance_scanner.engine.relationship.relationship_graph import RelationshipGraph
 
 from compliance_scanner.graph.resource_index import ResourceIndex
 
@@ -16,13 +16,13 @@ from compliance_scanner.models.source_location import SourceLocation
 
 from compliance_scanner.parser.provider_utils import infer_provider
 
-from compliance_scanner.scan_context import ScanContext
+from compliance_scanner.runtime.scan_context import ScanContext
 from compliance_scanner.canonical.runtime_integration import (
     build_canonical_resources,
 )
-from compliance_scanner.attack.collection import AttackPathCollection
-from compliance_scanner.attack.models import AttackPath
-from compliance_scanner.graph.privilege_graph import PrivilegeGraph
+from compliance_scanner.engine.attack.collection import AttackPathCollection
+from compliance_scanner.engine.attack.models import AttackPath
+from compliance_scanner.engine.privilege.graph import PrivilegeGraph
 
 
 def make_resource(

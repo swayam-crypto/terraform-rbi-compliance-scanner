@@ -4,7 +4,7 @@ from collections.abc import Iterator
 from compliance_scanner.catalog.privilege_relationship_types import (
     PrivilegeRelationshipType,
 )
-from compliance_scanner.graph.privilege_relationship import (
+from compliance_scanner.engine.privilege.privilege_relationship import (
     PrivilegeRelationship,
 )
 from compliance_scanner.models.resolved_resource import ResolvedResource

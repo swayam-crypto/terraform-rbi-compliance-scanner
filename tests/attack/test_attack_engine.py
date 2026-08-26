@@ -1,5 +1,5 @@
-from compliance_scanner.attack.engine import AttackPathEngine
-from compliance_scanner.attack.collection import AttackPathCollection
+from compliance_scanner.engine.attack.engine import AttackPathEngine
+from compliance_scanner.engine.attack.collection import AttackPathCollection
 
 
 class FakeFinder:

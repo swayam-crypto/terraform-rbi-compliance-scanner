@@ -1,7 +1,7 @@
-from compliance_scanner.blast_radius.collection import (
+from compliance_scanner.engine.blast_radius.collection import (
     BlastRadiusCollection,
 )
-from compliance_scanner.blast_radius.models import BlastRadius
+from compliance_scanner.engine.blast_radius.models import BlastRadius
 
 from compliance_scanner.models.platform import Platform
 from compliance_scanner.models.resolved_resource import ResolvedResource
