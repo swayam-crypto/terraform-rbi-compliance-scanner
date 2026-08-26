@@ -14,6 +14,7 @@ from compliance_scanner.models.platform import Platform
 from compliance_scanner.models.resolved_resource import ResolvedResource
 from compliance_scanner.models.source_location import SourceLocation
 from compliance_scanner.parser.provider_utils import infer_provider
+from compliance_scanner.graph.privilege_graph import PrivilegeGraph
 
 
 def make_resource(
@@ -67,6 +68,7 @@ def test_engine():
             resources,
         ),
         relationship_graph=graph,
+        privilege_graph=PrivilegeGraph(),
     )
 
     collection = BlastRadiusEngine(

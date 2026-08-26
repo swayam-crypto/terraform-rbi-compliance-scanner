@@ -22,6 +22,7 @@ from compliance_scanner.canonical.runtime_integration import (
 )
 from compliance_scanner.attack.collection import AttackPathCollection
 from compliance_scanner.attack.models import AttackPath
+from compliance_scanner.graph.privilege_graph import PrivilegeGraph
 
 
 def make_resource(
@@ -36,6 +37,23 @@ def make_resource(
         attributes={},
         default_attributes={},
         source=SourceLocation(),
+    )
+
+
+def make_context(
+    resources,
+    relationship_graph,
+    attack_paths=None,
+    blast_radius=None,
+):
+    return ScanContext(
+        resources=resources,
+        canonical_resources=build_canonical_resources(resources),
+        resource_index=ResourceIndex(resources),
+        relationship_graph=relationship_graph,
+        privilege_graph=PrivilegeGraph(),
+        attack_paths=attack_paths,
+        blast_radius=blast_radius,
     )
 
 
@@ -77,12 +95,8 @@ def test_public_database_exposure_detected():
         )
     )
 
-    context = ScanContext(
-        resources=resources,
-        canonical_resources=build_canonical_resources(resources),
-        attack_paths=attack_paths,
-        resource_index=ResourceIndex(resources),
-        relationship_graph=graph,
+    context = make_context(
+        resources=resources, relationship_graph=graph, attack_paths=attack_paths
     )
 
     rule = PublicDatabaseExposureRule()
@@ -109,11 +123,8 @@ def test_database_not_reachable():
 
     resources = [load_balancer, database]
 
-    context = ScanContext(
+    context = make_context(
         resources=resources,
-        canonical_resources=build_canonical_resources(resources),
-        attack_paths=AttackPathCollection(()),
-        resource_index=ResourceIndex(resources),
         relationship_graph=graph,
     )
 
@@ -162,12 +173,10 @@ def test_non_public_resource_returns_none():
         )
     )
 
-    context = ScanContext(
+    context = make_context(
         resources=resources,
-        canonical_resources=build_canonical_resources(resources),
-        attack_paths=attack_paths,
-        resource_index=ResourceIndex(resources),
         relationship_graph=graph,
+        attack_paths=attack_paths,
     )
 
     rule = PublicDatabaseExposureRule()
@@ -201,11 +210,8 @@ def test_public_resource_without_database_dependency():
 
     resources = [load_balancer, subnet]
 
-    context = ScanContext(
+    context = make_context(
         resources=resources,
-        canonical_resources=build_canonical_resources(resources),
-        attack_paths=AttackPathCollection(()),
-        resource_index=ResourceIndex(resources),
         relationship_graph=graph,
     )
 
