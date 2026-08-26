@@ -1,7 +1,7 @@
-from compliance_scanner.graph.privilege_graph import PrivilegeGraph
-from compliance_scanner.identity.collection import IdentityCollection
-from compliance_scanner.identity.finder import IdentityFinder
-from compliance_scanner.scan_context import ScanContext
+from compliance_scanner.engine.privilege.graph import PrivilegeGraph
+from compliance_scanner.engine.identity.collection import IdentityCollection
+from compliance_scanner.engine.identity.finder import IdentityFinder
+from compliance_scanner.runtime.scan_context import ScanContext
 
 
 class IdentityEngine:

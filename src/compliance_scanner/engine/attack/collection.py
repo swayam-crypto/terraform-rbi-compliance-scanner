@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from compliance_scanner.attack.models import AttackPath
+from compliance_scanner.engine.attack.models import AttackPath
 from collections.abc import Iterator
 from compliance_scanner.models.resolved_resource import ResolvedResource
 

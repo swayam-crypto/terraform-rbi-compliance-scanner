@@ -6,14 +6,14 @@ from compliance_scanner.canonical.runtime_integration import (
     build_canonical_resources,
 )
 from compliance_scanner.graph.graph_builder import GraphBuilder
-from compliance_scanner.graph.privilege_graph_builder import (
+from compliance_scanner.engine.privilege.graph_builder import (
     PrivilegeGraphBuilder,
 )
 from compliance_scanner.graph.resource_index import ResourceIndex
 from compliance_scanner.models.resolved_resource import (
     ResolvedResource,
 )
-from compliance_scanner.scan_context import ScanContext
+from compliance_scanner.runtime.scan_context import ScanContext
 
 
 class RuntimeBuilder:

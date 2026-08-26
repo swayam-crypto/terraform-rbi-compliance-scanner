@@ -1,6 +1,6 @@
 from collections.abc import Iterator
 
-from compliance_scanner.identity.models import EffectiveIdentity
+from compliance_scanner.engine.identity.models import EffectiveIdentity
 from compliance_scanner.models.resolved_resource import ResolvedResource
 
 

@@ -1,4 +1,4 @@
-from compliance_scanner.graph.privilege_graph import PrivilegeGraph
+from compliance_scanner.engine.privilege.graph import PrivilegeGraph
 from compliance_scanner.graph.resource_index import ResourceIndex
 
 

@@ -1,4 +1,4 @@
-from compliance_scanner.blast_radius.engine import BlastRadiusEngine
+from compliance_scanner.engine.blast_radius.engine import BlastRadiusEngine
 from compliance_scanner.runtime import RuntimeBuilder
 
 from compliance_scanner.models.platform import Platform

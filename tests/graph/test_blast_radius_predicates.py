@@ -1,8 +1,8 @@
-from compliance_scanner.blast_radius.collection import BlastRadiusCollection
-from compliance_scanner.blast_radius.models import BlastRadius
+from compliance_scanner.engine.blast_radius.collection import BlastRadiusCollection
+from compliance_scanner.engine.blast_radius.models import BlastRadius
 from compliance_scanner.graph.graph_predicates import GraphPredicates
 from compliance_scanner.graph.graph_query import GraphQuery
-from compliance_scanner.graph.relationship_graph import RelationshipGraph
+from compliance_scanner.engine.relationship.relationship_graph import RelationshipGraph
 
 from compliance_scanner.catalog.canonical_types import CanonicalType
 from compliance_scanner.catalog.kinds import ResourceKind

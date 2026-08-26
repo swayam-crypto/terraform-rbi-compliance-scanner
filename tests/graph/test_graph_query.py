@@ -1,9 +1,9 @@
 from compliance_scanner.graph.graph_query import GraphQuery
-from compliance_scanner.graph.relationship import (
+from compliance_scanner.engine.relationship.relationship import (
     Relationship,
     RelationshipType,
 )
-from compliance_scanner.graph.relationship_graph import RelationshipGraph
+from compliance_scanner.engine.relationship.relationship_graph import RelationshipGraph
 
 from compliance_scanner.models.platform import Platform
 from compliance_scanner.models.resolved_resource import ResolvedResource

@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 
-from compliance_scanner.attack.collection import AttackPathCollection
-from compliance_scanner.blast_radius.collection import BlastRadiusCollection
+from compliance_scanner.engine.attack.collection import AttackPathCollection
+from compliance_scanner.engine.blast_radius.collection import BlastRadiusCollection
 from compliance_scanner.canonical.resource import CanonicalResource
-from compliance_scanner.graph.privilege_graph import PrivilegeGraph
-from compliance_scanner.graph.relationship_graph import RelationshipGraph
+from compliance_scanner.engine.privilege.graph import PrivilegeGraph
+from compliance_scanner.engine.relationship.relationship_graph import RelationshipGraph
 from compliance_scanner.graph.resource_index import ResourceIndex
-from compliance_scanner.identity.collection import IdentityCollection
+from compliance_scanner.engine.identity.collection import IdentityCollection
 from compliance_scanner.models.resolved_resource import ResolvedResource
 
 
