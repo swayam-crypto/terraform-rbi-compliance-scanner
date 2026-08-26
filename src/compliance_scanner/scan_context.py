@@ -1,11 +1,13 @@
 from dataclasses import dataclass
 
+from compliance_scanner.attack.collection import AttackPathCollection
+from compliance_scanner.blast_radius.collection import BlastRadiusCollection
+from compliance_scanner.canonical.resource import CanonicalResource
+from compliance_scanner.graph.privilege_graph import PrivilegeGraph
 from compliance_scanner.graph.relationship_graph import RelationshipGraph
 from compliance_scanner.graph.resource_index import ResourceIndex
+from compliance_scanner.identity.collection import IdentityCollection
 from compliance_scanner.models.resolved_resource import ResolvedResource
-from compliance_scanner.attack.collection import AttackPathCollection
-from compliance_scanner.canonical.resource import CanonicalResource
-from compliance_scanner.blast_radius.collections import BlastRadiusCollection
 
 
 @dataclass(slots=True)
@@ -13,8 +15,8 @@ class ScanContext:
     """
     Shared state for a compliance scan.
 
-    As the platform evolves, this object will become the central
-    container passed through the scanning pipeline.
+    Runtime analyses progressively enrich this context as the scan
+    advances through the pipeline.
     """
 
     resources: list[ResolvedResource]
@@ -25,6 +27,10 @@ class ScanContext:
 
     relationship_graph: RelationshipGraph
 
+    privilege_graph: PrivilegeGraph
+
     attack_paths: AttackPathCollection | None = None
 
     blast_radius: BlastRadiusCollection | None = None
+
+    identity_analysis: IdentityCollection | None = None

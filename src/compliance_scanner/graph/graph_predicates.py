@@ -7,7 +7,7 @@ from compliance_scanner.blast_radius.models import BlastRadius
 from compliance_scanner.catalog.kinds import ResourceKind
 from compliance_scanner.attack.models import AttackPath
 from compliance_scanner.attack.collection import AttackPathCollection
-from compliance_scanner.blast_radius.collections import BlastRadiusCollection
+from compliance_scanner.blast_radius.collection import BlastRadiusCollection
 
 PUBLIC_ENTRY_POINT = "public_entry_point"
 DATA_STORE = frozenset({"data_store"})

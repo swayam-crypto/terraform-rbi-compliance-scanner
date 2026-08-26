@@ -1,5 +1,5 @@
 from .models import BlastRadius
-from .collections import BlastRadiusCollection
+from .collection import BlastRadiusCollection
 
 __all__ = [
     "BlastRadius",

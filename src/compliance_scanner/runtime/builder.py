@@ -6,6 +6,9 @@ from compliance_scanner.canonical.runtime_integration import (
     build_canonical_resources,
 )
 from compliance_scanner.graph.graph_builder import GraphBuilder
+from compliance_scanner.graph.privilege_graph_builder import (
+    PrivilegeGraphBuilder,
+)
 from compliance_scanner.graph.resource_index import ResourceIndex
 from compliance_scanner.models.resolved_resource import (
     ResolvedResource,
@@ -25,9 +28,6 @@ class RuntimeBuilder:
         self,
         resources: list[ResolvedResource],
     ) -> ScanContext:
-        """
-        Build a ScanContext from resolved resources.
-        """
 
         canonical_resources = self._build_canonical_resources(
             resources,
@@ -46,11 +46,16 @@ class RuntimeBuilder:
             relationships,
         )
 
+        privilege_graph = self._build_privilege_graph(
+            resource_index,
+        )
+
         return self._build_context(
             resources,
             canonical_resources,
             resource_index,
             relationship_graph,
+            privilege_graph,
         )
 
     def _build_canonical_resources(
@@ -89,16 +94,26 @@ class RuntimeBuilder:
             relationships,
         )
 
+    def _build_privilege_graph(
+        self,
+        resource_index: ResourceIndex,
+    ):
+        return PrivilegeGraphBuilder().build(
+            resource_index,
+        )
+
     def _build_context(
         self,
         resources: list[ResolvedResource],
         canonical_resources,
         resource_index: ResourceIndex,
         relationship_graph,
+        privilege_graph,
     ) -> ScanContext:
         return ScanContext(
             resources=resources,
             canonical_resources=canonical_resources,
             resource_index=resource_index,
             relationship_graph=relationship_graph,
+            privilege_graph=privilege_graph,
         )

@@ -8,6 +8,7 @@ from compliance_scanner.catalog.global_catalog import catalog
 from compliance_scanner.rules.base import Finding
 from compliance_scanner.rules.registry import ALL_RULES, GRAPH_RULES
 from compliance_scanner.scan_context import ScanContext
+from compliance_scanner.identity.engine import IdentityEngine
 from compliance_scanner.attack.engine import AttackPathEngine
 from compliance_scanner.runtime import RuntimeBuilder
 from compliance_scanner.blast_radius.engine import BlastRadiusEngine
@@ -83,6 +84,10 @@ def scan_resources(
         ).analyze()
 
         context.blast_radius = BlastRadiusEngine(
+            context,
+        ).analyze()
+
+        context.identity_analysis = IdentityEngine(
             context,
         ).analyze()
 
