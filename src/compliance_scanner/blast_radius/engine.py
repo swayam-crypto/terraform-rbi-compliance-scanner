@@ -1,5 +1,5 @@
 from compliance_scanner.blast_radius.finder import BlastRadiusFinder
-from compliance_scanner.blast_radius.collections import BlastRadiusCollection
+from compliance_scanner.blast_radius.collection import BlastRadiusCollection
 from compliance_scanner.graph.graph_query import GraphQuery
 from compliance_scanner.scan_context import ScanContext
 

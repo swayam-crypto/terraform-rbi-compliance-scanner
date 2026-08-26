@@ -1,4 +1,4 @@
-from compliance_scanner.blast_radius.collections import BlastRadiusCollection
+from compliance_scanner.blast_radius.collection import BlastRadiusCollection
 from compliance_scanner.blast_radius.models import BlastRadius
 from compliance_scanner.graph.graph_query import GraphQuery
 from compliance_scanner.models.resolved_resource import ResolvedResource

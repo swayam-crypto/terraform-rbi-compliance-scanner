@@ -1,4 +1,4 @@
-from compliance_scanner.blast_radius.collections import (
+from compliance_scanner.blast_radius.collection import (
     BlastRadiusCollection,
 )
 from compliance_scanner.blast_radius.models import BlastRadius
