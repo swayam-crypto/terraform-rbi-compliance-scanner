@@ -8,6 +8,8 @@ from compliance_scanner.engine.relationship.relationship_graph import Relationsh
 from compliance_scanner.graph.resource_index import ResourceIndex
 from compliance_scanner.engine.identity.collection import IdentityCollection
 from compliance_scanner.models.resolved_resource import ResolvedResource
+from .analysis_runtime import AnalysisRuntime
+from .knowledge_runtime import KnowledgeRuntime
 
 
 @dataclass(slots=True)
