@@ -10,6 +10,8 @@ class BlastRadiusEngine(AnalysisEngine):
     Runtime entry point for blast radius analysis.
     """
 
+    runtime_field = "blast_radius"
+
     def __init__(
         self,
         context: ScanContext,

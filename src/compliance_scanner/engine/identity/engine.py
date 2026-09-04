@@ -14,6 +14,8 @@ class IdentityEngine(AnalysisEngine):
     IdentityFinder.
     """
 
+    runtime_field = "identity_analysis"
+
     def __init__(
         self,
         context: ScanContext,

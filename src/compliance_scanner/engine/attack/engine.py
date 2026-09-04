@@ -20,6 +20,7 @@ class AttackPathEngine(AnalysisEngine):
     AttackPathFinder.
     """
 
+    runtime_field = "attack_paths"
     _ENTRY_POINT_CAPABILITY = "public_entry_point"
 
     _TARGET_CAPABILITY = "data_store"
