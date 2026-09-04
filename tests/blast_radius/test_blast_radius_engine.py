@@ -15,6 +15,8 @@ from compliance_scanner.models.resolved_resource import ResolvedResource
 from compliance_scanner.models.source_location import SourceLocation
 from compliance_scanner.parser.provider_utils import infer_provider
 from compliance_scanner.engine.privilege.graph import PrivilegeGraph
+from compliance_scanner.runtime.knowledge_runtime import KnowledgeRuntime
+from compliance_scanner.runtime.analysis_runtime import AnalysisRuntime
 
 
 def make_resource(
@@ -61,14 +63,13 @@ def test_engine():
 
     context = ScanContext(
         resources=resources,
-        canonical_resources=build_canonical_resources(
-            resources,
+        canonical_resources=build_canonical_resources(resources),
+        resource_index=ResourceIndex(resources),
+        knowledge=KnowledgeRuntime(
+            relationship_graph=graph,
+            privilege_graph=PrivilegeGraph(),
         ),
-        resource_index=ResourceIndex(
-            resources,
-        ),
-        relationship_graph=graph,
-        privilege_graph=PrivilegeGraph(),
+        analysis=AnalysisRuntime(),
     )
 
     collection = BlastRadiusEngine(

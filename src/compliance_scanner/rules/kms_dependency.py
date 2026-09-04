@@ -38,7 +38,7 @@ class KMSDependencyRule(GraphRule):
             ):
                 continue
 
-            kms_relationships = context.relationship_graph.outgoing_by_type(
+            kms_relationships = context.knowledge.relationship_graph.outgoing_by_type(
                 resource,
                 RelationshipType.KMS_KEY,
             )

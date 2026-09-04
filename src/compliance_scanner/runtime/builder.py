@@ -14,6 +14,8 @@ from compliance_scanner.models.resolved_resource import (
     ResolvedResource,
 )
 from compliance_scanner.runtime.scan_context import ScanContext
+from .analysis_runtime import AnalysisRuntime
+from .knowledge_runtime import KnowledgeRuntime
 
 
 class RuntimeBuilder:
@@ -110,10 +112,18 @@ class RuntimeBuilder:
         relationship_graph,
         privilege_graph,
     ) -> ScanContext:
+
+        knowledge = KnowledgeRuntime(
+            relationship_graph=relationship_graph,
+            privilege_graph=privilege_graph,
+        )
+
+        analysis = AnalysisRuntime()
+
         return ScanContext(
             resources=resources,
             canonical_resources=canonical_resources,
             resource_index=resource_index,
-            relationship_graph=relationship_graph,
-            privilege_graph=privilege_graph,
+            knowledge=knowledge,
+            analysis=analysis,
         )

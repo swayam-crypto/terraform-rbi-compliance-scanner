@@ -20,7 +20,7 @@ class BlastRadiusEngine:
     ) -> BlastRadiusCollection:
 
         query = GraphQuery(
-            self.context.relationship_graph,
+            self.context.knowledge.relationship_graph,
         )
 
         finder = BlastRadiusFinder(

@@ -24,7 +24,7 @@ class IdentityEngine:
     ) -> IdentityCollection:
 
         finder = IdentityFinder(
-            self.context.privilege_graph,
+            self.context.knowledge.privilege_graph,
         )
 
         return finder.analyze(

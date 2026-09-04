@@ -44,4 +44,4 @@ def test_runtime_builder_builds_runtime():
 
     assert context.resource_index is not None
 
-    assert context.relationship_graph is not None
+    assert context.knowledge.relationship_graph is not None
