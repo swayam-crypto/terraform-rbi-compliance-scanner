@@ -23,6 +23,8 @@ from compliance_scanner.canonical.runtime_integration import (
 from compliance_scanner.engine.attack.collection import AttackPathCollection
 from compliance_scanner.engine.attack.models import AttackPath
 from compliance_scanner.engine.privilege.graph import PrivilegeGraph
+from compliance_scanner.runtime.knowledge_runtime import KnowledgeRuntime
+from compliance_scanner.runtime.analysis_runtime import AnalysisRuntime
 
 
 def make_resource(
@@ -46,14 +48,20 @@ def make_context(
     attack_paths=None,
     blast_radius=None,
 ):
+    analysis = AnalysisRuntime()
+
+    analysis.attack_paths = attack_paths
+    analysis.blast_radius = blast_radius
+
     return ScanContext(
         resources=resources,
         canonical_resources=build_canonical_resources(resources),
         resource_index=ResourceIndex(resources),
-        relationship_graph=relationship_graph,
-        privilege_graph=PrivilegeGraph(),
-        attack_paths=attack_paths,
-        blast_radius=blast_radius,
+        knowledge=KnowledgeRuntime(
+            relationship_graph=relationship_graph,
+            privilege_graph=PrivilegeGraph(),
+        ),
+        analysis=analysis,
     )
 
 

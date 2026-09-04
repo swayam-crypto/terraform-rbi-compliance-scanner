@@ -79,15 +79,15 @@ def scan_resources(
             resources,
         )
 
-        context.attack_paths = AttackPathEngine(
+        context.analysis.attack_paths = AttackPathEngine(
             context,
         ).analyze()
 
-        context.blast_radius = BlastRadiusEngine(
+        context.analysis.blast_radius = BlastRadiusEngine(
             context,
         ).analyze()
 
-        context.identity_analysis = IdentityEngine(
+        context.analysis.identity_analysis = IdentityEngine(
             context,
         ).analyze()
 

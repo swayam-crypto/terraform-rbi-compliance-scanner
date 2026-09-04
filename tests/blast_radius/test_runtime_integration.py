@@ -39,10 +39,10 @@ def test_blast_radius_runtime_integration():
         resources,
     )
 
-    context.blast_radius = BlastRadiusEngine(
+    context.analysis.blast_radius = BlastRadiusEngine(
         context,
     ).analyze()
 
-    assert context.blast_radius is not None
+    assert context.analysis.blast_radius is not None
 
-    assert len(context.blast_radius) == len(resources)
+    assert len(context.analysis.blast_radius) == len(resources)

@@ -38,7 +38,7 @@ class AttackPathEngine:
             finder
             if finder is not None
             else AttackPathFinder(
-                context.relationship_graph,
+                context.knowledge.relationship_graph,
             )
         )
 
