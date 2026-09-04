@@ -2,9 +2,10 @@ from compliance_scanner.engine.privilege.graph import PrivilegeGraph
 from compliance_scanner.engine.identity.collection import IdentityCollection
 from compliance_scanner.engine.identity.finder import IdentityFinder
 from compliance_scanner.runtime.scan_context import ScanContext
+from compliance_scanner.engine.base import AnalysisEngine
 
 
-class IdentityEngine:
+class IdentityEngine(AnalysisEngine):
     """
     Runtime entry point for identity analysis.
 
@@ -17,7 +18,7 @@ class IdentityEngine:
         self,
         context: ScanContext,
     ) -> None:
-        self.context = context
+        super().__init__(context)
 
     def analyze(
         self,

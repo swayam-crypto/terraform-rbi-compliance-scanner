@@ -4,14 +4,14 @@ from compliance_scanner.catalog.global_catalog import catalog
 from compliance_scanner.catalog.catalog import Catalog
 from compliance_scanner.engine.attack.models import AttackPath
 from compliance_scanner.models.resolved_resource import ResolvedResource
-
+from compliance_scanner.engine.base import AnalysisEngine
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from compliance_scanner.runtime.scan_context import ScanContext
 
 
-class AttackPathEngine:
+class AttackPathEngine(AnalysisEngine):
     """
     Discovers attack paths across the infrastructure.
 
@@ -31,7 +31,7 @@ class AttackPathEngine:
         finder: AttackPathFinder | None = None,
     ) -> None:
 
-        self.context = context
+        super().__init__(context)
         self.catalog = catalog_instance
 
         self.finder = (
