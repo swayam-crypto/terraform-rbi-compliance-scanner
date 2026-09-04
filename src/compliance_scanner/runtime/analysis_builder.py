@@ -1,9 +1,6 @@
-from compliance_scanner.engine.attack.engine import AttackPathEngine
-from compliance_scanner.engine.blast_radius.engine import BlastRadiusEngine
-from compliance_scanner.engine.identity.engine import IdentityEngine
-
 from compliance_scanner.runtime.analysis_runtime import AnalysisRuntime
 from compliance_scanner.runtime.scan_context import ScanContext
+from compliance_scanner.engine.registry import ANALYSIS_ENGINES
 
 
 class AnalysisBuilder:
@@ -19,16 +16,16 @@ class AnalysisBuilder:
 
         analysis = context.analysis
 
-        analysis.attack_paths = AttackPathEngine(
-            context,
-        ).analyze()
+        for engine_cls in ANALYSIS_ENGINES:
 
-        analysis.blast_radius = BlastRadiusEngine(
-            context,
-        ).analyze()
+            engine = engine_cls(context)
 
-        analysis.identity_analysis = IdentityEngine(
-            context,
-        ).analyze()
+            result = engine.analyze()
+
+            setattr(
+                analysis,
+                engine.runtime_field,
+                result,
+            )
 
         return analysis
