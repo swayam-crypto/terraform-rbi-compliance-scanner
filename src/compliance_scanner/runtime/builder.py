@@ -25,18 +25,12 @@ class RuntimeBuilder:
         resources: list[ResolvedResource],
     ) -> ScanContext:
 
-        (
-            canonical_resources,
-            resource_index,
-            knowledge,
-        ) = KnowledgeBuilder().build(
-            resources,
-        )
+        result = KnowledgeBuilder().build(resources)
 
         return ScanContext(
             resources=resources,
-            canonical_resources=canonical_resources,
-            resource_index=resource_index,
-            knowledge=knowledge,
+            canonical_resources=result.canonical_resources,
+            resource_index=result.resource_index,
+            knowledge=result.knowledge,
             analysis=AnalysisRuntime(),
         )

@@ -26,6 +26,9 @@ from compliance_scanner.models.resolved_resource import (
 from .knowledge_runtime import (
     KnowledgeRuntime,
 )
+from .knowledge_result import (
+    KnowledgeResult,
+)
 
 
 class KnowledgeBuilder:
@@ -71,7 +74,7 @@ class KnowledgeBuilder:
             privilege_graph=privilege_graph,
         )
 
-        return (
+        return KnowledgeResult(
             canonical_resources,
             resource_index,
             knowledge,
