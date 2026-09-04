@@ -13,8 +13,7 @@ class ScanContext:
     """
     Shared state for a compliance scan.
 
-    Runtime analyses progressively enrich this context as the scan
-    advances through the pipeline.
+    Shared context containing immutable knowledge and mutable analysis results.
     """
 
     resources: list[ResolvedResource]

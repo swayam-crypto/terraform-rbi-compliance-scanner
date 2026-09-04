@@ -40,11 +40,7 @@ class KnowledgeBuilder:
     def build(
         self,
         resources: list[ResolvedResource],
-    ) -> tuple[
-        tuple,
-        ResourceIndex,
-        KnowledgeRuntime,
-    ]:
+    ) -> KnowledgeResult:
 
         canonical_resources = build_canonical_resources(
             resources,
