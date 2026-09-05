@@ -1,8 +1,13 @@
 from __future__ import annotations
 
 from compliance_scanner.engine.risk.collection import RiskCollection
-from compliance_scanner.engine.risk.models import RiskFinding
 from compliance_scanner.runtime.scan_context import ScanContext
+from compliance_scanner.models.resolved_resource import ResolvedResource
+
+from .models import (
+    RiskFinding,
+    RiskLevel,
+)
 
 
 class RiskAnalyzer:
@@ -47,3 +52,42 @@ class RiskAnalyzer:
     ) -> tuple[RiskFinding, ...]:
 
         return ()
+
+    def _is_database(
+        self,
+        resource: ResolvedResource,
+    ) -> bool:
+
+        return resource.resource_type in {
+            "aws_db_instance",
+            "aws_rds_cluster",
+            "aws_rds_cluster_instance",
+        }
+
+    def _analyze_attack_paths(
+        self,
+    ) -> tuple[RiskFinding, ...]:
+
+        attack_paths = self.context.analysis.attack_paths
+
+        if attack_paths is None:
+            return ()
+
+        findings: list[RiskFinding] = []
+
+        for attack_path in attack_paths:
+
+            if not self._is_database(
+                attack_path.target,
+            ):
+                continue
+
+            findings.append(
+                RiskFinding(
+                    resource=attack_path.target,
+                    level=RiskLevel.CRITICAL,
+                    reasons=("Attack path reaches a database.",),
+                )
+            )
+
+        return tuple(findings)
