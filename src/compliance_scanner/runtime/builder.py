@@ -13,6 +13,7 @@ from .analysis_runtime import (
 from .knowledge_builder import (
     KnowledgeBuilder,
 )
+from .analysis_builder import AnalysisBuilder
 
 
 class RuntimeBuilder:
@@ -27,10 +28,14 @@ class RuntimeBuilder:
 
         result = KnowledgeBuilder().build(resources)
 
-        return ScanContext(
+        context = ScanContext(
             resources=resources,
             canonical_resources=result.canonical_resources,
             resource_index=result.resource_index,
             knowledge=result.knowledge,
             analysis=AnalysisRuntime(),
         )
+
+        AnalysisBuilder().build(context)
+
+        return context
