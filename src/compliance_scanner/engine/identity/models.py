@@ -41,4 +41,6 @@ class EffectiveIdentity:
 
     identities: tuple[ResolvedResource, ...]
 
+    identity_chain: tuple[ResolvedResource, ...]
+
     permissions: tuple[EffectivePermission, ...]
