@@ -4,7 +4,7 @@ aws_iam_policy:
   display_name: AWS IAM Policy
 
   kind: identity
-  canonical_type: iam_policy
+  canonical_type: policy
 
   capabilities:
     - identity_policy
@@ -30,7 +30,7 @@ aws_iam_role_policy:
   display_name: AWS IAM Role Policy
 
   kind: identity
-  canonical_type: iam_policy
+  canonical_type: policy
 
   capabilities:
     - identity_policy
@@ -44,6 +44,40 @@ aws_iam_role_policy:
   relationships: []
 
   aliases: []
+
+  metadata:
+    maturity: stable
+    deprecated: false
+
+aws_iam_role:
+  provider: aws
+  service: iam
+
+  display_name: AWS IAM Role
+
+  kind: identity
+  canonical_type: role
+
+  capabilities:
+    - identity
+
+  attributes:
+    assume_role_policy:
+      name: assume_role_policy
+      type: object
+
+    managed_policy_arns:
+      name: managed_policy_arns
+      type: list
+
+    inline_policy:
+      name: inline_policy
+      type: object
+
+  relationships: []
+
+  aliases:
+    - AWS::IAM::Role
 
   metadata:
     maturity: stable

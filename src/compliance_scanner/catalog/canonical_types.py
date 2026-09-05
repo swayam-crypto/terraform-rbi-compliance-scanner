@@ -37,10 +37,16 @@ class CanonicalType(StrEnum):
     VPC_PEERING_CONNECTION = "vpc_peering_connection"
     NETWORK_INTERFACE = "network_interface"
 
+    # Identity
+    IDENTITY = "identity"
+    ROLE = "role"
+    POLICY = "policy"
+    USER = "user"
+    GROUP = "group"
+    SERVICE_PRINCIPAL = "service_principal"
+
     # Security
     KMS_KEY = "kms_key"
-    IAM_ROLE = "iam_role"
-    IAM_POLICY = "iam_policy"
     SECRET = "secret"
     CERTIFICATE = "certificate"
 

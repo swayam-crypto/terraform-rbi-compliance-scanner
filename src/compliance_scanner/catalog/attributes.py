@@ -3,6 +3,9 @@ from enum import Enum
 from typing import Any
 
 from compliance_scanner.catalog.relationships import RelationshipDefinition
+from compliance_scanner.catalog.privilege_relationships import (
+    PrivilegeRelationshipDefinition,
+)
 
 
 class AttributeType(str, Enum):
@@ -33,3 +36,5 @@ class AttributeDefinition:
     description: str = ""
 
     relationship: RelationshipDefinition | None = None
+
+    privilege_relationship: PrivilegeRelationshipDefinition | None = None

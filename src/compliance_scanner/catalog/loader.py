@@ -19,6 +19,14 @@ from compliance_scanner.catalog.relationships import (
     RelationshipDefinition,
     RelationshipType,
 )
+from compliance_scanner.catalog.privilege_relationships import (
+    PrivilegeRelationshipDefinition,
+)
+
+from compliance_scanner.catalog.privilege_relationship_types import (
+    PrivilegeRelationshipType,
+)
+from enum import Enum
 
 
 class CatalogLoader:
@@ -128,6 +136,10 @@ class CatalogLoader:
 
             relationship_data = attribute_data.get("relationship")
 
+            privilege_relationship_data = attribute_data.get(
+                "privilege_relationship",
+            )
+
             definitions[attribute_name] = AttributeDefinition(
                 name=attribute_data["name"],
                 type=AttributeType(attribute_data["type"]),
@@ -147,6 +159,22 @@ class CatalogLoader:
                         ),
                     )
                     if relationship_data
+                    else None
+                ),
+                privilege_relationship=(
+                    PrivilegeRelationshipDefinition(
+                        relationship_type=PrivilegeRelationshipType(
+                            privilege_relationship_data["type"],
+                        ),
+                        target=CanonicalType(
+                            privilege_relationship_data["target"],
+                        ),
+                        required=privilege_relationship_data.get(
+                            "required",
+                            False,
+                        ),
+                    )
+                    if privilege_relationship_data
                     else None
                 ),
             )
@@ -375,6 +403,82 @@ class CatalogLoader:
             names.add(
                 attribute["name"],
             )
+            relationship = attribute.get(
+                "relationship",
+            )
+
+            if relationship is not None:
+                self._validate_relationship_definition(
+                    resource_type=resource_type,
+                    field=f"attributes.{key}.relationship",
+                    relationship_data=relationship,
+                    relationship_type_enum=RelationshipType,
+                )
+
+            privilege_relationship = attribute.get(
+                "privilege_relationship",
+            )
+
+            if privilege_relationship is not None:
+                self._validate_relationship_definition(
+                    resource_type=resource_type,
+                    field=f"attributes.{key}.privilege_relationship",
+                    relationship_data=privilege_relationship,
+                    relationship_type_enum=PrivilegeRelationshipType,
+                )
+
+    def _validate_relationship_definition(
+        self,
+        *,
+        resource_type: str,
+        field: str,
+        relationship_data: dict[str, Any],
+        relationship_type_enum: type[Enum],
+    ) -> None:
+        """
+        Validate a relationship or privilege relationship definition.
+        """
+
+        if "type" not in relationship_data:
+            raise CatalogValidationError(
+                resource=resource_type,
+                field=f"{field}.type",
+                reason="Missing relationship type.",
+            )
+
+        if "target" not in relationship_data:
+            raise CatalogValidationError(
+                resource=resource_type,
+                field=f"{field}.target",
+                reason="Missing target canonical type.",
+            )
+
+        try:
+            relationship_type_enum(
+                relationship_data["type"],
+            )
+
+        except ValueError as error:
+            raise CatalogValidationError(
+                resource=resource_type,
+                field=f"{field}.type",
+                value=relationship_data["type"],
+                reason="Unknown relationship type.",
+            ) from error
+
+        try:
+            CanonicalType(
+                relationship_data["target"],
+            )
+
+        except ValueError as error:
+            raise CatalogValidationError(
+                resource=resource_type,
+                field=f"{field}.target",
+                value=relationship_data["target"],
+                reason="Unknown canonical type.",
+                expected=", ".join(value.value for value in CanonicalType),
+            ) from error
 
     def _validate_aliases(
         self,
