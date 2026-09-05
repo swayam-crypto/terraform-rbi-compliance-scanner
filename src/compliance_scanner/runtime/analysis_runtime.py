@@ -11,6 +11,7 @@ from compliance_scanner.engine.blast_radius.collection import (
 from compliance_scanner.engine.identity.collection import (
     IdentityCollection,
 )
+from compliance_scanner.engine.risk.collection import RiskCollection
 
 
 @dataclass(slots=True)
@@ -26,3 +27,5 @@ class AnalysisRuntime:
     blast_radius: BlastRadiusCollection | None = None
 
     identity_analysis: IdentityCollection | None = None
+
+    risk: RiskCollection | None = None
