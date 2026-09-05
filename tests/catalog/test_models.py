@@ -52,6 +52,12 @@ def test_canonical_type():
     assert CanonicalType.DATABASE.value == "database"
     assert CanonicalType.OBJECT_STORAGE.value == "object_storage"
     assert CanonicalType.VIRTUAL_MACHINE.value == "virtual_machine"
+    assert CanonicalType.IDENTITY.value == "identity"
+    assert CanonicalType.ROLE.value == "role"
+    assert CanonicalType.POLICY.value == "policy"
+    assert CanonicalType.USER.value == "user"
+    assert CanonicalType.GROUP.value == "group"
+    assert CanonicalType.SERVICE_PRINCIPAL.value == "service_principal"
 
 
 def test_resource_definition():

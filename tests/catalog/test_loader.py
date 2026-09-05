@@ -16,6 +16,9 @@ from compliance_scanner.catalog.exceptions import CatalogValidationError
 from compliance_scanner.catalog.canonical_types import CanonicalType
 
 from textwrap import dedent
+from compliance_scanner.catalog.privilege_relationship_types import (
+    PrivilegeRelationshipType,
+)
 
 
 def write_catalog(
@@ -859,3 +862,171 @@ aws_instance:
     assert attribute.relationship.relationship_type == RelationshipType.SUBNET
     assert attribute.relationship.target == CanonicalType.SUBNET
     assert attribute.relationship.required is False
+
+
+def test_attribute_privilege_relationship_metadata(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+aws_instance:
+  provider: aws
+  service: ec2
+
+  display_name: EC2 Instance
+
+  kind: compute
+  canonical_type: virtual_machine
+
+  attributes:
+    iam_instance_profile:
+      name: iam_instance_profile
+      type: string
+
+      privilege_relationship:
+        type: identity
+        target: identity
+""",
+    )
+
+    registry = CatalogRegistry()
+
+    CatalogLoader().load(
+        registry,
+        str(yaml_file),
+    )
+
+    definition = registry.get(
+        "aws_instance",
+    )
+
+    attribute = definition.attributes["iam_instance_profile"]
+
+    assert attribute.privilege_relationship is not None
+
+    assert (
+        attribute.privilege_relationship.relationship_type
+        == PrivilegeRelationshipType.IDENTITY
+    )
+
+    assert attribute.privilege_relationship.target == CanonicalType.IDENTITY
+
+    assert attribute.privilege_relationship.required is False
+
+
+def test_required_privilege_relationship(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+aws_instance:
+  provider: aws
+  service: ec2
+
+  display_name: EC2 Instance
+
+  kind: compute
+  canonical_type: virtual_machine
+
+  attributes:
+    iam_instance_profile:
+      name: iam_instance_profile
+      type: string
+
+      privilege_relationship:
+        type: identity
+        target: identity
+        required: true
+""",
+    )
+
+    registry = CatalogRegistry()
+
+    CatalogLoader().load(
+        registry,
+        str(yaml_file),
+    )
+
+    definition = registry.get(
+        "aws_instance",
+    )
+
+    relationship = definition.attributes["iam_instance_profile"].privilege_relationship
+
+    assert relationship.required is True
+
+
+def test_invalid_privilege_relationship_type(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+aws_instance:
+  provider: aws
+  service: ec2
+
+  display_name: EC2 Instance
+
+  kind: compute
+  canonical_type: virtual_machine
+
+  attributes:
+    iam_instance_profile:
+      name: iam_instance_profile
+      type: string
+
+      privilege_relationship:
+        type: invalid
+        target: identity
+""",
+    )
+
+    with pytest.raises(
+        CatalogValidationError,
+    ):
+        CatalogLoader().load(
+            CatalogRegistry(),
+            str(yaml_file),
+        )
+
+
+def test_invalid_privilege_relationship_target(tmp_path: Path):
+
+    yaml_file = tmp_path / "aws.yaml"
+
+    write_catalog(
+        yaml_file,
+        """
+aws_instance:
+  provider: aws
+  service: ec2
+
+  display_name: EC2 Instance
+
+  kind: compute
+  canonical_type: virtual_machine
+
+  attributes:
+    iam_instance_profile:
+      name: iam_instance_profile
+      type: string
+
+      privilege_relationship:
+        type: identity
+        target: invalid_target
+""",
+    )
+
+    with pytest.raises(
+        CatalogValidationError,
+    ):
+        CatalogLoader().load(
+            CatalogRegistry(),
+            str(yaml_file),
+        )
