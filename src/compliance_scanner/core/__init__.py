@@ -2,17 +2,22 @@
 
 from ..graph.resource_index import ResourceIndex
 from ..graph.graph_builder import GraphBuilder
-from ..graph.relationship_graph import RelationshipGraph
-from compliance_scanner.graph.relationship import Relationship, RelationshipType
-from ..scan_context import ScanContext
+from ..engine.relationship.relationship_graph import RelationshipGraph
+from compliance_scanner.engine.relationship.relationship import (
+    Relationship,
+    RelationshipType,
+)
+from ..runtime.scan_context import ScanContext
 from .scan_engine import scan_resources
 from .terraform_scan import (
     scan_directory,
     scan_directory_large,
     scan_plan,
 )
+from compliance_scanner.canonical.runtime_integration import build_canonical_resources
 
 __all__ = [
+    "build_canonical_resources",
     "scan_directory",
     "scan_directory_large",
     "scan_plan",

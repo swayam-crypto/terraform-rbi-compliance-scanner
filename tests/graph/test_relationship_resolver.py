@@ -7,7 +7,7 @@ from compliance_scanner.models.resolved_resource import ResolvedResource
 from compliance_scanner.models.source_location import SourceLocation
 from compliance_scanner.parser.provider_utils import infer_provider
 from compliance_scanner.catalog.global_catalog import catalog
-from compliance_scanner.graph.relationship import Relationship
+from compliance_scanner.engine.relationship.relationship import Relationship
 
 
 def make_resource(

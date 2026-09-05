@@ -4,13 +4,14 @@ from collections import defaultdict
 from collections.abc import Mapping
 
 from compliance_scanner.catalog.global_catalog import catalog
-from compliance_scanner.graph.graph_builder import GraphBuilder
-from compliance_scanner.graph.resource_index import ResourceIndex
-from compliance_scanner.canonical.relationship_resolver import RelationshipResolver
+
 from compliance_scanner.rules.base import Finding
 from compliance_scanner.rules.registry import ALL_RULES, GRAPH_RULES
-from compliance_scanner.scan_context import ScanContext
-from compliance_scanner.attack.engine import AttackPathEngine
+from compliance_scanner.runtime.scan_context import ScanContext
+from compliance_scanner.runtime import RuntimeBuilder
+from compliance_scanner.runtime.analysis_builder import (
+    AnalysisBuilder,
+)
 
 
 def _run_rules_on_resources(resources, file_path, suppressions, suppressed_count):
@@ -74,31 +75,14 @@ def scan_resources(
         )
 
     if include_graph_rules:
-        index = ResourceIndex(resources)
-        relationships = RelationshipResolver(
-            catalog,
-        ).extract(
+        context = RuntimeBuilder().build(
             resources,
-            index,
         )
 
-        graph = GraphBuilder().build(
-            relationships,
-        )
-
-        context = ScanContext(
-            resources=resources,
-            resource_index=index,
-            relationship_graph=graph,
-        )
-
-        attack_paths = AttackPathEngine(
-            context,
-        )
+        AnalysisBuilder().build(context)
 
         # Perform infrastructure attack-path analysis before executing
         # graph-aware compliance rules.
-        context.attack_paths = attack_paths.analyze()
 
         findings.extend(
             _run_graph_rules(

@@ -1,4 +1,4 @@
-from compliance_scanner.graph.relationship import (
+from compliance_scanner.engine.relationship.relationship import (
     Relationship,
     RelationshipType,
 )
@@ -32,7 +32,9 @@ def test_builder_returns_empty_graph():
 
 
 def test_graph_adds_relationship():
-    from compliance_scanner.graph.relationship_graph import RelationshipGraph
+    from compliance_scanner.engine.relationship.relationship_graph import (
+        RelationshipGraph,
+    )
 
     bucket = make_resource("aws_s3_bucket", "logs")
     policy = make_resource("aws_s3_bucket_policy", "logs_policy")
@@ -52,7 +54,9 @@ def test_graph_adds_relationship():
 
 
 def test_unrelated_resource_returns_empty():
-    from compliance_scanner.graph.relationship_graph import RelationshipGraph
+    from compliance_scanner.engine.relationship.relationship_graph import (
+        RelationshipGraph,
+    )
 
     bucket = make_resource("aws_s3_bucket", "logs")
 

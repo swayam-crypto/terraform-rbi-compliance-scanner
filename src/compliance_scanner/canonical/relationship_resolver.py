@@ -1,6 +1,6 @@
 from compliance_scanner.models.resolved_resource import ResolvedResource
 
-from compliance_scanner.graph.relationship import Relationship
+from compliance_scanner.engine.relationship.relationship import Relationship
 
 from compliance_scanner.graph.resource_index import ResourceIndex
 from compliance_scanner.catalog.catalog import Catalog
@@ -13,6 +13,44 @@ class RelationshipResolver:
         catalog: Catalog,
     ) -> None:
         self.catalog = catalog
+
+    def _normalize_resource_name(
+        self,
+        resource_name: str,
+    ) -> str:
+        """
+        Remove Terraform index expressions from a resource name.
+
+        Examples:
+            private -> private
+            private[0] -> private
+            private[*] -> private
+            private[count.index] -> private
+            private[each.key] -> private
+        """
+
+        return resource_name.split("[", 1)[0]
+
+    def _flatten_values(
+        self,
+        value: object,
+    ) -> list[str]:
+        """
+        Recursively flatten Terraform values into a list of strings.
+        """
+
+        if isinstance(value, str):
+            return [value]
+
+        if isinstance(value, (list, tuple)):
+            values: list[str] = []
+
+            for item in value:
+                values.extend(self._flatten_values(item))
+
+            return values
+
+        return []
 
     def extract(
         self,
@@ -59,23 +97,23 @@ class RelationshipResolver:
                     if not targets:
                         continue
 
-                    target = targets[0]
+                    for target in targets:
 
-                    target_definition = self.catalog.definition(target)
+                        target_definition = self.catalog.definition(target)
 
-                    if target_definition is None:
-                        continue
+                        if target_definition is None:
+                            continue
 
-                    if target_definition.canonical_type != relationship.target:
-                        continue
+                        if target_definition.canonical_type != relationship.target:
+                            continue
 
-                    relationships.append(
-                        Relationship(
-                            source=resource,
-                            target=target,
-                            relationship_type=relationship.relationship_type,
+                        relationships.append(
+                            Relationship(
+                                source=resource,
+                                target=target,
+                                relationship_type=relationship.relationship_type,
+                            )
                         )
-                    )
 
         return relationships
 
@@ -102,25 +140,26 @@ class RelationshipResolver:
 
         references: list[tuple[str, str]] = []
 
-        values: list[str]
-
-        if isinstance(value, str):
-            values = [value]
-        elif isinstance(value, list):
-            values = [item for item in value if isinstance(item, str)]
-        else:
-            return references
+        values = self._flatten_values(
+            value,
+        )
 
         for item in values:
             parts = item.split(".")
 
-            if len(parts) < 3:
+            if len(parts) < 2:
                 continue
+
+            resource_type = parts[0]
+
+            resource_name = self._normalize_resource_name(
+                parts[1],
+            )
 
             references.append(
                 (
-                    parts[0],
-                    parts[1],
+                    resource_type,
+                    resource_name,
                 )
             )
 

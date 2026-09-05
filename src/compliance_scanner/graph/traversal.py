@@ -1,6 +1,6 @@
 from collections import deque
 
-from compliance_scanner.graph.relationship_graph import RelationshipGraph
+from compliance_scanner.engine.relationship.relationship_graph import RelationshipGraph
 from compliance_scanner.models.resolved_resource import ResolvedResource
 
 

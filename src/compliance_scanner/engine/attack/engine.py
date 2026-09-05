@@ -1,17 +1,17 @@
-from compliance_scanner.attack.collection import AttackPathCollection
-from compliance_scanner.attack.finder import AttackPathFinder
+from compliance_scanner.engine.attack.collection import AttackPathCollection
+from compliance_scanner.engine.attack.finder import AttackPathFinder
 from compliance_scanner.catalog.global_catalog import catalog
 from compliance_scanner.catalog.catalog import Catalog
-from compliance_scanner.attack.models import AttackPath
+from compliance_scanner.engine.attack.models import AttackPath
 from compliance_scanner.models.resolved_resource import ResolvedResource
-
+from compliance_scanner.engine.base import AnalysisEngine
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from compliance_scanner.scan_context import ScanContext
+    from compliance_scanner.runtime.scan_context import ScanContext
 
 
-class AttackPathEngine:
+class AttackPathEngine(AnalysisEngine):
     """
     Discovers attack paths across the infrastructure.
 
@@ -20,6 +20,7 @@ class AttackPathEngine:
     AttackPathFinder.
     """
 
+    runtime_field = "attack_paths"
     _ENTRY_POINT_CAPABILITY = "public_entry_point"
 
     _TARGET_CAPABILITY = "data_store"
@@ -31,14 +32,14 @@ class AttackPathEngine:
         finder: AttackPathFinder | None = None,
     ) -> None:
 
-        self.context = context
+        super().__init__(context)
         self.catalog = catalog_instance
 
         self.finder = (
             finder
             if finder is not None
             else AttackPathFinder(
-                context.relationship_graph,
+                context.knowledge.relationship_graph,
             )
         )
 

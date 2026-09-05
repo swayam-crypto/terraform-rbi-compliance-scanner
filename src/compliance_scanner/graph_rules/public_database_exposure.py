@@ -3,7 +3,7 @@ from compliance_scanner.graph.graph_predicates import GraphPredicates
 from compliance_scanner.graph.graph_query import GraphQuery
 from compliance_scanner.graph_rules.base import GraphRule
 from compliance_scanner.rules.base import Finding
-from compliance_scanner.scan_context import ScanContext
+from compliance_scanner.runtime.scan_context import ScanContext
 
 
 class PublicDatabaseExposureRule(GraphRule):
@@ -25,8 +25,10 @@ class PublicDatabaseExposureRule(GraphRule):
 
         predicates = GraphPredicates(
             GraphQuery(
-                context.relationship_graph,
-            )
+                context.knowledge.relationship_graph,
+            ),
+            attack_paths=context.analysis.attack_paths,
+            blast_radius=context.analysis.blast_radius,
         )
 
         findings: list[Finding] = []
@@ -39,8 +41,9 @@ class PublicDatabaseExposureRule(GraphRule):
             ):
                 continue
 
-            if not predicates.depends_on_data_store(
+            if not predicates.attack_path_contains_capability(
                 resource,
+                "data_store",
             ):
                 continue
 

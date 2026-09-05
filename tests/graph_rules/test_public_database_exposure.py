@@ -1,8 +1,8 @@
-from compliance_scanner.graph.relationship import (
+from compliance_scanner.engine.relationship.relationship import (
     Relationship,
     RelationshipType,
 )
-from compliance_scanner.graph.relationship_graph import RelationshipGraph
+from compliance_scanner.engine.relationship.relationship_graph import RelationshipGraph
 
 from compliance_scanner.graph.resource_index import ResourceIndex
 
@@ -16,7 +16,15 @@ from compliance_scanner.models.source_location import SourceLocation
 
 from compliance_scanner.parser.provider_utils import infer_provider
 
-from compliance_scanner.scan_context import ScanContext
+from compliance_scanner.runtime.scan_context import ScanContext
+from compliance_scanner.canonical.runtime_integration import (
+    build_canonical_resources,
+)
+from compliance_scanner.engine.attack.collection import AttackPathCollection
+from compliance_scanner.engine.attack.models import AttackPath
+from compliance_scanner.engine.privilege.graph import PrivilegeGraph
+from compliance_scanner.runtime.knowledge_runtime import KnowledgeRuntime
+from compliance_scanner.runtime.analysis_runtime import AnalysisRuntime
 
 
 def make_resource(
@@ -31,6 +39,29 @@ def make_resource(
         attributes={},
         default_attributes={},
         source=SourceLocation(),
+    )
+
+
+def make_context(
+    resources,
+    relationship_graph,
+    attack_paths=None,
+    blast_radius=None,
+):
+    analysis = AnalysisRuntime()
+
+    analysis.attack_paths = attack_paths
+    analysis.blast_radius = blast_radius
+
+    return ScanContext(
+        resources=resources,
+        canonical_resources=build_canonical_resources(resources),
+        resource_index=ResourceIndex(resources),
+        knowledge=KnowledgeRuntime(
+            relationship_graph=relationship_graph,
+            privilege_graph=PrivilegeGraph(),
+        ),
+        analysis=analysis,
     )
 
 
@@ -56,10 +87,24 @@ def test_public_database_exposure_detected():
         )
     )
 
-    context = ScanContext(
-        resources=[load_balancer, database],
-        resource_index=ResourceIndex([load_balancer, database]),
-        relationship_graph=graph,
+    resources = [load_balancer, database]
+
+    attack_paths = AttackPathCollection(
+        (
+            AttackPath(
+                source=load_balancer,
+                target=database,
+                resources=(
+                    load_balancer,
+                    database,
+                ),
+                relationships=(),
+            ),
+        )
+    )
+
+    context = make_context(
+        resources=resources, relationship_graph=graph, attack_paths=attack_paths
     )
 
     rule = PublicDatabaseExposureRule()
@@ -84,9 +129,10 @@ def test_database_not_reachable():
 
     graph = RelationshipGraph()
 
-    context = ScanContext(
-        resources=[load_balancer, database],
-        resource_index=ResourceIndex([load_balancer, database]),
+    resources = [load_balancer, database]
+
+    context = make_context(
+        resources=resources,
         relationship_graph=graph,
     )
 
@@ -119,10 +165,26 @@ def test_non_public_resource_returns_none():
         )
     )
 
-    context = ScanContext(
-        resources=[instance, database],
-        resource_index=ResourceIndex([instance, database]),
+    resources = [instance, database]
+
+    attack_paths = AttackPathCollection(
+        (
+            AttackPath(
+                source=instance,
+                target=database,
+                resources=(
+                    instance,
+                    database,
+                ),
+                relationships=(),
+            ),
+        )
+    )
+
+    context = make_context(
+        resources=resources,
         relationship_graph=graph,
+        attack_paths=attack_paths,
     )
 
     rule = PublicDatabaseExposureRule()
@@ -154,9 +216,10 @@ def test_public_resource_without_database_dependency():
         )
     )
 
-    context = ScanContext(
-        resources=[load_balancer, subnet],
-        resource_index=ResourceIndex([load_balancer, subnet]),
+    resources = [load_balancer, subnet]
+
+    context = make_context(
+        resources=resources,
         relationship_graph=graph,
     )
 

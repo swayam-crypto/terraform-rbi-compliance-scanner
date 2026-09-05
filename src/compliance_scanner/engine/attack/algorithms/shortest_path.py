@@ -1,7 +1,7 @@
 from collections import deque
 
-from compliance_scanner.attack.models import AttackPath
-from compliance_scanner.graph.relationship_graph import RelationshipGraph
+from compliance_scanner.engine.attack.models import AttackPath
+from compliance_scanner.engine.relationship.relationship_graph import RelationshipGraph
 from compliance_scanner.models.resolved_resource import ResolvedResource
 
 
@@ -36,6 +36,7 @@ class ShortestPathAlgorithm:
             [
                 (
                     source,
+                    (source,),
                     (),
                 )
             ]
@@ -45,12 +46,13 @@ class ShortestPathAlgorithm:
 
         while queue:
 
-            current, relationships = queue.popleft()
+            current, resources, relationships = queue.popleft()
 
             if current == target:
                 return AttackPath(
                     source=source,
                     target=target,
+                    resources=resources,
                     relationships=relationships,
                 )
 
@@ -66,6 +68,7 @@ class ShortestPathAlgorithm:
                 queue.append(
                     (
                         neighbor,
+                        resources + (neighbor,),
                         relationships + (relationship,),
                     )
                 )
