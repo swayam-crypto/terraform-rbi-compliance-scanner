@@ -16,12 +16,6 @@ Future support:
 from typing import Any
 import io
 import hcl2
-from compliance_scanner.parser.expression import (
-    LiteralExpression,
-    VariableReference,
-    LocalReference,
-    ModuleReference,
-)
 
 
 def _strip_quotes(value):

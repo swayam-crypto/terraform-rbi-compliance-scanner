@@ -18,12 +18,11 @@ between are allowed; anything else breaks the association).
 """
 
 import re
-from pathlib import Path
 
 RESOURCE_LINE = re.compile(r'^\s*resource\s+"([^"]+)"\s+"([^"]+)"\s*{')
 IGNORE_RULE = re.compile(r'^\s*#\s*rbi-scan:ignore\s+(\S+)(?:\s+reason="([^"]*)")?\s*$')
 IGNORE_ALL = re.compile(r'^\s*#\s*rbi-scan:ignore-all(?:\s+reason="([^"]*)")?\s*$')
-COMMENT_OR_BLANK = re.compile(r'^\s*(#.*)?$')
+COMMENT_OR_BLANK = re.compile(r"^\s*(#.*)?$")
 
 
 def extract_suppressions(file_path: str) -> dict:
@@ -83,7 +82,9 @@ def extract_suppressions(file_path: str) -> dict:
     return suppressions
 
 
-def is_suppressed(rule_id: str, resource_type: str, resource_name: str, suppressions: dict) -> bool:
+def is_suppressed(
+    rule_id: str, resource_type: str, resource_name: str, suppressions: dict
+) -> bool:
     """Check whether a specific rule finding for a resource should be suppressed."""
     entry = suppressions.get((resource_type, resource_name))
     if entry is None:

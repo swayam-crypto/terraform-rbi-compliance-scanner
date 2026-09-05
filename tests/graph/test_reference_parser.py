@@ -1,11 +1,15 @@
-from compliance_scanner.canonical.relationship_resolver import RelationshipResolver
+from compliance_scanner.graph.reference_parser import ReferenceParser
+
+
+def make_parser() -> ReferenceParser:
+    return ReferenceParser()
 
 
 def test_parse_reference_without_attribute():
 
-    resolver = RelationshipResolver(None)
+    parser = make_parser()
 
-    assert resolver._parse_references(
+    assert parser.parse_references(
         "aws_subnet.private",
     ) == [
         (
@@ -17,9 +21,9 @@ def test_parse_reference_without_attribute():
 
 def test_parse_reference_with_name_attribute():
 
-    resolver = RelationshipResolver(None)
+    parser = make_parser()
 
-    assert resolver._parse_references(
+    assert parser.parse_references(
         "aws_iam_role.lambda.name",
     ) == [
         (
@@ -31,9 +35,9 @@ def test_parse_reference_with_name_attribute():
 
 def test_parse_reference_with_arn_attribute():
 
-    resolver = RelationshipResolver(None)
+    parser = make_parser()
 
-    assert resolver._parse_references(
+    assert parser.parse_references(
         "aws_lb.main.arn",
     ) == [
         (
@@ -44,9 +48,10 @@ def test_parse_reference_with_arn_attribute():
 
 
 def test_parse_reference_with_index():
-    resolver = RelationshipResolver(None)
 
-    assert resolver._parse_references(
+    parser = make_parser()
+
+    assert parser.parse_references(
         "aws_subnet.private[0].id",
     ) == [
         (
@@ -57,9 +62,10 @@ def test_parse_reference_with_index():
 
 
 def test_parse_reference_with_splat():
-    resolver = RelationshipResolver(None)
 
-    assert resolver._parse_references(
+    parser = make_parser()
+
+    assert parser.parse_references(
         "aws_subnet.private[*].id",
     ) == [
         (
@@ -70,9 +76,10 @@ def test_parse_reference_with_splat():
 
 
 def test_parse_reference_with_count_index():
-    resolver = RelationshipResolver(None)
 
-    assert resolver._parse_references(
+    parser = make_parser()
+
+    assert parser.parse_references(
         "aws_subnet.private[count.index].id",
     ) == [
         (
@@ -83,9 +90,10 @@ def test_parse_reference_with_count_index():
 
 
 def test_parse_reference_with_each_key():
-    resolver = RelationshipResolver(None)
 
-    assert resolver._parse_references(
+    parser = make_parser()
+
+    assert parser.parse_references(
         "aws_subnet.private[each.key].id",
     ) == [
         (
@@ -97,9 +105,9 @@ def test_parse_reference_with_each_key():
 
 def test_parse_nested_lists():
 
-    resolver = RelationshipResolver(None)
+    parser = make_parser()
 
-    assert resolver._parse_references(
+    assert parser.parse_references(
         [
             [
                 "aws_subnet.private.id",
@@ -122,9 +130,9 @@ def test_parse_nested_lists():
 
 def test_parse_mixed_nested_collection():
 
-    resolver = RelationshipResolver(None)
+    parser = make_parser()
 
-    assert resolver._parse_references(
+    assert parser.parse_references(
         [
             "aws_subnet.private.id",
             (
@@ -152,9 +160,9 @@ def test_parse_mixed_nested_collection():
 
 def test_parse_tuple():
 
-    resolver = RelationshipResolver(None)
+    parser = make_parser()
 
-    assert resolver._parse_references(
+    assert parser.parse_references(
         (
             "aws_subnet.private.id",
             "aws_subnet.public.id",
